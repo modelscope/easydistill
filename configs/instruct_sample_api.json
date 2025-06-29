@@ -1,0 +1,12 @@
+{
+    "job_type": "instruct_sample_api",
+    "dataset": {
+      "input_path": "instruct_input.json",
+      "output_path": "instruct_output.json"
+    },
+    "inference":{
+      "base_url": "ENDPOINT",
+      "api_key": "TOKEN",
+      "max_new_tokens": 8196
+    }
+}
