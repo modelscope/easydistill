@@ -1,0 +1,43 @@
+{
+  "job_type": "kd_white_box_train_only_multi",
+  "dataset": {
+    "instruction_path": "./data/datasets/train_labeled_debug.json",
+    "labeled_path": "./data/datasets/train_labeled_debug.json",
+    "logits_path": ["./data/logits/qwen_logits.jsonl", "./data/logits/qwen2.5-14B_logits.jsonl"],
+    "template" : "./chat_template/chat_template_qwen.jinja",
+    "seed": 42
+  },
+  "inference":{
+    "enable_chunked_prefill": true,
+    "seed": 777,
+    "gpu_memory_utilization": 0.9,
+    "temperature": 0.8,
+    "trust_remote_code": true,
+    "enforce_eager": false,
+    "max_model_len": 4096,
+    "max_new_tokens": 512,
+    "top_logits_num": 10
+  },
+  "distillation": {
+    "kd_ratio": 0.1,
+    "max_seq_length": 512,
+    "distillation_type": "forward_kld"
+  },
+  "models": {
+    "teacher": ["./model_hub/qwen2.5-7B/", "./model_hub/qwen2.5-14B/"],
+    "student": "./model_hub/qwen2.5-0.5B/"
+  },
+  "training": {
+    "output_dir": "./result/",
+    "num_train_epochs": 5,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_length":512,
+    "save_steps": 1000,
+    "logging_steps": 1,
+    "learning_rate": 2e-5,
+    "weight_decay": 0.05,
+    "warmup_ratio": 0.1,
+    "lr_scheduler_type": "cosine"
+  }
+}
