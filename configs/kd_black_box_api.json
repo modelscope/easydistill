@@ -1,8 +1,8 @@
 {
   "job_type": "kd_black_box_api",
   "dataset": {
-    "instruction_path": "train.json",
-    "labeled_path": "train_labeled.json",
+    "instruction_path": "data/alpaca_en_demo.json",
+    "labeled_path": "data/alpaca_en_demo_labeled.json",
     "template" : "./chat_template/chat_template_kd.jinja",
     "seed": 42
   },
