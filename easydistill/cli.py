@@ -193,7 +193,37 @@ def process(job_type, config):
         cmd = ' '.join(cmd)
         logging.info(f"Running command: {cmd}")
         run_cmd(cmd)
-    
+    elif job_type in ["mmkd_rl_grounding"]:
+        args=json.load(open(config))
+
+        cmd=f"""
+        torchrun  easydistill/mmkd/mmkd_rl_grounding.py \
+            --deepspeed {args["training"]["deepspeed"]} \
+            --output_dir {args["training"]["output_dir"]} \
+            --model_name_or_path {args["models"]["student"]} \
+            --dataset_name {args["dataset"]["labeled_path"]} \
+            --image_root / \
+            --max_prompt_length {args["training"]["max_length"]} \
+            --num_generations {args["training"]["roll_out_num"]} \
+            --per_device_train_batch_size {args["training"]["per_device_train_batch_size"]} \
+            --gradient_accumulation_steps 1 \
+            --logging_steps {args["training"]["logging_steps"]} \
+            --bf16 \
+            --torch_dtype bfloat16 \
+            --data_seed 42 \
+            --report_to tensorboard \
+            --gradient_checkpointing true \
+            --attn_implementation flash_attention_2 \
+            --num_train_epochs {args["training"]["num_train_epochs"]} \
+            --save_steps {args["training"]["save_steps"]} \
+            --max_pixels {args["training"]["max_pixels"]} \
+            --save_only_model false \
+            --beta 0.04  \
+            --learning_rate {args["training"]["learning_rate"]} \
+            --reward_funcs {args["training"]["reward_funcs"]} 
+        """
+        logging.info(f"Running command: {cmd}")
+        run_cmd(cmd)
     else:
         logging.error(f"Unknown job type: {job_type}")
         sys.exit(1)

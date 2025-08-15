@@ -1,0 +1,41 @@
+[
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "<image>Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format"
+            },
+            {
+                "role": "assistant",
+                "content": "{0: [], 1: [], 2: [[619, 264, 723, 332], [961, 479, 1104, 557]], 3: []}"
+            }
+        ],
+        "images": "260.jpg"
+    },
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "<image>Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format"
+            },
+            {
+                "role": "assistant",
+                "content": "{0: [], 1: [], 2: [[187, 0, 391, 210], [738, 317, 813, 383], [959, 480, 1099, 550]], 3: []}"
+            }
+        ],
+        "images": "270.jpg"
+    },
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "<image>Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format"
+            },
+            {
+                "role": "assistant",
+                "content": "{0: [], 1: [], 2: [[299, 174, 464, 351], [822, 380, 927, 477], [960, 479, 1102, 559]], 3: []}"
+            }
+        ],
+        "images": "275.jpg"
+    }
+]

@@ -1,0 +1,110 @@
+[
+    {
+        "image_path": "345.jpg",
+        "height": 720,
+        "width": 1280,
+        "instruction": "Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format",
+        "abs_box": {
+            "0": [
+                [
+                    456,
+                    337,
+                    725,
+                    557
+                ]
+            ],
+            "1": [],
+            "2": [
+                [
+                    849,
+                    407,
+                    961,
+                    482
+                ],
+                [
+                    965,
+                    480,
+                    1099,
+                    550
+                ]
+            ],
+            "3": []
+        }
+    },
+    {
+        "image_path": "355.jpg",
+        "height": 720,
+        "width": 1280,
+        "instruction": "Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format",
+        "abs_box": {
+            "0": [
+                [
+                    471,
+                    402,
+                    701,
+                    564
+                ]
+            ],
+            "1": [],
+            "2": [
+                [
+                    851,
+                    407,
+                    960,
+                    484
+                ],
+                [
+                    961,
+                    479,
+                    1101,
+                    557
+                ]
+            ],
+            "3": []
+        }
+    },
+    {
+        "image_path": "360.jpg",
+        "height": 720,
+        "width": 1280,
+        "instruction": "Draw bounding boxes around product positions and label them with tags 0, 1, 2, 3, then output in JSON format",
+        "abs_box": {
+            "0": [
+                [
+                    483,
+                    341,
+                    755,
+                    455
+                ],
+                [
+                    641,
+                    422,
+                    643,
+                    422
+                ]
+            ],
+            "1": [],
+            "2": [
+                [
+                    847,
+                    407,
+                    961,
+                    484
+                ],
+                [
+                    960,
+                    480,
+                    1101,
+                    554
+                ],
+                [
+                    199,
+                    9,
+                    265,
+                    154
+                ]
+            ],
+            "3": []
+        }
+    }
+]
