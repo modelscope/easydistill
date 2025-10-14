@@ -177,6 +177,6 @@ If you want to test the web search tool, update inference/tools/search_tools.py 
 ## Acknowledgements
 We thank [verl](https://github.com/volcengine/verl) and [LLaMA‑Factory](https://github.com/hiyouga/LLaMA-Factory) for providing the excellent training framework. We also thank [ARPO](https://github.com/dongguanting/ARPO) for organizing the evaluation datasets and providing baseline results, and [agent-distillation](https://github.com/Nardien/agent-distillation) for inspiring the prompts used in this project.  
 
-## 📞 Contact
+## Contact
 
 For any questions or feedback, please reach out to us at [s1583050085@gmail.com](s1583050085@gmail.com).
