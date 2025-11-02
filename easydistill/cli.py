@@ -157,6 +157,27 @@ def process(job_type, config):
             run_cmd(cmd_train)
         else:
             logging.error("Infer failed, skipping training")
+
+    elif job_type in ['speckd_local']:
+        cmd_infer = [
+            'python', os.path.join(script_dir, 'speckd/infer.py'),
+            '--config', config
+        ]
+        cmd_infer = ' '.join(cmd_infer)
+        logging.info(f"Running command: {cmd_infer}")
+        infer_success = run_cmd(cmd_infer)
+
+        if infer_success:
+            cmd_train = [
+                'deepspeed',
+                os.path.join(script_dir, 'agentkd/train.py'),
+                '--config', config
+            ]
+            cmd_train = ' '.join(cmd_train)
+            logging.info(f"Running command: {cmd_train}")
+            run_cmd(cmd_train)
+        else:
+            logging.error("Infer failed, skipping training")
     
     # Reinforcement Learning tasks
     elif job_type in ['rl_ppo', 'rl_grpo']:
