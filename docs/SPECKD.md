@@ -13,8 +13,10 @@ This project is based on the EAGLE-3 framework for distillation training, enabli
 │   └── speckd_demo_labeled.jsonl       # Training data
 │   └── speckd_demo_labeled_test.jsonl  # Test data
 ├── easydistill/speckd
-│   └── infer.py
-│   └── train.py                        # Distillation training script
+│   ├── infer.py
+│   ├── train.py                        # Distillation training script
+│   ├── infer_utils/
+│   └── train_utils/
 ```
 
 ## Quick Start
