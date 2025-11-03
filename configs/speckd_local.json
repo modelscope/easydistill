@@ -1,0 +1,90 @@
+{
+    "job_type": "speckd_local",
+    "dataset": {
+        "instruction_path": "data/speckd_demo.jsonl",
+        "labeled_progress_dir": "data/speckd_infer_progress",
+        "labeled_path_raw": "data/speckd_demo_labeled_raw.jsonl",
+        "labeled_path": "data/speckd_demo_labeled.jsonl"
+    },
+    "models": {
+        "teacher": "Qwen/Qwen2.5-72B-Instruct",
+        "student": "Qwen/Qwen2.5-7B-Instruct"
+    },
+    "inference":{
+        "batch_size": 32,
+        "vllm_config": {
+            "tensor_parallel_size": 8,
+            "enable_expert_parallel": true,
+            "gpu_memory_utilization": 0.9,
+            "max_model_len": 4096,
+            "trust_remote_code": true
+        },
+        "sampling_config": {
+            "temperature": 0.0,
+            "top_p": 1.0,
+            "max_tokens": 2048
+        }
+
+    },
+    "training": {
+        "trainpath": "data/speckd_demo_labeled.jsonl",
+        "testpath": "data/speckd_demo_labeled_test.jsonl",
+        "num_epochs": 40,
+        "num_workers": 2,
+        "max_len": 2048,
+        "config_path": "config.json",
+        "gradient_checkpoint": true,
+        "savedir": "speckd_saves/",
+        "system_prompt": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\n\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information.",
+        "deepspeed_config": {
+            "fp16": {
+                "enabled": "true",
+                "auto_cast": "true",
+                "loss_scale": 0,
+                "loss_scale_window": 1000,
+                "initial_scale_power": 14,
+                "hysteresis": 2,
+                "min_loss_scale": 1
+            },
+            "optimizer": {
+                "type": "AdamW",
+                "params": {
+                    "lr": 0,
+                    "weight_decay": 0.0,
+                    "adam_w_mode": true,
+                    "betas": [
+                            0.9,
+                            0.95
+                            ]
+                }
+            },
+            "scheduler": {
+                "type": "WarmupDecayLR",
+                "params": {
+                    "warmup_min_lr": 0,
+                    "warmup_max_lr": 5e-5,
+                    "warmup_num_steps": 12000,
+                    "total_num_steps": 800000
+                }
+            },
+            "zero_optimization": {
+                "stage": 2,
+                "stage3_gather_16bit_weights_on_model_save": true,
+                "allgather_partitions": true,
+                "allgather_bucket_size": 2e8,
+                "overlap_comm": true,
+                "reduce_scatter": true,
+                "reduce_bucket_size": 2e8,
+                "contiguous_gradients": true
+            },
+            "gradient_accumulation_steps": 2,
+            "gradient_clipping": 0.5,
+            "steps_per_print": 2000,
+            "train_micro_batch_size_per_gpu": 1,
+            "wall_clock_breakdown": false
+
+        }
+    }
+    
+    
+}
