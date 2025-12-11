@@ -1,0 +1,12 @@
+{
+    "job_type": "cot_eval_api",
+    "dataset": {
+      "input_path": "cot_input.json",
+      "output_path": "cot_output.json"
+    },
+    "inference":{
+      "base_url": "ENDPOINT",
+      "api_key": "TOKEN",
+      "max_new_tokens": 8196
+    }
+}

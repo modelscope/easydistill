@@ -1,0 +1,12 @@
+{
+    "job_type": "mmcot_eval_api",
+    "dataset": {
+      "input_path": "cot_input.json",
+      "output_path": "cot_output.json"
+    },
+    "inference":{
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key": "sk-xxxxx",
+      "max_new_tokens": 8196
+    }
+}
