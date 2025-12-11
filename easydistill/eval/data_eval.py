@@ -185,67 +185,134 @@ def write_data_to_json_file(data, file_path):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
-        
+import concurrent.futures
+from threading import Lock
+import logging
+
 def generate_teacher_response_api(data_list, config, is_cot_model):
     client = OpenAI(
         api_key = config["inference"]["api_key"],
         base_url = config["inference"]["base_url"]
     )
     models = client.models.list()
-    model = models.data[0].id
+    model = os.getenv('JUDGE_MODEL',models.data[0].id)
     logging.info(model)
-    outcomes = []
-    for sample in tqdm(data_list, desc="Call remote model and generating responses"):
+    
+    def process_single_sample(sample_with_index):
+        index, sample = sample_with_index
         instruction = sample["instruction"]
         output = sample["output"]
         
         def generate_score(sample, model, config):
-            message = [
-                {'role': 'user', 'content': sample}
-            ]
-            completion = client.chat.completions.create(
-                messages = message,
-                model = model,
-                max_completion_tokens = config["inference"]["max_new_tokens"]
-            )
-            result = completion.choices[0].message.content
-            score = extract_score(result)
-            return score
-            
-        if is_cot_model:
-            rv_prompt_template, cd_prompt_template, lc_prompt_template = build_cot_prompts(instruction, output)
-            rv_score = generate_score(rv_prompt_template, model, config)
-            cd_score = generate_score(cd_prompt_template, model, config)
-            lc_score = generate_score(lc_prompt_template, model, config)
-            lc_score = (lc_score == 1)
-            outcomes.append(
-                {
-                    'instruction': instruction,
-                     'output': output,
-                     "reasoning_verbosity": rv_score,
-                     "cognitive_difficulty": cd_score,
-                     "logical_correctness": lc_score
-                }
-            )
-        else:
-            informativeness_temp, helpfulness_temp, generalization_temp, correctness_temp = build_instruct_prompts(instruction, output)
-            informativeness = generate_score(informativeness_temp, model, config)
-            helpfulness = generate_score(helpfulness_temp, model, config)
-            generalization = generate_score(generalization_temp, model, config)
-            correctness = generate_score(correctness_temp, model, config)
-            correctness = (correctness == 1)
-            outcomes.append(
-                {
-                    'instruction': instruction,
-                     'output': output,
-                     "informativeness": informativeness,
-                     "helpfulness": helpfulness,
-                     "generalization": generalization,
-                    "correctness": correctness
-                }
-            )
-            
+            try:
+                message = [
+                    {'role': 'user', 'content': sample}
+                ]
+                completion = client.chat.completions.create(
+                    messages = message,
+                    model = model,
+                    max_completion_tokens = config["inference"]["max_new_tokens"]
+                )
+                result = completion.choices[0].message.content
+                score = extract_score(result)
+                return score
+            except Exception as e:
+                logging.error(f"Error in API call for sample {index}: {str(e)}")
+                return None
+        
+        try:
+            if is_cot_model:
+                rv_prompt_template, cd_prompt_template, lc_prompt_template = build_cot_prompts(instruction, output)
+                
+                rv_score = generate_score(rv_prompt_template, model, config)
+                cd_score = generate_score(cd_prompt_template, model, config)
+                lc_score = generate_score(lc_prompt_template, model, config)
+                
+                if rv_score is None or cd_score is None or lc_score is None:
+    
+                    result = {
+                        'index': index,
+                        'instruction': instruction,
+                        'output': output,
+                        "reasoning_verbosity": None,
+                        "cognitive_difficulty": None,
+                        "logical_correctness": None,
+                        "error": "api_call_failed"
+                    }
+                else:
+                    lc_score = (lc_score == 1)
+                    result = {
+                        'index': index,
+                        'instruction': instruction,
+                         'output': output,
+                         "reasoning_verbosity": rv_score,
+                         "cognitive_difficulty": cd_score,
+                         "logical_correctness": lc_score
+                    }
+            else:
+                informativeness_temp, helpfulness_temp, generalization_temp, correctness_temp = build_instruct_prompts(instruction, output)
+                
+                informativeness = generate_score(informativeness_temp, model, config)
+                helpfulness = generate_score(helpfulness_temp, model, config)
+                generalization = generate_score(generalization_temp, model, config)
+                correctness = generate_score(correctness_temp, model, config)
+                
+
+                if any(score is None for score in [informativeness, helpfulness, generalization, correctness]):
+
+                    result = {
+                        'index': index,
+                        'instruction': instruction,
+                        'output': output,
+                        "informativeness": None,
+                        "helpfulness": None,
+                        "generalization": None,
+                        "correctness": None,
+                        "error": "api_call_failed"
+                    }
+                else:
+                    correctness = (correctness == 1)
+                    result = {
+                        'index': index,
+                        'instruction': instruction,
+                         'output': output,
+                         "informativeness": informativeness,
+                         "helpfulness": helpfulness,
+                         "generalization": generalization,
+                        "correctness": correctness
+                    }
+        except Exception as e:
+            logging.error(f"Error processing sample {index}: {str(e)}")
+            result = {
+                'index': index,
+                'instruction': instruction,
+                'output': output,
+                "error": "processing_failed",
+                "error_message": str(e)
+            }
+        
+        return result
+    
+    samples_with_index = [(i, sample) for i, sample in enumerate(data_list)]
+    
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+
+        future_to_sample = {executor.submit(process_single_sample, sample_with_index): sample_with_index 
+                           for sample_with_index in samples_with_index}
+        
+        for future in tqdm(concurrent.futures.as_completed(future_to_sample), 
+                          total=len(samples_with_index), 
+                          desc="Call remote model and generating responses"):
+            result = future.result()
+            results.append(result)
+
+    results.sort(key=lambda x: x['index'])
+    
+    outcomes = [{k: v for k, v in result.items() if k != 'index'} for result in results]
+    
     write_data_to_json_file(outcomes, config["dataset"]["output_path"])
+
 
 
 def infer_with_teacher_model(config):

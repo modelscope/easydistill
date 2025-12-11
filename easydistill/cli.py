@@ -90,7 +90,14 @@ def process(job_type, config):
         cmd_train = ' '.join(cmd_train)
         logging.info(f"Running command: {cmd_train}")
         run_cmd(cmd_train)
-
+    elif job_type in ["cot_eval_api"]:
+        cmd_eval=f"""python easydistill/eval/data_eval.py --config {config}"""
+        logging.info(f"Running command: {cmd_eval}")
+        run_cmd(cmd_eval)
+    elif job_type in ["mmcot_eval_api"]:
+        cmd_eval=f"""python easydistill/eval/mm_data_eval.py --config {config}"""
+        logging.info(f"Running command: {cmd_eval}")
+        run_cmd(cmd_eval)
     elif job_type in ['kd_black_box_api', 'kd_black_box_local', 'kd_white_box']:
         cmd_infer = [
             'python', os.path.join(script_dir, 'kd/infer.py'),
