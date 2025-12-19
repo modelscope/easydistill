@@ -11,6 +11,8 @@ Introducing **EasyDistill**, a pioneering toolkit on knowledge distillation (KD)
 
 # News
 
+ 
+- Dec 19th: We have released OmniThoughtV, multi-modal CoTs distilled and filtered from Qwen-VL-max.
 - July 28th: We have released the functionalities of knowledge distillation from MLLM (aka MMKD). Refer to [Here](./easydistill/mmkd). Evaluations on the qualities of instruction-following and CoT datasets have been updated. Refer to [Here](./easydistill/eval).
 - June 25th: We have released a new series of DistilQWen models named DistilQwen-ThoughtY, togeter with OmniThought-0528 (CoTs distilled from DeepSeek-R1-0528).
 
@@ -19,6 +21,7 @@ Introducing **EasyDistill**, a pioneering toolkit on knowledge distillation (KD)
 
 We have a series of technical articles on the functionalities of EasyDistill.
 
+- [OmniThoughtV：面向多模态深度思考的高质量数据蒸馏](https://mp.weixin.qq.com/s/DoIpiauTxLwR9TtaZwbK5w)
 - [基于模型蒸馏的大模型文案生成最佳实践](https://developer.aliyun.com/article/1675249)
 - [DistillQwen-ThoughtY：通过变长思维链蒸馏，全面提升模型推理能力！](https://developer.aliyun.com/article/1669748)
 - [DistilQwen-ThoughtX：变长思维链推理模型，能力超越DeepSeek蒸馏模型](https://developer.aliyun.com/article/1665220)
