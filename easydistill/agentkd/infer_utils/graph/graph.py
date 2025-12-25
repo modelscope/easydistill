@@ -1,18 +1,19 @@
-import os
 import re
 import json
 import threading
-from typing import TypedDict, Annotated, List, Optional, Dict, Any
+from typing import TypedDict, Annotated, List, Dict, Any
 from datetime import datetime
 
 from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableConfig
 
 from infer_utils.functions.configuration import Configuration
-from infer_utils.functions import (
-    one_thought_code_step, python_interpreter,
+from infer_utils.functions.llm_functions import (
+    one_thought_code_step,
     get_first_thought, answer_evaluate_wo_repair
 )
+from infer_utils.functions.python_interpreter import python_interpreter
+from infer_utils.functions.search_tools import quick_search
 
 # Add a lock for thread-safe file writing
 log_file_lock = threading.Lock()
@@ -93,19 +94,34 @@ def reasoning_node(state: AgentState, config: RunnableConfig):
         previous_context=prompt_history
     )
 
+    # extract the web_search("...") query
+    query_match = re.search(r'web_search\("(.*?)"\)', code, re.DOTALL)
+    if query_match:
+        try:
+            result = {}
+            web_search_query = query_match.group(1)
+            result["output"] = quick_search(web_search_query)
+        except Exception as e:
+            result = {
+                "output": f"Error: {str(e)}",
+                "updated_scope": state["python_scope"]
+            }
+            
+    else:
+        result = python_interpreter(code, state["python_scope"])
+    
     history_entry = f"{thought}\nCode:\n```python\n{code}\n```"
-    result = python_interpreter(code, state["python_scope"])
     observation = f"Observation: {result['output']}"
 
     is_finished = False
-    if "final_answer" in code:
+    if "final_answer_print" in code:
         is_finished = True
     
     # Log this step
     step_entry = {
         "thought": thought,
         "code": code,
-        "observation": result['output'].strip(),
+        "observation": str(result['output']).strip(),
         "is_finished": is_finished
     }
     
@@ -211,8 +227,8 @@ def run_agent(prompt: str, config: dict = None, original_task_info: dict = None)
         prompt, 
         final_state['original_task_info'],
         final_state.get('evaluation_result', {}),
-        final_state.get('first_thought', ''),  
-        config.get("logging", {}).get("log_file_path", "agent_logs.jsonl") if config else "agent_logs.jsonl"
+        final_state.get('first_thought', ''),
+        config["labeled_path_raw"]
     )
     
     return final_state
@@ -249,5 +265,9 @@ def save_steps_log(steps_log: List[Dict[str, Any]], original_prompt: str,
 
 if __name__ == "__main__":
     # Example usage
-    task = "Find the sum of all even numbers between 1 and 100."
-    run_agent(task)
+    task = "Calculate a when a^2=2, then calculate a^2, please seperate it with two code blocks."
+    from infer_utils.prompts_config import PROMPTS
+    with open("configs/agentkd_local.json", "r") as f:
+        config = json.load(f)["inference"]
+    PROMPTS.load(config)
+    run_agent(task, config)
