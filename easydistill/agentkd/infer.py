@@ -39,6 +39,7 @@ def main():
 
     data_path = config_all["dataset"]["instruction_path"]
     config = config_all["inference"]
+    config["labeled_path_raw"] = config_all["dataset"]["labeled_path_raw"]
 
     PROMPTS.load(config)
 
@@ -48,15 +49,12 @@ def main():
     os.environ["SEARCH_URL"] = SEARCH_URL
 
     output_file_path_base = os.path.dirname(config_all["dataset"]["labeled_path_raw"])
-    main_log_file_base = os.path.dirname(config["logging"]["main_log_file"])
     os.makedirs(output_file_path_base, exist_ok=True)
-    os.makedirs(main_log_file_base, exist_ok=True)
     
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(config["logging"]["main_log_file"], encoding='utf-8'),
             logging.StreamHandler()
         ]
     )

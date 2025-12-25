@@ -41,9 +41,9 @@ class Configuration(BaseModel):
             
             # Set api_base and api_key based on the model's API config
             if "api_base" not in values and "api_base" in model_api_config:
-                values["api_base"] = model_api_config["api_base"]
+                values["api_base"] = os.getenv(model_api_config["api_base"], model_api_config["api_base"])
             
             if "api_key" not in values and "api_key_env" in model_api_config:
-                values["api_key"] = os.getenv(model_api_config["api_key_env"])
+                values["api_key"] = os.getenv(model_api_config["api_key_env"], model_api_config["api_key_env"])
         
         return cls(**values)
