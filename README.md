@@ -21,6 +21,7 @@ Introducing **EasyDistill**, a pioneering toolkit on knowledge distillation (KD)
 
 We have a series of technical articles on the functionalities of EasyDistill.
 
+- [面向 Interleaved Thinking 的大模型 Agent 蒸馏实践](https://zhuanlan.zhihu.com/p/1992286983679141168)
 - [OmniThoughtV：面向多模态深度思考的高质量数据蒸馏](https://mp.weixin.qq.com/s/DoIpiauTxLwR9TtaZwbK5w)
 - [基于模型蒸馏的大模型文案生成最佳实践](https://developer.aliyun.com/article/1675249)
 - [DistillQwen-ThoughtY：通过变长思维链蒸馏，全面提升模型推理能力！](https://developer.aliyun.com/article/1669748)
