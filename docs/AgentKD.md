@@ -1,114 +1,151 @@
 # AgentKD Usage Tutorial
 
-This project is based on the langgraph framework and is used for Agent reasoning trajectory generation and distillation training of small agent models based on these trajectories.
+This project is based on the LangGraph framework and is used for virtual tool-use task synthesis, solution generation, and distillation training of small agent models.
+
+## Virtual Task Synthesis Pipeline
+
+The pipeline synthesizes virtual tool-use tasks from persona seeds, solves them with LLM-simulated tools and users, evaluates solutions against rubrics, filters to PASS-only data, and optionally runs SFT distillation. Rubrics evaluation and distillation are separate steps.
 
 ## Project Structure
 
 ```plain
 .
 ├── configs/
-│   └── agentkd_local.json      # Main configuration file
+│   ├── agentkd_data_gen.json       # Virtual task synthesis config
+│   ├── agentkd_solve_task.json     # Virtual task solving config
+│   ├── agentkd_rubrics_filter.json # Rubrics evaluation + filter PASS data
+│   └── agentkd_distill.json        # SFT distillation training config
 ├── data/
-│   └── agent_demo.jsonl        # Raw data source
-│   └── agent_demo_labeled.jsonl # Generated reasoning trajectories
+│   ├── persona_5K.jsonl         # Persona seeds for virtual task synthesis
+│   ├── virtual_tool_use_tasks.jsonl  # Synthesized virtual tasks
+│   └── solve_output/            # Per-task solution outputs
 ├── easydistill/agentkd
-│   └── infer.py                # Agent reasoning trajectory generation
-│   └── train.py                # Distillation training script
+│   ├── data_gen.py              # Virtual task synthesis (persona → tools + policy + test cases)
+│   ├── solve_task.py            # Virtual task solving (mock tools + mock user)
+│   ├── rubrics.py               # Rubrics evaluation + filtered training data
+│   └── train.py                 # Distillation training script
+└── easydistill/agentkd/infer_utils/
+    ├── graph/
+    │   ├── virtual_tools.py     # LangGraph: toolset_gen → policy_task → final_task
+    │   └── solve_task.py        # LangGraph: reason_and_act ⇄ mock_tools / mock_user
+    └── functions/
+        ├── call_llms.py         # LLM API calls
+        ├── tool_set_policy_gen.py
+        ├── policy_task.py
+        ├── refine_policy_task.py
+        ├── solve_task_fn.py
+        ├── mock_tools.py
+        └── mock_user.py
 ```
 
-## Quick Start
+---
 
-### Data Preparation
+## Step 1: Data Generation (`agentkd_data_gen`)
 
-The dataset format supports `.jsonl`. We have provided sample data in `data/agent_demo.jsonl`. Each data entry has the following format:
+**Input**: Persona seeds in JSONL format. Each entry:
 
 ```json
 {
-    "id": 0,
-    "question": "TLDR",
-    "solution": "TLDR",
-    "true_answer": "TLDR"
+    "id": "uuid",
+    "persona": "A passionate fan of Afrikaans music and die-hard supporter of Spoegwolf"
 }
 ```
 
-### Configure Required Parameters
-
-`configs/agentkd_local.json` contains all the parameter configuration information required for generating agent trajectories and distillation training:
-
-```json
-{
-    "job_type": "agentkd_local",
-    "dataset": {
-        "instruction_path": "data/agent_demo.jsonl",
-        "labeled_path_raw": "data/agent_demo_labeled_raw.jsonl",
-        "labeled_path": "data/agent_demo_labeled.json"
-    },
-    "models": {
-        "teacher": "Qwen/Qwen2.5-72B-Instruct",
-        "student": "Qwen/Qwen2.5-7B-Instruct"
-    },
-    "inference": {
-        ...
-    },
-    "training": {
-        ...
-    }
-}
-```
-
-### Generate Agent Trajectory Data
-
-Generate Agent Trajectory Data and automatically proceed to training using the `easydistill` command:
+**Output**: `data/virtual_tool_use_tasks.jsonl` — synthesized tasks with tools, policy, and test cases.
 
 ```bash
-easydistill --config configs/agentkd_local.json
+easydistill --config configs/agentkd_data_gen.json
 ```
 
-This will generate raw Agent reasoning trajectories based on the source data `data/agent_demo.jsonl`, perform format conversion, and ultimately produce trajectory data that can be directly used for training: `data/agent_demo_labeled.json`.
+Configure `configs/agentkd_data_gen.json`:
 
-Example data format:
+- `paths.data_file`: Path to persona JSONL
+- `logging.task_file_path`: Output path for virtual tasks
+- `step_models`: ToolSetGenAgent, PolicyTaskAgent, FinalTaskAgent
+- `api_configs`: API endpoints for each model (use env vars for keys)
+
+---
+
+## Step 2: Task Solving (`agentkd_solve_task`)
+
+**Input**: Virtual tasks from Step 1.
+
+**Output**: Per-task solution folders under `data/solve_output/{task_id}/` containing `solution*.json`, `more_info.json`, `tool_call_history.json`.
+
+```bash
+easydistill --config configs/agentkd_solve_task.json
+```
+
+Configure `configs/agentkd_solve_task.json`:
+
+- `paths.data_file`: Path to virtual tasks JSONL (output of Step 1)
+- `logging.solve_path`: Output directory for solutions
+- `step_models`: SolveAgent, MockToolAgent
+
+---
+
+## Step 3a: Rubrics Evaluation and Filter (`agentkd_rubrics_filter`)
+
+**Input**: Solution folders from Step 2.
+
+**Output**: `rubrics_output.json` per task, filtered training data (PASS solutions only).
+
+```bash
+easydistill --config configs/agentkd_rubrics_filter.json
+```
+
+Configure `configs/agentkd_rubrics_filter.json`:
+
+- `inference.paths.solution_path`: Path to solve output directory
+- `dataset.labeled_path`: Output path for filtered training data
+- `inference.step_models.RubricsAgent`: Model for evaluation
+
+This step evaluates each solution against rubrics (PASS/FAIL), selects the best PASS solution per task, and converts them to training format.
+
+---
+
+## Step 3b: Distillation Training (`agentkd_distill`)
+
+**Input**: Filtered training data from Step 3a (`dataset.labeled_path`).
+
+**Output**: Trained model in `training.output.output_dir`.
+
+```bash
+easydistill --config configs/agentkd_distill.json
+```
+
+Configure `configs/agentkd_distill.json`:
+
+- `dataset.labeled_path`: Path to filtered training data (output of Step 3a)
+- `models.student`: Student model to train
+- `training`: SFT hyperparameters
+
+This step runs SFT distillation on the PASS-filtered tool-use trajectories.
+
+---
+
+## Training Data Format
+
+The pipeline produces data in the `conversations` format for SFT:
 
 ```json
 [
     {
         "conversations": [
-            {
-                "from": "human",
-                "value": "A pool has 48 blue tiles and 32 red tiles. If the pool needs 100 tiles to be completed, how many more tiles are needed?"
-            },
-            {
-                "from": "gpt",
-                "value": "<first_thought>Calculate the total number of tiles currently in the pool, then subtract this number from the total number of tiles needed to find out how many more tiles are required.</first_thought>"
-            },
-            {
-                "from": "human",
-                "value": "Observation: None"
-            },
-            {
-                "from": "gpt",
-                "value": "<thought>I need to calculate the total number of tiles currently in the pool and then find out how many more tiles are needed to reach 100 tiles.</thought><code># Calculate the total number of tiles currently in the pool\nblue_tiles = 48\nred_tiles = 32\ntotal_tiles_current = blue_tiles + red_tiles\n\n# Calculate how many more tiles are needed\ntiles_needed = 100 - total_tiles_current\nprint(tiles_needed)</code>"
-            },
-            {
-                "from": "human",
-                "value": "Observation: 20"
-            },
-            {
-                "from": "gpt",
-                "value": "<thought>I have already calculated the number of tiles needed to complete the pool, which is 20. Now, I need to format this number as a final answer in LaTeX format.</thought><code>final_answer_print(r\"\\boxed{20}\")</code>"
-            }
+            { "from": "system", "value": "..." },
+            { "from": "human", "value": "..." },
+            { "from": "gpt", "value": "..." },
+            ...
         ]
     }
 ]
 ```
 
-You can modify the inference parameters in `configs/agentkd_local.json` as needed.
+---
 
-### Agent Model Training
+## Dependencies
 
-Based on the generated Agent reasoning trajectories (`data/agent_demo_labeled.json`), start training using the `easydistill` command:
+In addition to the base easydistill dependencies, the virtual task pipeline requires:
 
-```bash
-easydistill --config configs/agentkd_local.json
-```
-
-You can modify the training parameters in `configs/agentkd_local.json` as needed.
+- `json5` — for lenient JSON parsing in `refine_policy_task.py`
+- `langgraph`, `langchain_core` — for graph-based agents

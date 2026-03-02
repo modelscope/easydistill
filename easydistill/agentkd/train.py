@@ -66,10 +66,12 @@ def prepare_model_and_tokenizer(config: Dict[str, Any]) -> Tuple[AutoModelForCau
         tokenizer.pad_token = tokenizer.eos_token
     
     deepspeed_enabled = training_config.get("deepspeed") is not None
-    device_map = "auto" if not deepspeed_enabled else None
-    
+    # device_map='auto' is incompatible with distributed training
+    is_distributed = int(os.environ.get("WORLD_SIZE", 1)) > 1
+    device_map = "auto" if (not deepspeed_enabled and not is_distributed) else None
+
     logger.info(f"Loading model from: {model_config['student']}")
-    logger.info(f"DeepSpeed enabled: {deepspeed_enabled}, Device map: {device_map}")
+    logger.info(f"DeepSpeed enabled: {deepspeed_enabled}, Distributed: {is_distributed}, Device map: {device_map}")
     
     model = AutoModelForCausalLM.from_pretrained(
         model_config["student"],
@@ -186,10 +188,11 @@ def create_training_config(config: Dict[str, Any]) -> SFTConfig:
         num_train_epochs=training_config["num_train_epochs"],
         per_device_train_batch_size=training_config["per_device_train_batch_size"],
         gradient_accumulation_steps=training_config.get("gradient_accumulation_steps", 1),
+        gradient_checkpointing=training_config.get("gradient_checkpointing", True),
         learning_rate=training_config["learning_rate"],
         lr_scheduler_type=training_config.get("lr_scheduler_type", "cosine"),
         warmup_ratio=training_config.get("warmup_ratio", 0.1),
-        bf16=training_config.get("bf16", False),
+        bf16=training_config.get("bf16", True),
         dataloader_num_workers=dataset_config.get("dataloader_num_workers", 4),
         logging_steps=output_config.get("logging_steps", 10),
         save_steps=output_config.get("save_steps", 500),
@@ -201,7 +204,9 @@ def create_training_config(config: Dict[str, Any]) -> SFTConfig:
         report_to=report_to,
         dataloader_pin_memory=True,
     )
-    
+    if training_config.get("gradient_checkpointing", True):
+        sft_config.gradient_checkpointing_kwargs = {"use_reentrant": False}
+
     return sft_config
 
 def validate_config(config: Dict[str, Any]) -> None:

@@ -1,0 +1,39 @@
+{
+    "job_type": "agentkd_solve_task",
+    "inference": {
+        "step_models": {
+            "SolveAgent": {
+                "model_name": "Qwen3-235B-A22B-Instruct-2507",
+                "max_tokens": 10240,
+                "temperature": 0.9
+            },
+            "MockToolAgent": {
+                "model_name": "Qwen3-235B-A22B-Instruct-2507",
+                "max_tokens": 10240,
+                "temperature": 0.9
+            }
+        },
+        "processing": {
+            "max_workers": 18,
+            "max_tasks": 10000
+        },
+        "logging": {
+            "repeat_times": 1,
+            "already_processed_path": "logs/solved_tasks.jsonl",
+            "solve_path": "logs/solve_output/"
+        },
+        "paths": {
+            "data_file": "data/virtual_tool_use_tasks.jsonl"
+        },
+        "api_configs": {
+            "Qwen3-235B-A22B-Instruct-2507": {
+                "api_base": "YOUR_QWEN3_API_BASE_ENV_VAR",
+                "api_key_env": "YOUR_QWEN3_API_KEY_ENV_VAR"
+            },
+            "default": {
+                "api_base": "http://localhost:8000/v1",
+                "api_key_env": "EMPTY"
+            }
+        }
+    }
+}
