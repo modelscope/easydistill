@@ -47,7 +47,7 @@ The following is the known and established information of the virtual world so f
 
 6. Indicate if new background is introduced
 
-- Before generating the tool response, output if the world state dose not contain the information of the tool call: YES or NO
+- Before generating the tool response, output if the world state does not contain the information of the tool call: YES or NO
 - YES = query needs new facts outside world state changes; NO = none.
  You must strictly adhere to the world state and history of tool calls when generating the tool response. If it doesn't exist, output "No Useful Information Found".
 
