@@ -6,11 +6,16 @@ AgentKD extends EasyDistill with **virtual tool-use data synthesis and distillat
 
 **RL training support**: The generated data can also be used for **reinforcement learning**. Evaluation rubrics are provided for each task, enabling reward modeling and RLHF-style training.
 
+**For RL training**, you can refer to [this repository](https://github.com/haruhi-sudo/data_synth_and_rl)
+
 This project is based on the LangGraph framework and supports end-to-end pipeline: synthesize virtual tasks → solve with mock tools/users → evaluate with rubrics & filter PASS data → distill on filtered data.
 
 ## Virtual Task Synthesis Pipeline
 
 The pipeline synthesizes diverse virtual tool-use tasks from persona seeds, solves them with LLM-simulated tools and users, evaluates solutions against rubrics, filters to PASS-only data, and optionally runs SFT distillation. Rubrics evaluation and distillation are separate steps so you can inspect filtered data before training.
+
+
+
 
 ## Project Structure
 
