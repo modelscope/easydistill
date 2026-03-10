@@ -1,0 +1,46 @@
+{
+    "job_type": "agentkd_data_gen",
+    "inference": {
+        "step_models": {
+            "ToolSetGenAgent": {
+                "model_name": "deepseek-v3.2",
+                "max_tokens": 40960,
+                "temperature": 0.9
+            },
+            "PolicyTaskAgent": {
+                "model_name": "deepseek-v3.2",
+                "max_tokens": 40960,
+                "temperature": 0.9
+            },
+            "FinalTaskAgent": {
+                "model_name": "deepseek-v3.2",
+                "max_tokens": 40960,
+                "temperature": 0.9
+            }
+        },
+        "processing": {
+            "max_workers": 8,
+            "max_tasks": 10000
+        },
+        "logging": {
+            "task_file_path": "data/virtual_tool_use_tasks.jsonl"
+        },
+        "paths": {
+            "data_file": "configs/persona_5K.jsonl"
+        },
+        "api_configs": {
+            "Qwen3-235B-A22B-Instruct-2507": {
+                "api_base": "YOUR_QWEN3_API_BASE_ENV_VAR",
+                "api_key_env": "YOUR_QWEN3_API_KEY_ENV_VAR"
+            },
+            "deepseek-v3.2": {
+                "api_base": "YOUR_DEEPSEEK_API_BASE_ENV_VAR",
+                "api_key_env": "YOUR_DEEPSEEK_API_KEY_ENV_VAR"
+            },
+            "default": {
+                "api_base": "http://localhost:8000/v1",
+                "api_key_env": "EMPTY"
+            }
+        }
+    }
+}

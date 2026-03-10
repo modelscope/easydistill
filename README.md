@@ -11,7 +11,7 @@ Introducing **EasyDistill**, a pioneering toolkit on knowledge distillation (KD)
 
 # News
 
- 
+- **AgentKD**: We have released AgentKD, which can **directly generate diverse virtual tool-use tasks** from persona seeds to tools, policies and test cases, and produce teacher-model solution trajectories for knowledge distillation. Virtual tools are **pre-defined** with their schemas and possible return results; the **LLM simulates** tool execution (no real API calls). The data can also be used for **RL training**, with evaluation rubrics provided. Refer to [Here](./easydistill/agentkd).
 - Dec 19th: We have released OmniThoughtV, multi-modal CoTs distilled and filtered from Qwen-VL-max.
 - July 28th: We have released the functionalities of knowledge distillation from MLLM (aka MMKD). Refer to [Here](./easydistill/mmkd). Evaluations on the qualities of instruction-following and CoT datasets have been updated. Refer to [Here](./easydistill/eval).
 - June 25th: We have released a new series of DistilQWen models named DistilQwen-ThoughtY, togeter with OmniThought-0528 (CoTs distilled from DeepSeek-R1-0528).
@@ -39,7 +39,7 @@ We have a series of technical articles on the functionalities of EasyDistill.
 
 ![EasyDistill Framework](resources/framework.png)
 
-- **Toolkit Features**: EasyDistill provides versatile functionalities, including data synthesis, supervised fine-tuning, logits distillation, ranking optimization, and reinforcement learning techniques tailored for KD scenarios.
+- **Toolkit Features**: EasyDistill provides versatile functionalities, including data synthesis, supervised fine-tuning, logits distillation, ranking optimization, and reinforcement learning techniques tailored for KD scenarios. **AgentKD** extends the toolkit with virtual tool-use data synthesis: tools and their possible return results are pre-defined; the LLM simulates tool execution. It generates diverse tool-use metadata and teacher-model solution trajectories for distillation. The data also supports **RL training** with evaluation rubrics for reward modeling.
 - **Compatibility**: It supports both System 1 (fast, intuitive) and System 2 (slow, analytical) models.
 - **User-Friendly**: With its modular design and simple command-line interface, EasyDistill makes experimentation and implementation of KD strategies straightforward.
 - **Industrial Integration**: Incorporates KD-based solutions and supports integration with platforms such as Alibaba Cloud’s Platform for AI (PAI).

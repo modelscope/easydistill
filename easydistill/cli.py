@@ -77,7 +77,7 @@ def run_cmd(cmd):
 
 def process(job_type, config):
     if not os.path.isabs(config):
-        config = os.path.join(script_dir, config)
+        config = os.path.join(parent_dir, config)
     
     # Knowledge Distillation tasks
     if job_type in ['kd_black_box_train_only', 'kd_white_box_train_only']:
@@ -143,27 +143,41 @@ def process(job_type, config):
         else:
             logging.error("Infer failed, skipping training")
     
-    elif job_type in ['agentkd_local']:
-        cmd_infer = [
-            'python', os.path.join(script_dir, 'agentkd/infer.py'),
+    elif job_type in ['agentkd_data_gen']:
+        cmd = ' '.join([
+            'python', os.path.join(script_dir, 'agentkd/data_gen.py'),
+            '--config', config
+        ])
+        logging.info(f"Running command: {cmd}")
+        run_cmd(cmd)
+
+    elif job_type in ['agentkd_solve_task']:
+        cmd = ' '.join([
+            'python', os.path.join(script_dir, 'agentkd/solve_task.py'),
+            '--config', config
+        ])
+        logging.info(f"Running command: {cmd}")
+        run_cmd(cmd)
+
+    elif job_type in ['agentkd_rubrics_filter']:
+        cmd_rubrics = ' '.join([
+            'python', os.path.join(script_dir, 'agentkd/rubrics.py'),
+            '--config', config
+        ])
+        logging.info(f"Running command: {cmd_rubrics}")
+        run_cmd(cmd_rubrics)
+
+    elif job_type in ['agentkd_distill']:
+        cmd_train = [
+            'accelerate', 'launch',
+            '--config_file', os.path.join(parent_dir, 'configs/accelerate_config/muti_gpu.yaml'),
+            os.path.join(script_dir, 'agentkd/train.py'),
             '--config', config
         ]
-        cmd_infer = ' '.join(cmd_infer)
-        logging.info(f"Running command: {cmd_infer}")
-        infer_success = run_cmd(cmd_infer)
+        cmd_train = ' '.join(cmd_train)
+        logging.info(f"Running command: {cmd_train}")
+        run_cmd(cmd_train)
 
-        if infer_success:
-            cmd_train = [
-                'accelerate', 'launch',
-                '--config_file', os.path.join(parent_dir, 'configs/accelerate_config/muti_gpu.yaml'),
-                os.path.join(script_dir, 'agentkd/train.py'),
-                '--config', config
-            ]
-            cmd_train = ' '.join(cmd_train)
-            logging.info(f"Running command: {cmd_train}")
-            run_cmd(cmd_train)
-        else:
-            logging.error("Infer failed, skipping training")
 
     elif job_type in ['speckd_local']:
         cmd_infer = [
@@ -185,7 +199,7 @@ def process(job_type, config):
             run_cmd(cmd_train)
         else:
             logging.error("Infer failed, skipping training")
-    
+
     # Reinforcement Learning tasks
     elif job_type in ['rl_ppo', 'rl_grpo']:
         cmd = [
