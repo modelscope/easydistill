@@ -32,9 +32,7 @@ def read_json_field(filename):
             data = json.load(file)
         output = []
         for item in data:
-            instruction = item["instruction"]
-            output = item["output"]
-            output.append({"prompt": instruction, "chosen": output})
+            output.append({"prompt": item["instruction"], "chosen": item["output"]})
         return output
     except FileNotFoundError:
         logging.error("The file was not found.")
