@@ -1,0 +1,650 @@
+# EasyDistill 2 Model Zoo
+#
+# Canonical metadata for the open-source DistilQwen model family and released
+# datasets. This file is the single source of truth for docs/model_zoo.md,
+# docs/model_zoo_zh.md, and the `easydistill --list-models` CLI output.
+#
+# Each model/dataset entry should provide both English (`description`, `notes`)
+# and Chinese (`description_zh`, `notes_zh`) text so that the generator can
+# produce bilingual documentation automatically.
+
+version: "1.0.0"
+
+models:
+  # ---------------------------------------------------------------------------
+  # System 1: instruction-following models
+  # ---------------------------------------------------------------------------
+  - name: DistilQwen2.5-0.5B-Instruct
+    family: DistilQwen2.5
+    size: 0.5B
+    type: instruction_following
+    description: >
+      Ultra-lightweight instruction-following model distilled from
+      Qwen2.5-72B-Instruct with a mix of black-box and white-box knowledge
+      distillation. Useful for low-latency teacher generation or as a compact
+      student for further fine-tuning.
+    description_zh: >
+      从 Qwen2.5-72B-Instruct 蒸馏得到的超轻量指令跟随模型，结合黑盒与白盒知识蒸馏。
+      适用于低延迟教师生成或作为进一步微调的小巧学生模型。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-0.5B-Instruct
+      modelscope: PAI/DistilQwen2.5-0.5B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        Set backend.model_id to the HuggingFace or ModelScope model ID when
+        using an OpenAI-compatible inference service that hosts it.
+      notes_zh: >
+        若通过 OpenAI 兼容推理服务托管该模型，请将 backend.model_id 设为
+        HuggingFace 或 ModelScope 的模型 ID。
+
+  - name: DistilQwen2-1.5B-Instruct
+    family: DistilQwen2
+    size: 1.5B
+    type: instruction_following
+    description: >
+      Distilled Qwen2-1.5B-Instruct with improved instruction-following
+      capabilities. GPT-4 and Qwen-max were used as teachers and the task
+      distribution of seed instructions was balanced before SFT.
+    description_zh: >
+      在 Qwen2-1.5B-Instruct 基础上蒸馏得到的指令跟随模型。使用 GPT-4 与 Qwen-max
+      作为教师，并在 SFT 前平衡了种子指令的任务分布。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2-1.5B-Instruct
+      modelscope: PAI/DistilQwen2-1.5B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        A good small student when you want stronger instruction-following than
+        the 0.5B family at modest inference cost.
+      notes_zh: >
+        在推理成本可控的前提下，比 0.5B 家族具备更强指令跟随能力的小型学生模型。
+
+  - name: DistilQwen2.5-1.5B-Instruct
+    family: DistilQwen2.5
+    size: 1.5B
+    type: instruction_following
+    description: >
+      Mid-size instruction-following model distilled from Qwen2.5-72B-Instruct.
+      Combines black-box SFT with white-box refinement to transfer intricate
+      teacher knowledge into a small student.
+    description_zh: >
+      从 Qwen2.5-72B-Instruct 蒸馏得到的中等规模指令跟随模型。结合黑盒 SFT 与白盒精馏，
+      将复杂教师知识迁移到小型学生模型。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-1.5B-Instruct
+      modelscope: PAI/DistilQwen2.5-1.5B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        Recommended as a cost-effective teacher for producing mid-quality
+        instruction-response pairs at high throughput.
+      notes_zh: >
+        高性价比的教师模型，适合高吞吐地产出中等质量的指令-回复对。
+
+  - name: DistilQwen2.5-3B-Instruct
+    family: DistilQwen2.5
+    size: 3B
+    type: instruction_following
+    description: >
+      3B instruction-following model that closes much of the gap to the 7B
+      baseline while remaining cheap to host and fast to run.
+    description_zh: >
+      3B 指令跟随模型，在保持较低部署与运行成本的同时，大幅缩小了与 7B 基线的差距。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-3B-Instruct
+      modelscope: PAI/DistilQwen2.5-3B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        Strong price/performance choice for both teacher generation and final
+        student deployment.
+      notes_zh: >
+        教师生成与最终学生部署的强性价比选择。
+
+  - name: DistilQwen2-7B-Instruct
+    family: DistilQwen2
+    size: 7B
+    type: instruction_following
+    description: >
+      7B instruction-following model in the DistilQwen2 series. Trained with
+      balanced instruction data followed by DPO rank optimization.
+    description_zh: >
+      DistilQwen2 系列中的 7B 指令跟随模型。使用平衡后的指令数据训练，并经过 DPO 排序优化。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2-7B-Instruct
+      modelscope: PAI/DistilQwen2-7B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        Use as a higher-quality teacher when the 1.5B/3B variants are not
+        strong enough for your target domain.
+      notes_zh: >
+        当 1.5B/3B 变体在目标领域能力不足时，可作为更高质量的教师模型。
+
+  - name: DistilQwen2.5-7B-Instruct
+    family: DistilQwen2.5
+    size: 7B
+    type: instruction_following
+    description: >
+      Flagship 7B instruction-following model of the DistilQwen2.5 series.
+      Distilled from Qwen2.5-72B-Instruct and refined with white-box KD.
+    description_zh: >
+      DistilQwen2.5 系列的旗舰 7B 指令跟随模型。从 Qwen2.5-72B-Instruct 蒸馏并经白盒 KD 精修。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-7B-Instruct
+      modelscope: PAI/DistilQwen2.5-7B-Instruct
+    capabilities:
+      - instruction_following
+      - chat
+    usage:
+      pipeline: advanced_instruct_distill
+      recommended_backend: pai_token
+      notes: >
+        The default recommendation for high-quality instruction distillation
+        when inference budget allows.
+      notes_zh: >
+        当推理预算允许时，推荐用于高质量指令蒸馏。
+
+  # ---------------------------------------------------------------------------
+  # System 2: reasoning models
+  # ---------------------------------------------------------------------------
+  - name: DistilQwen2.5-7B-R1
+    family: DistilQwen2.5-R1
+    size: 7B
+    type: reasoning
+    description: >
+      7B reasoning model distilled from DeepSeek-R1. Further refined with the
+      CogPO algorithm to align reasoning ability with the model's intrinsic
+      cognitive capacity.
+    description_zh: >
+      从 DeepSeek-R1 蒸馏得到的 7B 推理模型。进一步经 CogPO 算法精修，
+      使推理能力与模型内在认知容量对齐。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-R1-7B
+      modelscope: PAI/DistilQwen2.5-R1-7B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Use as a teacher to generate long-form CoT traces for smaller students.
+      notes_zh: >
+        可作为教师模型，为更小的学生模型生成长形式 CoT 轨迹。
+
+  - name: DistilQwen2.5-14B-R1
+    family: DistilQwen2.5-R1
+    size: 14B
+    type: reasoning
+    description: >
+      14B reasoning model distilled from DeepSeek-R1 with CogPO refinement.
+      Stronger reasoning than the 7B variant at higher inference cost.
+    description_zh: >
+      从 DeepSeek-R1 蒸馏并经 CogPO 精修的 14B 推理模型。推理能力强于 7B 变体，
+      推理成本更高。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-R1-14B
+      modelscope: PAI/DistilQwen2.5-R1-14B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Good teacher for math/code CoT data where the 7B variant is not enough.
+      notes_zh: >
+        当 7B 变体不足以生成数学/代码 CoT 数据时的良好教师模型。
+
+  - name: DistilQwen2.5-32B-R1
+    family: DistilQwen2.5-R1
+    size: 32B
+    type: reasoning
+    description: >
+      32B reasoning model distilled from DeepSeek-R1. Best reasoning quality in
+      the R1 series before moving to the DS3-0324 or Thought families.
+    description_zh: >
+      从 DeepSeek-R1 蒸馏得到的 32B 推理模型。在转向 DS3-0324 或 Thought 家族之前，
+      R1 系列中推理质量最佳。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-R1-32B
+      modelscope: PAI/DistilQwen2.5-R1-32B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Use when you need the highest CoT quality and can afford the inference
+        cost.
+      notes_zh: >
+        当需要最高 CoT 质量且能承受推理成本时使用。
+
+  - name: DistilQwen2.5-DS3-0324-3B
+    family: DistilQwen2.5-DS3-0324
+    size: 3B
+    type: reasoning
+    description: >
+      3B reasoning model that transfers fast-thinking reasoning capabilities
+      from DeepSeek-V3-0324. Trained on a mix of distilled CoT data and a
+      shortened CoT dataset.
+    description_zh: >
+      从 DeepSeek-V3-0324 迁移快思考推理能力的 3B 模型。基于蒸馏 CoT 数据与缩短 CoT
+      数据集混合训练。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-DS3-0324-3B
+      modelscope: PAI/DistilQwen2.5-DS3-0324-3B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Compact System-2 model for low-latency reasoning tasks.
+      notes_zh: >
+        面向低延迟推理任务的紧凑 System-2 模型。
+
+  - name: DistilQwen2.5-DS3-0324-7B
+    family: DistilQwen2.5-DS3-0324
+    size: 7B
+    type: reasoning
+    description: >
+      7B fast-thinking reasoning model distilled from DeepSeek-V3-0324.
+      Stronger than the R1-7B variant on several math and code benchmarks.
+    description_zh: >
+      从 DeepSeek-V3-0324 蒸馏得到的 7B 快思考推理模型。在多个数学与代码基准上
+      强于 R1-7B 变体。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-DS3-0324-7B
+      modelscope: PAI/DistilQwen2.5-DS3-0324-7B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Recommended default teacher for fast-thinking CoT distillation.
+      notes_zh: >
+        快思考 CoT 蒸馏的推荐默认教师模型。
+
+  - name: DistilQwen2.5-DS3-0324-14B
+    family: DistilQwen2.5-DS3-0324
+    size: 14B
+    type: reasoning
+    description: >
+      14B fast-thinking reasoning model distilled from DeepSeek-V3-0324.
+      Balances strong reasoning with manageable inference cost.
+    description_zh: >
+      从 DeepSeek-V3-0324 蒸馏得到的 14B 快思考推理模型。在强推理能力与可控推理成本
+      之间取得平衡。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-DS3-0324-14B
+      modelscope: PAI/DistilQwen2.5-DS3-0324-14B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Use when 7B DS3 quality is insufficient but 32B is too expensive.
+      notes_zh: >
+        当 7B DS3 质量不足而 32B 成本过高时使用。
+
+  - name: DistilQwen2.5-DS3-0324-32B
+    family: DistilQwen2.5-DS3-0324
+    size: 32B
+    type: reasoning
+    description: >
+      32B fast-thinking reasoning model distilled from DeepSeek-V3-0324.
+      Highest-quality System-2 model in the DS3-0324 series.
+    description_zh: >
+      从 DeepSeek-V3-0324 蒸馏得到的 32B 快思考推理模型。DS3-0324 系列中质量最高的
+      System-2 模型。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen2.5-DS3-0324-32B
+      modelscope: PAI/DistilQwen2.5-DS3-0324-32B
+    capabilities:
+      - chain_of_thought
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Top choice for generating high-quality math/code CoT training data.
+      notes_zh: >
+        生成高质量数学/代码 CoT 训练数据的首选。
+
+  # ---------------------------------------------------------------------------
+  # Adaptive thinking: variable-length CoT models
+  # ---------------------------------------------------------------------------
+  - name: DistilQwen-ThoughtX-7B
+    family: DistilQwen-ThoughtX
+    size: 7B
+    type: reasoning
+    description: >
+      7B adaptive thinking model trained on the OmniThought dataset with RV
+      (Reasoning Verbosity) and CD (Cognitive Difficulty) curriculum mixing.
+      Produces CoT traces with near-optimal length and difficulty.
+    description_zh: >
+      基于 OmniThought 数据集训练的 7B 自适应思考模型，采用 RV（Reasoning Verbosity）
+      与 CD（Cognitive Difficulty）课程混合。生成的 CoT 在长度与难度上接近最优。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen-ThoughtX-7B
+      modelscope: pai/DistilQwen-ThoughtX-7B
+    capabilities:
+      - chain_of_thought
+      - adaptive_thinking
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Best teacher when you want to control CoT verbosity and difficulty
+        through the RV/CD mixer.
+      notes_zh: >
+        当需要通过 RV/CD 混合器控制 CoT 冗长度与难度时的最佳教师模型。
+
+  - name: DistilQwen-ThoughtX-32B
+    family: DistilQwen-ThoughtX
+    size: 32B
+    type: reasoning
+    description: >
+      32B adaptive thinking model trained on OmniThought. Strongest reasoning
+      in the ThoughtX series with curriculum-aware CoT generation.
+    description_zh: >
+      基于 OmniThought 训练的 32B 自适应思考模型。ThoughtX 系列中推理能力最强，
+      支持课程感知的 CoT 生成。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen-ThoughtX-32B
+      modelscope: pai/DistilQwen-ThoughtX-32B
+    capabilities:
+      - chain_of_thought
+      - adaptive_thinking
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Use for the highest-quality adaptive CoT distillation.
+      notes_zh: >
+        用于最高质量的自适应 CoT 蒸馏。
+
+  - name: DistilQwen-ThoughtY-4B
+    family: DistilQwen-ThoughtY
+    size: 4B
+    type: reasoning
+    description: >
+      4B adaptive thinking model based on Qwen3 as the student and
+      DeepSeek-R1-0528 as the teacher. Generates variable-length CoT traces
+      with strong reasoning per token.
+    description_zh: >
+      基于 Qwen3 的 4B 自适应思考模型，以 DeepSeek-R1-0528 为教师。生成变长 CoT 轨迹，
+      单位 token 推理能力强。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen-ThoughtY-4B
+      modelscope: PAI/DistilQwen-ThoughtY-4B
+    capabilities:
+      - chain_of_thought
+      - adaptive_thinking
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Compact adaptive reasoning model for resource-constrained deployment.
+      notes_zh: >
+        资源受限部署场景下的紧凑自适应推理模型。
+
+  - name: DistilQwen-ThoughtY-8B
+    family: DistilQwen-ThoughtY
+    size: 8B
+    type: reasoning
+    description: >
+      8B adaptive thinking model based on Qwen3 and distilled from
+      DeepSeek-R1-0528. Strong reasoning at a moderate model size.
+    description_zh: >
+      基于 Qwen3、从 DeepSeek-R1-0528 蒸馏得到的 8B 自适应思考模型。在中等模型规模下
+      具备强推理能力。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen-ThoughtY-8B
+      modelscope: PAI/DistilQwen-ThoughtY-8B
+    capabilities:
+      - chain_of_thought
+      - adaptive_thinking
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Recommended default for adaptive thinking when 4B is too small.
+      notes_zh: >
+        当 4B 过小时，推荐的自适应思考默认选择。
+
+  - name: DistilQwen-ThoughtY-32B
+    family: DistilQwen-ThoughtY
+    size: 32B
+    type: reasoning
+    description: >
+      32B adaptive thinking model based on Qwen3 and distilled from
+      DeepSeek-R1-0528. Best overall reasoning in the ThoughtY series.
+    description_zh: >
+      基于 Qwen3、从 DeepSeek-R1-0528 蒸馏得到的 32B 自适应思考模型。ThoughtY 系列中
+      综合推理能力最强。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen-ThoughtY-32B
+      modelscope: PAI/DistilQwen-ThoughtY-32B
+    capabilities:
+      - chain_of_thought
+      - adaptive_thinking
+      - math
+      - code
+    usage:
+      pipeline: advanced_cot_distill
+      recommended_backend: pai_token
+      notes: >
+        Use as the highest-quality adaptive-thinking teacher for demanding
+        reasoning tasks.
+      notes_zh: >
+        作为高难度推理任务的最高质量自适应思考教师模型。
+
+  # ---------------------------------------------------------------------------
+  # Agentic models: multi-step tool use and agentic reasoning
+  # ---------------------------------------------------------------------------
+  - name: AgenticQwen-8B
+    family: AgenticQwen
+    size: 8B
+    type: agentic
+    description: >
+      Small agentic language model trained on Qwen3-8B with multi-round
+      reinforcement learning. Designed for multi-step reasoning, tool
+      orchestration, and long-horizon agentic tasks such as flight booking,
+      account management, and data analysis.
+    description_zh: >
+      基于 Qwen3-8B 经多轮强化学习训练的小型智能体语言模型。专为多步推理、工具编排
+      与长程智能体任务（如航班预订、账户管理与数据分析）设计。
+    downloads:
+      huggingface: alibaba-pai/AgenticQwen-8B
+      modelscope: PAI/AgenticQwen-8B
+    capabilities:
+      - tool_use
+      - multi_step_reasoning
+      - agentic_planning
+      - chat
+    usage:
+      pipeline: agent_distillation
+      recommended_backend: pai_token
+      notes: >
+        Use as a compact student or teacher for agentic tool-use distillation.
+        Strong cost-performance trade-off for industrial agent scenarios.
+      notes_zh: >
+        可作为智能体工具使用蒸馏的紧凑学生或教师模型。在工业智能体场景中具备优良的
+        成本效益比。
+
+  - name: AgenticQwen-30B-A3B
+    family: AgenticQwen
+    size: 30B
+    type: agentic
+    description: >
+      MoE agentic language model trained on Qwen3-30B-A3B-Instruct with
+      multi-round RL. Activates only 3B parameters per forward pass while
+      matching or exceeding the 8B dense model on agentic benchmarks such as
+      BFCL-V4 and TAU-2.
+    description_zh: >
+      基于 Qwen3-30B-A3B-Instruct 经多轮强化学习训练的 MoE 智能体语言模型。每次前向
+      传播仅激活 3B 参数，但在 BFCL-V4、TAU-2 等智能体基准上可媲美甚至超越 8B 稠密模型。
+    downloads:
+      huggingface: alibaba-pai/AgenticQwen-30B-A3B
+      modelscope: PAI/AgenticQwen-30B-A3B
+    capabilities:
+      - tool_use
+      - multi_step_reasoning
+      - agentic_planning
+      - chat
+    usage:
+      pipeline: agent_distillation
+      recommended_backend: pai_token
+      notes: >
+        Recommended when you need the strongest agentic capability with lower
+        active-parameter inference cost than dense 8B models.
+      notes_zh: >
+        当需要最强智能体能力，同时希望推理激活参数低于 8B 稠密模型时的推荐选择。
+
+# ---------------------------------------------------------------------------
+# Released datasets that complement the DistilQwen model family
+# ---------------------------------------------------------------------------
+datasets:
+  - name: AgenticQwen-Data
+    size: 80K
+    type: agentic
+    description: >
+      Synthetic agentic RL training data generated by the dual data flywheels
+      used to train AgenticQwen. Includes behavior-tree-structured tasks,
+      virtual tool definitions, multi-turn trajectories, and rubric-based
+      quality annotations.
+    description_zh: >
+      用于训练 AgenticQwen 的双数据飞轮生成的合成智能体强化学习训练数据。包含行为树
+      结构化任务、虚拟工具定义、多轮轨迹以及基于评分规则的质量标注。
+    downloads:
+      huggingface: alibaba-pai/AgenticQwen-Data
+      modelscope: PAI/AgenticQwen-Data
+
+
+  - name: DistilQwen_100K
+    size: 100K
+    type: instruction_following
+    description: >
+      100K instruction-following samples covering math, code, knowledge Q&A,
+      instruction following, and creative generation. Useful for preventing
+      catastrophic forgetting when fine-tuning DistilQwen models.
+    description_zh: >
+      10 万条指令跟随样本，覆盖数学、代码、知识问答、指令遵循与创意生成。
+      可用于微调 DistilQwen 模型时缓解灾难性遗忘。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen_100k
+      modelscope: PAI/DistilQwen_100k
+
+  - name: DistilQwen_1M
+    size: 1M
+    type: instruction_following
+    description: >
+      1M-sample version of the DistilQwen instruction-following dataset.
+      Provides broader coverage for large-scale fine-tuning.
+    description_zh: >
+      DistilQwen 指令跟随数据集的 100 万样本版本，覆盖范围更广，适合大规模微调。
+    downloads:
+      huggingface: alibaba-pai/DistilQwen_1M
+      modelscope: PAI/DistilQwen_1M
+
+  - name: OmniThought
+    size: 2M
+    type: reasoning
+    description: >
+      2M chain-of-thought reasoning traces generated and validated by
+      DeepSeek-R1 and QwQ-32B. Each trace is annotated with RV and CD scores
+      for curriculum mixing.
+    description_zh: >
+      200 万条由 DeepSeek-R1 与 QwQ-32B 生成并验证的思维链推理轨迹。
+      每条轨迹均标注 RV 与 CD 分数，支持课程混合。
+    downloads:
+      huggingface: alibaba-pai/OmniThought
+      modelscope: PAI/OmniThought
+
+  - name: OmniThought-0528
+    size: 365K
+    type: reasoning
+    description: >
+      365K CoT reasoning traces generated and validated by DeepSeek-R1-0528.
+      Extension of OmniThought with a newer teacher model.
+    description_zh: >
+      36.5 万条由 DeepSeek-R1-0528 生成并验证的 CoT 推理轨迹。
+      OmniThought 基于更新教师模型的扩展版本。
+    downloads:
+      huggingface: alibaba-pai/OmniThought-0528
+      modelscope: PAI/OmniThought-0528
+
+  - name: OmniThoughtV_Raw_1.8M
+    size: 1.8M
+    type: multimodal_reasoning
+    description: >
+      1.8M raw multi-modal long chain-of-thought traces distilled from
+      Qwen-VL-max on FineVision seed problems. Traces follow the
+      <thinking>/<answer> format and store images as base64 strings.
+    description_zh: >
+      180 万条原始多模态长思维链轨迹，基于 FineVision 种子问题由
+      Qwen-VL-max 蒸馏得到。轨迹采用 <thinking>/<answer> 格式，
+      图像以 base64 字符串存储。
+    downloads:
+      huggingface: alibaba-pai/OmniThoughtV_Raw_1.8M
+
+  - name: OmniThoughtV_Filter_0.5M
+    size: 0.5M
+    type: multimodal_reasoning
+    description: >
+      Filtered subset of OmniThoughtV selected via RV/CD and correctness
+      scoring with the EasyDistill MMCoT pipeline. Fine-tuning Qwen3-VL
+      2B/4B/8B on this subset improves both general visual understanding
+      and reasoning-heavy benchmarks.
+    description_zh: >
+      OmniThoughtV 经 RV/CD 与正确性评分筛选后的高质量子集，由
+      EasyDistill MMCoT 流水线构建。用其微调 Qwen3-VL 2B/4B/8B
+      可同时提升通用视觉理解与推理密集型基准表现。
+    downloads:
+      huggingface: alibaba-pai/OmniThoughtV_Filter_0.5M
+      modelscope: platformofai/OmniThoughtV_Filter_0.5M

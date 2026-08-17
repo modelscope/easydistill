@@ -1,0 +1,2 @@
+{"id": "mm_cot_0", "instruction": "Look at the image and explain how you would determine the dominant color.", "images": ["examples/mm_sample_image.png"]}
+{"id": "mm_cot_1", "instruction": "The image shows a single colored square. What steps would you take to identify the color name?", "images": ["examples/mm_sample_image.png"]}

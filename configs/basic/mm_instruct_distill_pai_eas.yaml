@@ -1,0 +1,19 @@
+# Generate teacher responses for multi-modal instructions via PAI-EAS.
+job_type: mm_instruct_distill
+
+backend:
+  type: pai_eas
+  model_id: Qwen3.5-4B
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+
+mm:
+  system_prompt: "You are a helpful visual assistant. Answer based on the image(s)."
+  temperature: 0.7
+  max_tokens: 2048
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: examples/mm_seed_instructions.jsonl
+  output_path: outputs/mm_instruct_distill_pai_eas.jsonl

@@ -1,13 +1,11 @@
-============================================================= 
-EasyDistill is a open-source tool developed by Alibaba PAI Team 
-Licensed under the Apache License, Version 2.0 
+EasyDistill 2
+Copyright 2026 Alibaba Group Holding Limited
 
-============================================================= 
-This toolkit implements some modules referring to some repositories under 
-the same/different open source licenses.   
+This product includes software developed at
+Alibaba Group Holding Limited (http://www.alibaba-group.com/en/global/home).
 
------------------------------ 
-Apache License, Version 2.0 
-The HuggingFace Inc. team
-The OpenAI Team
-The vLLM Team
+This project is licensed under the Apache License, Version 2.0.
+See the LICENSE file for the full license text.
+
+This toolkit also contains code modified from other open-source projects.
+Attribution for those components is preserved in the relevant source files.

@@ -1,0 +1,51 @@
+# Omni judge dimension pool for T2V/I2V full-video evaluation.
+#
+# The omni checker sends the COMPLETE video to a video-native understanding
+# model, so its dimensions cover exactly what sparse sampled frames cannot
+# reliably show: motion between frames, temporal ordering, and camera work.
+# Static per-frame content and cross-frame identity belong to the vlm
+# checker (configs/eval/t2v/vlm_dimensions.yaml); the two pools must stay
+# disjoint so their score columns never collide.
+#
+# Select a subset via `metrics` in the omni checker config; add custom
+# dimensions by pointing `dimensions_file` at your own copy of this file.
+
+motion_quality:
+  applicable: always
+  description: >-
+    Whether motion is natural, smooth and physically plausible throughout
+    the clip; penalize jitter, ghosting, morphing during movement, frozen
+    segments and looping.
+  criteria:
+    "4": Motion is natural, smooth and physically plausible throughout.
+    "3": Mostly smooth with brief minor artifacts.
+    "2": Noticeable jitter, ghosting or unnatural movement in parts.
+    "1": Motion is heavily distorted or the clip is largely frozen/looping.
+    "0": Motion is broken; the clip does not read as continuous video.
+
+temporal_execution:
+  applicable: always
+  description: >-
+    Whether the events described in the prompt actually happen, in the
+    described order, and run to completion within the clip (not half-done,
+    reversed, or replaced by an unrelated action).
+  criteria:
+    "4": All described events occur in order and complete naturally.
+    "3": Events occur in order; one is abbreviated or slightly off.
+    "2": Some events occur but out of order or left incomplete.
+    "1": Only a hint of the described events; most do not happen.
+    "0": None of the described events happen.
+
+camera_accuracy:
+  applicable: always
+  description: >-
+    Whether the camera framing and motion match what the prompt specifies
+    (e.g. a requested slow push-in is actually a push-in, at a plausible
+    amplitude and speed); when the prompt does not specify camera work,
+    judge whether the camera behavior is stable and intentional.
+  criteria:
+    "4": Camera work matches the prompt (or is stable and intentional) exactly.
+    "3": Right camera move with off amplitude/speed.
+    "2": Different but acceptable camera behavior.
+    "1": Camera behavior contradicts the prompt or is erratic.
+    "0": Camera work is chaotic; no discernible intent.

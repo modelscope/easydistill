@@ -1,0 +1,27 @@
+# Seed-anchored expansion via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Each seed is expanded independently into same-scenario prompts, with
+# per-round topic dedup and lineage fields.
+job_type: seed_anchored_expansion
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+synthesis:
+  prompt_template_file: configs/prompts/pe_rewrite/expansion_prompt.txt
+  rounds: 2
+  generations_per_round: 5
+  temperature: 0.9
+  max_tokens: 4096
+  show_progress: true
+  max_workers: 4
+
+dataset:
+  input_path: examples/seed_pe_prompts.jsonl
+  instruction_key: instruction
+  output_path: outputs/seed_anchored_expanded_pai_eas.jsonl

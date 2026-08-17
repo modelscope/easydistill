@@ -1,0 +1,52 @@
+# Scene Spec: General Image Rewriting (general)
+
+Classify the user's original prompt into one of five sub-tasks — **Portrait Image**, **Common Text Image**, **Complex Text Image**, **Multi-Panel Grid Image**, **General Image** — and rewrite it per the matching sub-task's rules. If the original prompt is too short or hard to classify, default to General Image rewriting.
+
+## Sub-task 1: Portrait Image
+
+When the image centers on a person, cover:
+
+1. Basic facts: ethnicity, gender, age, build, face shape, facial features, expression, skin tone, skin texture, makeup, hair color, hairstyle.
+2. Clothing & accessories: type, fabric, and texture of tops, bottoms, shoes, outerwear; headwear, earrings, necklaces, bracelets, rings.
+3. Pose & action: body posture, hand gestures, gaze direction, interaction with objects.
+4. Background & environment: concrete setting, background objects, lighting, weather, overall mood.
+5. Other objects: for non-person items, describe count, color, material, position, and their spatial/functional relation to the person.
+6. Person IP information: if the original prompt names a person or identity, preserve it and place it first.
+7. Anime style: if the original prompt involves anime/manga characters and specifies no style, default to anime/manga style.
+8. Body completeness: state the framing explicitly — full-body / half-body / close-up — and describe which body parts appear in frame; note any occlusion.
+
+## Sub-task 2: Common Text Image
+
+When the image contains text (posters, poems, chalkboards) but is not a complex text image or slide page:
+
+1. Strictly preserve user-specified text (content, language, punctuation, capitalization, line breaks), position, font style, color, size, reading direction.
+2. Text-environment relationship: describe the scene type, overall palette and style, the carrier of the text, its presentation (print, LED screen, neon, embroidery, graffiti), its compositional role (title, slogan, brand mark, decoration), and its spatial relation to people/objects. Text on physical carriers (paper menus, books, newspapers) must not carry drop shadows or outlines. Avoid oversized near-field objects that hurt realism, unless the user asks for them.
+3. Poem/passage completion: if the user asks for the full text of a poem or passage, gives its opening lines, or specifies a range ("from ... to ..."), write it out completely using world knowledge; supplied text must fit the layout and match the requested language. If the full text would be too long (>500 words) or cannot be determined, generate representative lines instead; placeholder phrasing like "text omitted here" is strictly forbidden.
+
+## Sub-task 3: Complex Text Image
+
+When the image is a complex text image or a slide page (slide outline, stacked data, info cards, infographic, business presentation, UI/UX design):
+
+1. Layout planning: build the layout with position words (upper-left area, right side, center), choose the format by content volume (left-right comparison, three-column cards, quad grid, title bar + main body), and keep sections independent and non-overlapping.
+2. Enlarge key figures prominently and give core metrics emphasis; when asked to plan text yourself, proactively supply concrete content (for "self-introduction", plan actual "Name", "Work Experience", "Core Skills" headings plus their body text), matching the user's requested language.
+3. Visual style: default to an elegant, restrained business style — mostly solid backgrounds, harmonious palette, moderate saturation; prefer sans-serif fonts; rich but uncrowded elements with clear spacing. Maps, national flags, and national emblems are strictly forbidden.
+
+## Sub-task 4: Multi-Panel Grid Image
+
+When the image is a multi-panel grid (storyboard panels, comic strips, comparison grids):
+
+1. Define the layout explicitly: panel count (triptych, quad grid, nine-grid, or asymmetric layouts), each panel's position and size, and the border style (default: hairline white dividers).
+2. Design each panel's visuals: panels share one theme but must vary clearly as the user needs — viewpoint, action, expression, time, shot, costume, or narrative stage; unless the user says otherwise, keep subject, style, lighting, palette, and period setting consistent across panels.
+3. Describe the panels in order (2-3 sentences each), guiding the model with position words (top panel, lower-left panel, right panel).
+
+## Sub-task 5: General Image
+
+When the image centers not on people or text but on landscape, still life, or abstract/surreal subjects, cover:
+
+1. Core visual elements: subject type, count, shape, size, color, texture/material, state, and position; spatial layering and relative positions; light and shadow (direction, contrast, highlights/reflections); color (palette, saturation, contrast); surface quality (smooth, rough, metallic, fabric, transparent, frosted).
+2. Scene and mood: scene type (natural landscape, urban architecture, interior, still-life arrangement); time and weather (dawn mist, blazing noon, rain-washed, warm dusk); atmosphere (cozy, desolate, mysterious, high-tech, vibrant).
+3. Multi-object relations: functional pairing (teapot with cups), action interplay (wind lifting curtains, water striking rock), scale and proportion (towering skyline, boulder versus pedestrian, macro close-up).
+
+## ID and Card Scenes
+
+When the main subject is an ID card, bank card, driver's license, passport, or similar standard card, describe it explicitly as a landscape rectangular card (standard ratio around 85.6:54) to avoid square cards; every text field on the card must carry concrete renderable content (an actual name, date, number) — never vague placeholders like "institution name" or "date"; invent reasonable values for fields the user left unspecified.

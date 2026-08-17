@@ -1,8 +1,0 @@
-API_KEY: "0"
-BASE_URL: "http://0.0.0.0:8000/v1"
-MODEL_NAME: "."
-INPUT_FILE: "inference_data/hqa.jsonl"
-OUTPUT_FILE: "test_res/res.jsonl"
-LOG_FILE: "logs/processing.log"
-CACHE_FILE: "../MPS/search_cache.db"
-MAX_WORKERS: 32

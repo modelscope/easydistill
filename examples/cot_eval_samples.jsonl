@@ -1,0 +1,3 @@
+{"instruction": "What is the sum of the first 10 positive integers?", "response": "<|begin_of_thought|>The sum of the first n positive integers is n(n+1)/2. For n=10, this is 10*11/2 = 55.<|end_of_thought|><|begin_of_solution|>55<|end_of_solution|>"}
+{"instruction": "A train travels 60 kilometers in 30 minutes. What is its average speed in kilometers per hour?", "response": "<|begin_of_thought|>30 minutes is 0.5 hours. Speed is distance divided by time, so 60 km / 0.5 h = 120 km/h.<|end_of_thought|><|begin_of_solution|>120 km/h<|end_of_solution|>"}
+{"instruction": "Solve for x: 2x + 5 = 17.", "response": "<|begin_of_thought|>Subtract 5 from both sides: 2x = 12. Then divide by 2: x = 6.<|end_of_thought|><|begin_of_solution|>6<|end_of_solution|>"}

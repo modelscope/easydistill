@@ -1,0 +1,64 @@
+# Production PE rewrite text pipeline starting FROM SEEDS, in ONE command:
+#   seed_anchored_expansion (grow each seed into same-scenario prompts)
+#   -> agentic_rewrite (plan -> rewrite -> reflection, qwen3.7-plus)
+#   -> pe_rewrite_eval (combined 9-metric judge, qwen3.7-max)
+#   -> quality_filter (plan-doc thresholds + top-80%)
+#   -> build_sft (student SFT samples, per-language system prompt)
+# Each stage writes its intermediate jsonl for auditing; dataset.output_path
+# holds the final SFT dataset.
+job_type: pe_rewrite_distill
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-plus         # default model (teacher steps)
+
+pipeline:
+  - stage: seed_anchored_expansion
+    config:
+      rounds: 2                  # expansion rounds per seed (topic dedup)
+      generations_per_round: 5
+      temperature: 0.8
+      max_workers: 50
+      show_progress: true
+    output_path: outputs/pe_seeds_expanded.jsonl
+  - stage: agentic_rewrite
+    config:
+      plan:
+        temperature: 0.3
+        max_tokens: 256
+      rewrite:
+        temperature: 0.7
+        max_tokens: 8192
+      reflection:
+        model_id: qwen3.7-max    # stronger checker per plan doc
+        temperature: 0.3
+        max_tokens: 8192
+      max_workers: 50
+      show_progress: true
+      stream_output_path: outputs/pe_seeds_rewrite.stream.jsonl
+    output_path: outputs/pe_seeds_rewrite.jsonl
+  - stage: pe_rewrite_eval
+    config:
+      model_id: qwen3.7-max      # judge separated from the plus teacher (D9)
+      temperature: 0.0
+      max_tokens: 512
+      max_workers: 50
+    output_path: outputs/pe_seeds_scored.jsonl
+  - stage: quality_filter
+    config:
+      # Hard score gates only (plan-doc thresholds); no top-ratio pruning,
+      # so every row passing the gates goes to SFT.
+      per_scene: false
+    output_path: outputs/pe_seeds_filtered.jsonl
+  - stage: build_sft
+
+sft:
+  system_prompt_zh_file: configs/prompts/pe_rewrite/student_system_zh.txt
+  system_prompt_en_file: configs/prompts/pe_rewrite/student_system_en.txt
+
+dataset:
+  # Seed jsonl: one {"instruction": ...} per line (optional "id" for lineage).
+  input_path: examples/seed_pe_prompts.jsonl
+  output_path: outputs/pe_seeds_sft.jsonl

@@ -1,0 +1,61 @@
+# Production PE rewrite text pipeline starting FROM SEEDS via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Flow: seed_anchored_expansion -> agentic_rewrite -> pe_rewrite_eval
+# -> quality_filter -> build_sft.
+# Each stage writes its intermediate jsonl for auditing; dataset.output_path
+# holds the final SFT dataset.
+job_type: pe_rewrite_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B          # default model (teacher steps); adjust to your deployed model
+  timeout: 120.0
+  max_retries: 3
+
+pipeline:
+  - stage: seed_anchored_expansion
+    config:
+      rounds: 2
+      generations_per_round: 5
+      temperature: 0.8
+      max_workers: 10
+      show_progress: true
+    output_path: outputs/pe_seeds_expanded.jsonl
+  - stage: agentic_rewrite
+    config:
+      plan:
+        temperature: 0.3
+        max_tokens: 256
+      rewrite:
+        temperature: 0.7
+        max_tokens: 8192
+      reflection:
+        model_id: Qwen3.5-4B    # stronger checker; adjust to your deployed model
+        temperature: 0.3
+        max_tokens: 8192
+      max_workers: 10
+      show_progress: true
+      stream_output_path: outputs/pe_seeds_rewrite.stream.jsonl
+    output_path: outputs/pe_seeds_rewrite.jsonl
+  - stage: pe_rewrite_eval
+    config:
+      model_id: Qwen3.5-4B      # judge separated from the teacher on a shared endpoint
+      temperature: 0.0
+      max_tokens: 512
+      max_workers: 10
+    output_path: outputs/pe_seeds_scored.jsonl
+  - stage: quality_filter
+    config:
+      per_scene: false
+    output_path: outputs/pe_seeds_filtered.jsonl
+  - stage: build_sft
+
+sft:
+  system_prompt_zh_file: configs/prompts/pe_rewrite/student_system_zh.txt
+  system_prompt_en_file: configs/prompts/pe_rewrite/student_system_en.txt
+
+dataset:
+  input_path: examples/seed_pe_prompts.jsonl
+  output_path: outputs/pe_seeds_sft.jsonl

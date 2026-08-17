@@ -1,0 +1,21 @@
+# Refine existing instructions via EAS.
+job_type: instruction_refinement
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+
+synthesis:
+  prompt_template_file: configs/prompts/refinement_prompt.txt
+  temperature: 0.7
+  max_tokens: 512
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  instruction_key: instruction
+  output_path: outputs/refined_instructions_pai_eas.jsonl
+  output_format: instruction

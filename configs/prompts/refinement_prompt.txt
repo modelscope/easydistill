@@ -1,0 +1,6 @@
+Please rewrite and improve the following instruction to make it clearer, more specific, and more challenging while preserving its original intent.
+
+Instruction:
+{instruction}
+
+Please wrap the improved instruction in <answer>...</answer>.

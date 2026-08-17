@@ -1,0 +1,21 @@
+# Extract (instruction, response) pairs from raw text via EAS.
+job_type: instruction_response_extraction
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+
+synthesis:
+  prompt_template_file: configs/prompts/extraction_prompt.txt
+  temperature: 0.7
+  max_tokens: 512
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: examples/raw_texts.jsonl
+  text_key: text
+  output_path: outputs/extracted_pairs_pai_eas.jsonl
+  output_format: instruction_response

@@ -1,0 +1,58 @@
+# T2I 多模型（多教师 Debate）· PAI EAS 版：多教师打分 + 冲突检测 + 三步 Debate + case 总分。
+# 用法：python -m easydistill.eval.t2i_multi_model --config configs/eval/t2i_ti2i/t2i_multi_model_pai_eas.yaml
+# Token 版：t2i_multi_model_pai_token.yaml；单教师入口：easydistill.eval.t2i_single_model。
+# teachers / arbiter / reason_model 各自独立配置 backend，可按需混用 pai_token 与 pai_eas。
+# 多教师建议部署多个 EAS 服务（每个模型各一套 endpoint/token 环境变量）。
+
+job_type: t2i_multi_model_eval
+
+# 教师池：name 必须是实际模型名（对外 teacher 字段直接使用该名字）。
+teachers:
+  - name: Qwen3.5-4B
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL}
+    token: ${EAS_TOKEN}
+    model_id: Qwen3.5-4B
+  - name: Qwen3.5-7B
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL_2}
+    token: ${EAS_TOKEN_2}
+    model_id: Qwen3.5-7B
+  - name: kimi-k3
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL_3}
+    token: ${EAS_TOKEN_3}
+    model_id: kimi-k3
+
+# Debate 三步仲裁模型（仅 Step1/2/3）；省略时默认用第一个教师。
+arbiter:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL_3}
+  token: ${EAS_TOKEN_3}
+  model_id: kimi-k3
+
+# 最终数据合成（reason 规范化）模型：与 Debate 分离的独立模型/步骤；省略时默认用 arbiter。
+reason_model:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL_3}
+  token: ${EAS_TOKEN_3}
+  model_id: kimi-k3
+
+eval:
+  # 提示词模板（teacher / reason_synthesis / debate_step1-3）；也可用内联 prompts 覆盖单个 key。
+  prompts_file: configs/prompts/t2i_multi_model_prompts.yaml
+  # dimensions_path: configs/eval/t2i_ti2i/t2i_dimensions.json  # 维度池，省略时用默认 60 维
+  conflict_threshold: 2     # 跨教师分差 >= 2 触发 Debate
+  max_debate_dims: 6        # 每 case 最多仲裁维度数
+  max_workers: 4
+  synthesize_reasons: false # true 时用 reason_model 规范化多数票 reason（等价主链路 reason 合成）
+  temperature: 0.0
+  max_tokens: 8000
+  call_retries: 2           # 模型调用失败的重试次数
+  retry_delay_sec: 5.0      # 重试间隔（秒）
+
+dataset:
+  input_path: examples/t2i_seed.jsonl
+  # 输出目录：与主链路同名产物 teacher_outputs / conflict_report / debate_results /
+  # final_labels / final_judgments / final_labels_summary.json；--export-training 另出 sft/dpo/uncertain。
+  output_dir: outputs/t2i_multi_model_pai_eas

@@ -1,0 +1,23 @@
+# PE rewrite judge via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Scores each (original, rewritten) prompt pair on 7 anchored 0-9 metrics
+# + 2 boolean hard checks in a SINGLE judge call per row.
+job_type: pe_rewrite_eval
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+eval:
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 8
+  show_progress: true
+
+dataset:
+  input_path: outputs/agentic_rewritten_pai_eas.jsonl
+  output_path: outputs/pe_rewrite_scored_pai_eas.jsonl

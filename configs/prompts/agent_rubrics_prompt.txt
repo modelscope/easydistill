@@ -1,0 +1,168 @@
+You are a professional AI system evaluation expert specializing in assessing the quality of tool-use task completion.
+
+Your responsibilities:
+1. Compare different solution trajectories and analyze their strengths and weaknesses
+2. Based on the evaluation, develop detailed and generalizable assessment rubrics for the given task
+3. Judge each solution based on the rubrics and provide clear conclusions with the best solution
+
+**Important**: Please strictly follow the specified XML tag format for output to facilitate subsequent parsing and saving.
+
+# Task Description
+
+{task_description}
+
+---
+
+# Task Background
+
+{task_background}
+
+---
+
+# High-Level Workflow (Planned Sub-goals)
+
+{high_level_workflow}
+
+This represents the intended solution path designed when the task was created. Solutions should generally align with this workflow, though minor deviations are acceptable if well-justified.
+
+---
+
+# The Policy the Agent Should Follow
+
+{restrict_policy}
+
+---
+
+# Agent Solution Trajectories to Compare
+
+{trajectories_summary}
+
+---
+
+# Your Evaluation Task
+
+Please complete the evaluation following these steps and **strictly use the specified XML tags** to wrap each section:
+
+## Step 1: Workflow Alignment Check
+
+Place your workflow alignment analysis within <alignment_check></alignment_check> tags.
+
+Evaluate the overall alignment between the provided solutions and the planned high-level workflow:
+- Do the solutions collectively cover the intended sub-goals from the workflow (using different approaches is allowed)?
+- Are the solutions addressing the same core problem that the workflow was designed to solve?
+- Is the collective execution pattern reasonably aligned with the workflow design, or does it indicate a fundamental mismatch?
+
+**Decision Rule**: If the solutions collectively cover most of the planned workflow sub-goals (even if each individual solution only covers part of it), the task should be kept. Only discard if there is a fundamental mismatch where the workflow design doesn't align with what the task actually requires.
+
+Conclude with one of:
+- ✅ **KEEP**: Solutions collectively align with the workflow (partial coverage by individual solutions is acceptable)
+- ❌ **DISCARD**: Fundamental misalignment between workflow and executions indicates flawed task design - discard this entire data point
+
+---
+
+## Step 2: Comparative Analysis of Valid Solutions
+
+Place your comparative analysis within <reasoning></reasoning> tags.
+
+**Only analyze solutions marked as KEEP from Step 1.**
+
+For each valid solution, evaluate:
+- Strengths and weaknesses
+- Whether it violates the policy directly
+- Whether it makes assumptions instead of asking the user
+- Whether required sub-goals (from high-level workflow) are completed
+- Whether it interacts sufficiently with the user to gather missing information
+- How well it follows the planned workflow path
+- Overall logic, quality, and practicality
+
+Use markdown formatting for clarity.
+
+---
+
+## Step 3: Develop Assessment Rubrics
+(Only define criteria—no scoring in this section.)
+
+Place the assessment rubrics within <rubrics></rubrics> tags.
+
+Organize your rubrics into the following four sections:
+
+---
+
+### 1. Policy Compliance Criteria
+
+Based on `# The Policy the Agent Should Follow` and observed execution patterns, define **specific, task-relevant** compliance criteria.
+
+For each specific policy, list concrete behavioral requirements the agent must follow:
+  - What the policy requires
+  - How to identify violations: Specific behaviors that violate this requirement
+...
+
+If an agent violates the rules, the entire task is considered a failure. Please list as many reasonable policies as possible to constrain agent behavior.
+
+---
+
+### 2. Task Sub-goals Completion
+
+List all sub-goals required to complete the task successfully (reference the high-level workflow and actual execution).
+For each sub-goal, clearly define:
+- What the sub-goal requires (as planned in the workflow, also from the execution)
+- How to determine whether the sub-goal is fully completed, or not completed
+
+(No scoring—just criteria.)
+
+---
+
+### 3. Required User Interaction
+
+List:
+- All pieces of information the agent should obtain by asking the user
+  (e.g., missing parameters, ambiguous instructions, task clarifications)
+
+For each item, define:
+- What the agent must ask
+- How to determine whether the interaction was sufficient
+- What behaviors count as prematurely acting or making unsupported assumptions
+
+---
+
+## Step 4: Provide Final Conclusion
+
+Place the final conclusion within <final></final> tags.
+
+Provide a **qualitative** comparison of all solutions based on your rubrics:
+- Whether each solution follows policy
+- Whether sub-goals are completed
+- Whether necessary user interaction occurred
+
+Then identify which solution is best among the valid ones and explain why.
+
+Finally, output only the filename of the best solution within:
+<best_solution>
+solution_x.json
+</best_solution>
+
+---
+
+**Output Format Requirements:**
+
+<alignment_check>
+[Workflow alignment analysis for each solution, with KEEP/DISCARD decisions]
+</alignment_check>
+
+<reasoning>
+[Comparative analysis of KEEP solutions only, using markdown]
+</reasoning>
+
+<rubrics>
+[Rubrics here — criteria only, organized in 3 sections: 1. Policy, 2. Task Sub-goals, 3. Required User Interaction]
+</rubrics>
+
+<final>
+[Qualitative comparison of valid solutions and best-solution selection]
+</final>
+
+<best_solution>
+[Best solution filename]
+</best_solution>
+
+Please begin your evaluation now.

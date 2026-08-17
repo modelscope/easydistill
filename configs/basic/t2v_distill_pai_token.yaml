@@ -1,0 +1,30 @@
+# Basic T2V/I2V distillation via the PAI-Token gateway.
+# Flow: seed prompts (optionally with first_frame_image) -> t2v_generate -> SFT.
+# first_frame_image accepts local paths or http(s) URLs.
+# Set PAI_TOKEN_API_KEY / PAI_TOKEN_BASE_URL env vars or fill them below.
+
+job_type: t2v_distill
+
+t2v_backend:
+  type: pai_token_video
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: happyhorse-1.1-t2v     # used for rows without first_frame_image
+  i2v_model_id: happyhorse-1.1-i2v # used for rows with first_frame_image
+  poll_interval: 5.0
+  max_poll_wait: 1800.0
+  output_dir: outputs/t2v_videos    # videos downloaded here; rows carry local paths
+
+generation:
+  resolution: 720P                 # 480P | 720P | 1080P
+  # ratio: 16:9                    # T2V-only aspect ratio; omit to keep default
+  duration: 5                      # integer seconds in [3, 15]
+  max_workers: 1
+  show_progress: true
+
+sft:
+  skip_empty: true
+
+dataset:
+  input_path: examples/seed_t2v_prompts.jsonl
+  output_path: outputs/t2v_sft_pai_token.jsonl

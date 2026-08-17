@@ -1,0 +1,81 @@
+# Advanced instruction distillation pipeline via PAI-Token.
+# Flow: seed instructions -> expansion -> refinement -> teacher generation
+# -> LLM-as-judge evaluation -> quality filter -> SFT dataset.
+
+job_type: advanced_instruct_distill
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: kimi-k2.6
+
+generation:
+  system_prompt: "You are a helpful assistant. Provide concise and accurate answers."
+  temperature: 0.7
+  max_tokens: 2048
+
+eval:
+  prompts_file: configs/prompts/default_eval_prompts.yaml
+  metrics:
+    - informativeness
+    - helpfulness
+    - generalization
+    - correctness
+  temperature: 0.0
+  max_tokens: 2048
+  max_workers: 4
+
+pipeline:
+  - stage: instruction_expansion
+    config:
+      prompt_template_file: configs/prompts/expansion_prompt.txt
+      num_in_context_samples: 2
+      num_output_samples: 3
+      temperature: 0.8
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/bp_stage1_expanded.jsonl
+
+  - stage: instruction_refinement
+    config:
+      prompt_template_file: configs/prompts/refinement_prompt.txt
+      temperature: 0.7
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/bp_stage2_refined.jsonl
+
+  - stage: generate
+    config:
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/bp_stage3_generated.jsonl
+
+  - stage: instruct_eval
+    config:
+      show_progress: true
+      max_workers: 4
+    output_path: outputs/bp_stage4_evaluated.jsonl
+
+  - stage: quality_filter
+    config:
+      min_scores:
+        informativeness: 6
+        helpfulness: 6
+        generalization: 4
+        correctness: true
+      require_all_metrics: true
+      keep_top_ratio: 0.7
+    output_path: outputs/bp_stage5_filtered.jsonl
+
+  - stage: build_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  output_path: outputs/advanced_instruct_distill_sft_pai_token.jsonl
+  skip_empty: true
+  min_length: 10
+  max_length: 8192

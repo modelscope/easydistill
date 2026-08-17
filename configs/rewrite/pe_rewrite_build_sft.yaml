@@ -1,0 +1,13 @@
+# PE rewrite stage 8: build SFT samples from filtered rows.
+# system = end-to-end student rewrite instruction (per row language),
+# user = original prompt, assistant = final rewritten prompt.
+# Local job: no backend / LLM calls.
+job_type: pe_rewrite_build_sft
+
+sft:
+  system_prompt_zh_file: configs/prompts/pe_rewrite/student_system_zh.txt
+  system_prompt_en_file: configs/prompts/pe_rewrite/student_system_en.txt
+
+dataset:
+  input_path: outputs/bench_rewrite_filtered.jsonl
+  output_path: outputs/bench_rewrite_sft.jsonl

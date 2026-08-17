@@ -1,0 +1,23 @@
+# Generate new instructions via EAS.
+job_type: instruction_expansion
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+
+synthesis:
+  prompt_template_file: configs/prompts/expansion_prompt.txt
+  num_in_context_samples: 2
+  num_output_samples: 3
+  temperature: 0.8
+  max_tokens: 512
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  instruction_key: instruction
+  output_path: outputs/expanded_instructions_pai_eas.jsonl
+  output_format: instruction

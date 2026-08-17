@@ -1,0 +1,51 @@
+# TI2I 单模型（单教师）· PAI EAS 版：指定教师打分 + case 总分；无跨教师冲突 → 无 Debate。
+# 用法：python -m easydistill.eval.ti2i_single_model --config configs/eval/t2i_ti2i/ti2i_single_model_pai_eas.yaml [--teacher Qwen3.5-7B]
+# Token 版：ti2i_single_model_pai_token.yaml；多模型独立入口：easydistill.eval.ti2i_multi_model。
+# 多教师建议部署多个 EAS 服务（每个模型各一套 endpoint/token 环境变量）。
+
+job_type: ti2i_single_model_eval
+
+# 教师池：name 必须是实际模型名；实际使用哪一个由下方 teacher / --teacher 决定。
+teachers:
+  - name: Qwen3.5-4B
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL}
+    token: ${EAS_TOKEN}
+    model_id: Qwen3.5-4B
+  - name: Qwen3.5-7B
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL_2}
+    token: ${EAS_TOKEN_2}
+    model_id: Qwen3.5-7B
+  - name: kimi-k3
+    type: pai_eas
+    endpoint_url: ${EAS_ENDPOINT_URL_3}
+    token: ${EAS_TOKEN_3}
+    model_id: kimi-k3
+
+# 默认单教师模型名（可被 --teacher 覆盖）。
+teacher: Qwen3.5-7B
+
+# 可选：教师理由规范化模型（等价主链路 reason 合成）；省略时默认用教师本身。
+# reason_model:
+#   type: pai_eas
+#   endpoint_url: ${EAS_ENDPOINT_URL_3}
+#   token: ${EAS_TOKEN_3}
+#   model_id: kimi-k3
+
+eval:
+  # 提示词模板（teacher / reason_synthesis）；也可用内联 prompts 覆盖单个 key。
+  prompts_file: configs/prompts/ti2i_single_model_prompts.yaml
+  # dimensions_path: configs/eval/t2i_ti2i/ti2i_dimensions.json  # 维度池，省略时用默认冻结版
+  max_workers: 4
+  synthesize_reasons: false # true 时用 reason 模型规范化教师理由
+  temperature: 0.0
+  max_tokens: 8000
+  call_retries: 2           # 模型调用失败的重试次数
+  retry_delay_sec: 5.0      # 重试间隔（秒）
+
+dataset:
+  input_path: examples/ti2i_seed.jsonl
+  # 输出目录：与主链路同名产物 teacher_outputs / conflict_report / debate_results /
+  # final_labels / final_judgments / final_labels_summary.json；--export-training 另出 sft/dpo/uncertain。
+  output_dir: outputs/ti2i_single_model_pai_eas

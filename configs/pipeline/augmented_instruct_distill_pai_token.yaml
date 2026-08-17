@@ -1,0 +1,46 @@
+# End-to-end augmented instruction distillation pipeline via PAI-Token.
+job_type: augmented_instruct_distill
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: kimi-k2.6
+
+generation:
+  system_prompt: "You are a helpful assistant. Provide concise and accurate answers."
+  temperature: 0.7
+  max_tokens: 2048
+
+pipeline:
+  - stage: instruction_expansion
+    config:
+      prompt_template_file: configs/prompts/expansion_prompt.txt
+      num_in_context_samples: 2
+      num_output_samples: 3
+      temperature: 0.8
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/augmented_stage1_expanded_pai_token.jsonl
+
+  - stage: instruction_refinement
+    config:
+      prompt_template_file: configs/prompts/refinement_prompt.txt
+      temperature: 0.7
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/augmented_stage2_refined_pai_token.jsonl
+
+  - stage: instruct_distill
+    config:
+      show_progress: true
+      max_workers: 3
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  output_path: outputs/augmented_instruct_distill_sft_pai_token.jsonl
+  skip_empty: true
+  min_length: 10
+  max_length: 8192

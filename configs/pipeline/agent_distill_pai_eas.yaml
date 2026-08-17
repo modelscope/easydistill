@@ -1,0 +1,92 @@
+# Agent distillation pipeline via PAI-EAS.
+# Flow: persona -> task synthesis -> fuzzy task -> tool check -> trajectory rollout
+# -> rubric comparison -> SFT dataset.
+
+job_type: agent_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+generation:
+  system_prompt: "You are a helpful assistant that follows instructions precisely and uses XML tags for structured output."
+  temperature: 0.7
+  max_tokens: 4096
+
+sft:
+  skip_empty: true
+  min_length: 10
+  max_length: 16384
+
+agent:
+  max_steps: 10
+  repeat_times: 2
+  max_tool_calls: 20
+  use_rubrics: true
+
+pipeline:
+  - stage: agent_task_synthesis
+    config:
+      prompt_template_file: configs/prompts/agent_task_synthesis_prompt.txt
+      temperature: 0.7
+      max_tokens: 4096
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/agent_stage1_tasks.jsonl
+
+  - stage: agent_fuzzy_task
+    config:
+      prompt_template_file: configs/prompts/agent_fuzzy_task_prompt.txt
+      temperature: 0.7
+      max_tokens: 4096
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/agent_stage2_fuzzy.jsonl
+
+  - stage: agent_tool_check
+    config:
+      prompt_template_file: configs/prompts/agent_tool_check_prompt.txt
+      temperature: 0.7
+      max_tokens: 4096
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/agent_stage3_tools.jsonl
+
+  - stage: agent_trajectory
+    config:
+      max_steps: 10
+      repeat_times: 2
+      solve:
+        temperature: 0.7
+        max_tokens: 4096
+        retry_attempts: 2
+      mock_tool:
+        temperature: 0.5
+        max_tokens: 2048
+        retry_attempts: 2
+      mock_user:
+        temperature: 0.5
+        max_tokens: 2048
+        retry_attempts: 2
+    output_path: outputs/agent_stage4_trajectories.jsonl
+
+  - stage: agent_rubrics
+    config:
+      prompt_template_file: configs/prompts/agent_rubrics_prompt.txt
+      temperature: 0.3
+      max_tokens: 4096
+      show_progress: true
+      max_workers: 2
+      solution_top_k: 3
+    output_path: outputs/agent_stage5_rubrics.jsonl
+
+  - stage: build_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_agent_personas.jsonl
+  output_path: outputs/agent_sft_pai_eas.jsonl

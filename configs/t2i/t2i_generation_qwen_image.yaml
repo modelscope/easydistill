@@ -1,0 +1,24 @@
+# Standalone T2I image generation via Qwen-Image.
+# Generates images from prompts and saves the resulting image URLs.
+# Usage:
+#   export DASHSCOPE_API_KEY=your_key
+#   easydistill --config configs/t2i/t2i_generation_qwen_image.yaml
+
+job_type: t2i_generation
+
+t2i_backend:
+  type: qwen_image
+  api_key: ${DASHSCOPE_API_KEY}
+  model_id: qwen-image2.0-pro
+
+generation:
+  size: "1024*1024"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_qwen_image_generated.jsonl
+  prompt_key: prompt

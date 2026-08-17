@@ -1,0 +1,102 @@
+# Search-agent distillation pipeline via PAI-Token.
+# Flow: seed QA -> task evolution (Strategist/Expand/Refine/QualityGate/Verify/Judge)
+# -> solver trajectory rollout -> judge filter -> SFT dataset.
+
+job_type: search_agent_distill
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-max
+  timeout: 180.0
+  max_retries: 3
+
+generation:
+  temperature: 0.7
+  max_tokens: 4096
+
+sft:
+  min_length: 10
+  max_length: 65536
+
+# Shared role/tool settings merged into every stage config.
+# Roles mirror the original SearchSynthAgent step_models:
+#   strategist  -> StrategistAgent (decision making, temperature 0)
+#   synthesis   -> TaskSynthesisAgent (expand/refine rewriting)
+#   search_sim  -> SearchSimAgent (mock web search/browse simulator)
+#   judge       -> JudgeAgent (difficulty report, answer check, quality gate)
+#   solver      -> SolveAgent (ReAct rollout; the student-facing distribution)
+#   fast_verify -> FastVerifyAgent (cheap plan-based verification)
+# Each role accepts model_id / temperature / max_tokens / no_think.
+# no_think: true appends the /no_think marker to user prompts (original
+# SearchSynthAgent behavior); enable it for Qwen3 hybrid-thinking models
+# when reasoning traces are not wanted in the trajectory.
+search_agent:
+  roles:
+    strategist:
+      model_id: qwen3.7-max
+      temperature: 0.0
+      max_tokens: 8192
+    synthesis:
+      model_id: qwen3.7-max
+      temperature: 0.7
+      max_tokens: 8192
+    search_sim:
+      model_id: qwen3.6-plus
+      temperature: 0.7
+      max_tokens: 4096
+      no_think: true
+    judge:
+      model_id: qwen3.7-max
+      temperature: 0.0
+      max_tokens: 4096
+    solver:
+      model_id: qwen3.6-plus
+      temperature: 0.7
+      max_tokens: 4096
+      no_think: true
+  tools:
+    mode: mock            # mock = LLM-simulated search/browse; real = Google + Jina
+    num_results: 5
+    browse_max_chars: 500   # original mock default; raise for richer pages
+    # Real mode only:
+    # google_api_key: ${GOOGLE_API_KEY}
+    # google_cx: ${GOOGLE_CX}
+    # jina_api_key: ${JINA_API_KEY}
+    # cache_db_path: outputs/search_cache.db
+
+pipeline:
+  - stage: search_task_evolve
+    config:
+      max_levels: 4
+      max_iterations: 20
+      num_generations: 1    # independent evolution rounds per seed (original --num_generations)
+      # resume_from: outputs/search_agent_stage1_tasks.jsonl  # skip seeds already evolved
+      fast_verify: false
+      fast_verify_runs: 4
+      final_eval_runs: 4
+      solver_max_steps: 12
+      keep_filtered: false
+      max_workers: 2
+    output_path: outputs/search_agent_stage1_tasks.jsonl
+
+  - stage: search_trajectory
+    config:
+      repeat_times: 4
+      max_steps: 12
+      max_workers: 4
+    output_path: outputs/search_agent_stage2_trajectories.jsonl
+
+  - stage: search_judge_filter
+    config:
+      require_correct: true
+      min_turns: 2
+      selection: correct_shortest
+    output_path: outputs/search_agent_stage3_filtered.jsonl
+
+  - stage: build_sft
+
+dataset:
+  input_path: examples/seed_search_qa.jsonl
+  output_path: outputs/search_agent_sft_pai_token.jsonl

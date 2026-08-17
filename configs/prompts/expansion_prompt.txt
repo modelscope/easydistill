@@ -1,0 +1,5 @@
+You are given some example instructions below. Your task is to write a NEW instruction that is similar in style and difficulty but different in content.
+
+{examples}
+
+Now write a new instruction. Wrap your output in <answer>...</answer>.

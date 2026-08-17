@@ -1,0 +1,1931 @@
+{
+  "version": "edit_judge_v2.7_classifier_routed",
+  "scoring_levels": 5,
+  "score_map_5": {
+    "0": 0,
+    "1": 15,
+    "2": 35,
+    "3": 65,
+    "4": 90
+  },
+  "gate": {
+    "l1": "Instruction Following",
+    "core_items": [
+      "Correct Target",
+      "Correct Operation",
+      "Attribute Compliance",
+      "Reference Fidelity",
+      "Text and Symbol Accuracy",
+      "Enumerated Element Coverage",
+      "Output Format Compliance"
+    ],
+    "trigger_lte": 1,
+    "cap": 35,
+    "severe_cap": 20,
+    "severe_trigger_raw": 0,
+    "soft_trigger_raw": 2,
+    "soft_cap": 65,
+    "multi_soft_cap": 55,
+    "multi_soft_min_count": 2
+  },
+  "edit_families": {
+    "default": "general",
+    "mapping": {
+      "Object Reference": [
+        "reference_edit",
+        "object_reference"
+      ],
+      "Style Reference": [
+        "reference_edit",
+        "style_reference"
+      ],
+      "Color Reference": [
+        "reference_edit",
+        "color_reference"
+      ],
+      "Portrait Reference": [
+        "reference_edit",
+        "pose_reference"
+      ],
+      "Object Insertion": [
+        "local_object",
+        "add_object"
+      ],
+      "Object Removal": [
+        "local_object",
+        "remove_object"
+      ],
+      "Object Replacement": [
+        "object_replace",
+        "replace_object"
+      ],
+      "Object Modification": [
+        "local_object",
+        "modify_object_attribute"
+      ],
+      "Object Movement": [
+        "local_object",
+        "move_object"
+      ],
+      "Inpainting": [
+        "inpainting",
+        "inpainting"
+      ],
+      "Segmentation Tasks": [
+        "inpainting",
+        "inpainting"
+      ],
+      "Style Transition": [
+        "global_style",
+        "style_transfer"
+      ],
+      "Style Transfer": [
+        "global_style",
+        "style_transfer"
+      ],
+      "Tone Transformation": [
+        "global_style",
+        "color_grading"
+      ],
+      "Relighting": [
+        "global_style",
+        "color_grading"
+      ],
+      "Diurnal Cycle Transformation": [
+        "background_scene",
+        "diurnal_cycle_transformation"
+      ],
+      "Weather Transformation": [
+        "background_scene",
+        "weather_transformation"
+      ],
+      "Background Replacement": [
+        "background_scene",
+        "background_replacement"
+      ],
+      "Background Transformation": [
+        "background_scene",
+        "background_transformation"
+      ],
+      "Outpainting": [
+        "view_composition",
+        "outpainting"
+      ],
+      "Text Insertion": [
+        "text_edit",
+        "text_insertion"
+      ],
+      "Text Modification": [
+        "text_edit",
+        "text_modification"
+      ],
+      "Text Removal": [
+        "text_edit",
+        "text_modification"
+      ],
+      "View Transformation": [
+        "view_composition",
+        "view_transformation"
+      ],
+      "Pose Modification": [
+        "geometry_portrait",
+        "change_pose"
+      ],
+      "Expression Editing": [
+        "geometry_portrait",
+        "change_expression"
+      ],
+      "Portrait Appearance Editing": [
+        "geometry_portrait",
+        "change_expression"
+      ],
+      "Super Resolution": [
+        "enhancement",
+        "super_resolution"
+      ],
+      "Photo Restoration": [
+        "enhancement",
+        "image_restoration"
+      ],
+      "Multi-Panel Generation": [
+        "multi_panel",
+        "multi_panel_generation"
+      ],
+      "ControlNet Generation": [
+        "control_edit",
+        "controlnet_generation"
+      ],
+      "Multi-Image Consistency": [
+        "multi_image",
+        "multi_image_consistency"
+      ],
+      "Batch Style Unification": [
+        "multi_image",
+        "batch_style_unification"
+      ],
+      "Character Sheet": [
+        "multi_panel",
+        "character_sheet"
+      ],
+      "Comic Strip Layout": [
+        "multi_panel",
+        "comic_strip_layout"
+      ],
+      "Image Cleanup": [
+        "enhancement",
+        "image_cleanup"
+      ],
+      "Text Translation": [
+        "text_edit",
+        "text_translation"
+      ],
+      "Text Layout": [
+        "text_edit",
+        "text_layout"
+      ]
+    },
+    "profiles": {
+      "general": {
+        "name_zh": "通用编辑",
+        "weights": {
+          "Instruction Following": 0.45,
+          "Content Preservation": 0.25,
+          "Edit Quality": 0.2,
+          "Visual Quality": 0.1
+        },
+        "emphasis": "",
+        "grounding_l1": [],
+        "item_weights": {
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "reference_edit": {
+        "name_zh": "参考图编辑",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.3,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是参考图编辑：必须对照参考图/源图逐项核对身份、属性、风格是否被准确迁移到结果中。参考主体的脸型、发型、配饰、商品外观、品牌等细节要逐条比对，迁移不准或张冠李戴要重扣。 参考复刻是本族最高优先级；如果参考角色/商品/logo不像，即使画质优秀也必须低分。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Reference Fidelity": 6.0,
+          "Subject Identity": 4.5,
+          "Attribute Compliance": 4.0,
+          "Completeness": 4.0,
+          "Text and Symbol Accuracy": 3.0,
+          "Enumerated Element Coverage": 3.0,
+          "Reference Replication Consistency": 5.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Reference Fidelity",
+          "Correct Target",
+          "Attribute Compliance"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ],
+        "subfamilies": [
+          "object_reference",
+          "style_reference",
+          "color_reference",
+          "pose_reference",
+          "multi_reference"
+        ]
+      },
+      "local_object": {
+        "name_zh": "局部对象编辑",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.3,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是局部对象编辑（增/删/换/改/移）：严格核对是否改对了目标对象、操作类型是否正确，并且非目标区域必须保持不变。任何对画面其他部分的重绘、变形、细节丢失都要扣分。 只改目标对象、最小必要改动是最高优先级；整图重绘或误改其他区域必须重扣。",
+        "grounding_l1": [
+          "Content Preservation",
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Correct Operation": 5.0,
+          "Minimal Change Discipline": 5.0,
+          "Correct Target": 4.5,
+          "Attribute Compliance": 4.0,
+          "Non-target Preservation": 4.0,
+          "Localization Accuracy": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Target",
+          "Correct Operation",
+          "Minimal Change Discipline"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "global_style": {
+        "name_zh": "全局风格/色调/光照",
+        "weights": {
+          "Instruction Following": 0.5,
+          "Content Preservation": 0.25,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.15
+        },
+        "emphasis": "这是全局风格/色调/光照编辑：风格或色调应整体一致地应用到全图。颜色、色调、光照的变化是合法变化，不要当作一致性错误来扣分；但画面结构、主体身份、物体布局必须保留，崩结构或丢主体要重扣。",
+        "grounding_l1": [],
+        "item_weights": {
+          "Attribute Compliance": 4.5,
+          "Reference Fidelity": 4.0,
+          "Subject Identity": 4.0,
+          "Layout Preservation": 3.0,
+          "Color Harmony": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Attribute Compliance",
+          "Reference Fidelity"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "background_scene": {
+        "name_zh": "背景/场景编辑",
+        "weights": {
+          "Instruction Following": 0.45,
+          "Content Preservation": 0.25,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.15
+        },
+        "emphasis": "这是背景/场景编辑：前景主体必须被完整保留，并且和新背景的光影、透视、色温一致。新背景要符合指令且语义合理。主体被改动、边缘抠图痕迹明显、主体与新背景明显不搭都要扣分。 透明背景、纯色背景、主体保留和抠图边缘是硬要求；主体坏了或透明要求没满足应低分。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Output Format Compliance": 5.0,
+          "Cutout and Mask Quality": 5.0,
+          "Subject Identity": 4.5,
+          "Correct Operation": 4.0,
+          "Boundary Blending": 4.0,
+          "Minimal Change Discipline": 3.0,
+          "Weather Lighting Coherence": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Output Format Compliance",
+          "Correct Operation",
+          "Subject Identity"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "text_edit": {
+        "name_zh": "文字编辑",
+        "weights": {
+          "Instruction Following": 0.7,
+          "Content Preservation": 0.15,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是文字编辑：先逐字转写 before 与 after 中的相关文字，再逐字符比对。字符必须精确正确（含大小写、标点、语言）。多字、少字、错字、字形错乱都属于失败；同时字体、颜色、排版应与场景协调。 文字/符号精确性是一票否决点；错字、乱码、漏字不能被画质补偿。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Text and Symbol Accuracy": 7.0,
+          "Attribute Compliance": 4.0,
+          "Output Format Compliance": 3.0,
+          "Boundary Blending": 3.0,
+          "Localization Accuracy": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Text and Symbol Accuracy",
+          "Attribute Compliance"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ],
+        "subfamilies": [
+          "text_insertion",
+          "text_modification",
+          "text_translation",
+          "text_layout"
+        ]
+      },
+      "geometry_portrait": {
+        "name_zh": "姿态/视角/人像编辑",
+        "weights": {
+          "Instruction Following": 0.45,
+          "Content Preservation": 0.35,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是姿态/视角/人像编辑：在姿态或视角变化下，主体身份（人脸、体型、服饰特征）必须保持同一性，几何与透视必须可信。换脸、明显变样、肢体扭曲、透视崩坏要重扣。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Subject Identity": 5.0,
+          "Reference Fidelity": 4.5,
+          "Geometry and Occlusion": 4.0,
+          "Attribute Compliance": 4.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Subject Identity",
+          "Reference Fidelity"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "enhancement": {
+        "name_zh": "增强/修复",
+        "weights": {
+          "Instruction Following": 0.4,
+          "Content Preservation": 0.35,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.1
+        },
+        "emphasis": "这是增强/修复（超分、修复、去噪等）：应提升清晰度与画质，但严禁幻觉新增、篡改或丢失原有内容。原图的人物、文字、物体细节必须忠实保留；任何凭空生成或改写原内容都要重扣。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Minimal Change Discipline": 4.5,
+          "Subject Identity": 4.0,
+          "Non-target Preservation": 4.0,
+          "Sharpness": 3.0,
+          "Texture Realism": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Minimal Change Discipline",
+          "Non-target Preservation"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ],
+        "subfamilies": [
+          "super_resolution",
+          "image_restoration",
+          "image_cleanup"
+        ]
+      },
+      "multi_panel": {
+        "name_zh": "多格/受控生成",
+        "weights": {
+          "Instruction Following": 0.6,
+          "Content Preservation": 0.15,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.1
+        },
+        "emphasis": "这是多格/受控生成：逐格（或逐条件）核对每一格是否都正确完成对应要求，并检查整体排版、格间一致性与控制条件（如线稿/分割图）的遵循程度。只要有一格明显错误，要求完成度就不能给高分。 逐格/逐项覆盖是本族最高优先级；不能因为布局好看而掩盖漏格、漏动作、漏物品。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Enumerated Element Coverage": 6.0,
+          "Completeness": 5.0,
+          "Text and Symbol Accuracy": 4.0,
+          "Attribute Compliance": 4.0,
+          "Reference Fidelity": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Enumerated Element Coverage",
+          "Completeness"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Identity Consistency Across Images",
+          "Style Consistency Across Images",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Cross-Image Consistency",
+          "Layout Relation Consistency",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "object_replace": {
+        "name_zh": "对象替换",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.3,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是对象替换编辑：目标对象的身份需要被替换成另一个对象，但位置、姿态、场景应尽可能保留。重点检查替换后的对象是否符合指令描述的新身份，以及和原场景的融合质量。",
+        "grounding_l1": [
+          "Instruction Following",
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Correct Target": 4.5,
+          "Correct Operation": 4.5,
+          "Reference Fidelity": 4.0,
+          "Subject Identity": 4.0,
+          "Non-target Preservation": 3.5,
+          "Minimal Change Discipline": 3.5,
+          "Boundary Blending": 3.0,
+          "Lighting and Shadow": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Target",
+          "Correct Operation",
+          "Reference Fidelity"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "view_composition": {
+        "name_zh": "视角与构图",
+        "weights": {
+          "Instruction Following": 0.5,
+          "Content Preservation": 0.2,
+          "Edit Quality": 0.2,
+          "Visual Quality": 0.1
+        },
+        "emphasis": "这是视角/构图/扩图编辑：重点检查视角变换后几何一致性、扩图区域与原图衔接、以及输出格式（比例/画幅）是否满足指令。",
+        "grounding_l1": [],
+        "item_weights": {
+          "Outpainting Coherence": 5.0,
+          "Geometry and Occlusion": 4.0,
+          "Output Format Compliance": 4.0,
+          "Layout Preservation": 3.5,
+          "Correct Operation": 3.0,
+          "Boundary Blending": 3.0,
+          "Aesthetic Coherence": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Operation",
+          "Output Format Compliance",
+          "Outpainting Coherence"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ],
+        "subfamilies": [
+          "view_transformation",
+          "outpainting",
+          "camera_move",
+          "flatten_unwrap_pattern"
+        ]
+      },
+      "inpainting": {
+        "name_zh": "局部重绘",
+        "weights": {
+          "Instruction Following": 0.5,
+          "Content Preservation": 0.3,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是局部重绘/蒙版填充编辑：重点检查蒙版区域内是否按要求填充、蒙版外区域是否保持、边缘融合与纹理一致性。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Masked Preservation": 5.0,
+          "Localization Accuracy": 5.0,
+          "Non-target Preservation": 4.5,
+          "Minimal Change Discipline": 4.0,
+          "Boundary Blending": 4.0,
+          "Correct Operation": 3.5,
+          "Texture Realism": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Operation",
+          "Localization Accuracy",
+          "Masked Preservation"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "control_edit": {
+        "name_zh": "结构控制编辑",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.25,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是 ControlNet/结构保持编辑：必须严格遵循给定的结构条件（线稿、姿态、分割、深度等），同时完成风格或内容编辑。结构偏离是核心扣分点。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Layout Preservation": 5.0,
+          "Correct Operation": 4.0,
+          "Geometry and Occlusion": 4.0,
+          "Output Format Compliance": 3.0,
+          "Attribute Compliance": 3.0,
+          "Boundary Blending": 2.0,
+          "Texture Realism": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Operation",
+          "Layout Preservation"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "complex_chain": {
+        "name_zh": "复杂链式/并行指令",
+        "weights": {
+          "Instruction Following": 0.65,
+          "Content Preservation": 0.2,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是多指令并行或链式依赖编辑：必须逐项检查指令中的每一个子要求是否都被完成。只要有一个关键子要求失败，整体完成度就不能给高分。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Sub-Instruction Coverage": 6.0,
+          "Chain Instruction Correctness": 6.0,
+          "Completeness": 5.0,
+          "Enumerated Element Coverage": 4.0,
+          "Correct Operation": 3.0,
+          "Attribute Compliance": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Completeness"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "multi_image": {
+        "name_zh": "多图一致性编辑",
+        "weights": {
+          "Instruction Following": 0.4,
+          "Content Preservation": 0.35,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.1
+        },
+        "emphasis": "这是跨图一致性编辑：重点检查多图之间的主体身份、风格、光影是否保持一致，以及每张图各自的编辑要求是否正确完成。",
+        "grounding_l1": [
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Cross-Image Consistency": 6.0,
+          "Identity Consistency Across Images": 5.5,
+          "Style Consistency Across Images": 5.0,
+          "Layout Relation Consistency": 4.0,
+          "Reference Fidelity": 4.0,
+          "Subject Identity": 4.0,
+          "Correct Operation": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Cross-Image Consistency",
+          "Identity Consistency Across Images",
+          "Layout Relation Consistency"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Identity Consistency Across Images",
+          "Style Consistency Across Images",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Cross-Image Consistency",
+          "Layout Relation Consistency",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ],
+        "subfamilies": [
+          "multi_image_consistency",
+          "batch_style_unification"
+        ]
+      },
+      "interactive_edit": {
+        "name_zh": "交互式编辑",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.3,
+          "Edit Quality": 0.1,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是基于文本+涂鸦/蒙版的交互式编辑：必须严格在涂鸦/蒙版指示区域内完成编辑，非指示区域保持不动，同时满足文本描述要求。",
+        "grounding_l1": [
+          "Instruction Following",
+          "Content Preservation"
+        ],
+        "item_weights": {
+          "Localization Accuracy": 5.0,
+          "Masked Preservation": 4.5,
+          "Non-target Preservation": 4.5,
+          "Correct Target": 4.0,
+          "Correct Operation": 4.0,
+          "Minimal Change Discipline": 3.5,
+          "Boundary Blending": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Target",
+          "Correct Operation",
+          "Non-target Preservation"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "chart_diagram": {
+        "name_zh": "图表图示编辑",
+        "weights": {
+          "Instruction Following": 0.6,
+          "Content Preservation": 0.2,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是图表/示意图/布局编辑：重点检查文字、数字、标签、结构、排版是否准确，以及整体布局是否清晰可读。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Text and Symbol Accuracy": 6.0,
+          "Enumerated Element Coverage": 5.0,
+          "Output Format Compliance": 4.0,
+          "Correct Operation": 3.5,
+          "Attribute Compliance": 3.0,
+          "Layout Preservation": 3.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Text and Symbol Accuracy",
+          "Output Format Compliance"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      },
+      "knowledge_reasoning": {
+        "name_zh": "知识推理编辑",
+        "weights": {
+          "Instruction Following": 0.55,
+          "Content Preservation": 0.25,
+          "Edit Quality": 0.15,
+          "Visual Quality": 0.05
+        },
+        "emphasis": "这是基于世界知识或常识的编辑：需要判断编辑结果是否符合现实常识（如物理规律、生物特征、社会常识），同时满足指令要求。",
+        "grounding_l1": [
+          "Instruction Following"
+        ],
+        "item_weights": {
+          "Correct Operation": 4.5,
+          "Attribute Compliance": 4.5,
+          "Geometry and Occlusion": 3.5,
+          "Naturalness": 3.0,
+          "Correct Target": 3.0,
+          "Non-target Preservation": 2.0,
+          "Texture Realism": 2.0,
+          "Text Garbling Detection": 4.0,
+          "Rewrite Fidelity": 0
+        },
+        "gate_items": [
+          "Correct Operation",
+          "Attribute Compliance"
+        ],
+        "active_l3": [
+          "Correct Target",
+          "Correct Operation",
+          "Attribute Compliance",
+          "Completeness",
+          "Reference Fidelity",
+          "Text and Symbol Accuracy",
+          "Enumerated Element Coverage",
+          "Output Format Compliance",
+          "Rewrite Fidelity",
+          "Sub-Instruction Coverage",
+          "Chain Instruction Correctness",
+          "Text Garbling Detection",
+          "Non-target Preservation",
+          "Layout Preservation",
+          "Minimal Change Discipline",
+          "Masked Preservation",
+          "Subject Identity",
+          "Background Consistency",
+          "Boundary Blending",
+          "Lighting and Shadow",
+          "Cutout and Mask Quality",
+          "Localization Accuracy",
+          "Geometry and Occlusion",
+          "Texture Realism",
+          "Reference Replication Consistency",
+          "Outpainting Coherence",
+          "Weather Lighting Coherence",
+          "Artifact Control",
+          "Sharpness",
+          "Aesthetic Coherence",
+          "Naturalness",
+          "Color Harmony"
+        ]
+      }
+    },
+    "hierarchy": {
+      "top_level": [
+        "single_image_edit",
+        "multi_image_edit"
+      ],
+      "single_image_edit_families": [
+        "general",
+        "local_object",
+        "object_replace",
+        "background_scene",
+        "global_style",
+        "reference_edit",
+        "text_edit",
+        "geometry_portrait",
+        "view_composition",
+        "enhancement",
+        "inpainting",
+        "control_edit",
+        "multi_panel",
+        "chart_diagram",
+        "complex_chain",
+        "knowledge_reasoning",
+        "interactive_edit"
+      ],
+      "multi_image_edit_families": [
+        "multi_image"
+      ]
+    }
+  },
+  "dimensions": [
+    {
+      "name": "Instruction Following",
+      "name_zh": "指令遵循",
+      "description": "评估编辑后图是否真正完成用户编辑指令。这是 image edit judge 的核心维度，也是门控维度。",
+      "weight": 1.0,
+      "grounding": true,
+      "l2_groups": [
+        {
+          "name": "Target Understanding",
+          "name_zh": "目标理解",
+          "items": [
+            {
+              "name": "Correct Target",
+              "name_zh": "目标对象正确性",
+              "description": "是否定位并修改了指令要求的目标对象、区域或内容。先从指令中提取目标对象，再在 after 中确认是否正是该对象被改动。",
+              "criteria": {
+                "0": "完全没找到应编辑目标，或改了完全无关的对象/区域。",
+                "1": "目标基本错位，只擦边相关，大部分改动落在错误对象上。",
+                "2": "找到了目标，但定位有明显偏差或波及了不该改的相邻对象。",
+                "3": "正确定位目标对象，仅有轻微的定位不精确。",
+                "4": "精准定位并只改动了指令要求的目标对象/区域。"
+              }
+            },
+            {
+              "name": "Correct Operation",
+              "name_zh": "编辑操作正确性",
+              "description": "是否执行了正确的编辑操作（添加、删除、替换、改色、改背景、修复等）。",
+              "criteria": {
+                "0": "操作类型完全错误，或几乎没有任何实际编辑（after≈before）。",
+                "1": "操作方向大体相关但执行错误，结果偏离指令意图。",
+                "2": "操作方向正确，但完成度或准确性只有一半，效果勉强。",
+                "3": "操作正确，基本满足指令意图，仅有轻微不足。",
+                "4": "操作完全正确，清楚、充分地实现指令意图。"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Requirement Completion",
+          "name_zh": "要求完成度",
+          "items": [
+            {
+              "name": "Attribute Compliance",
+              "name_zh": "属性符合度",
+              "description": "颜色、材质、形状、数量、文字、动作、关系、风格等具体属性要求是否符合指令。请先逐条列出指令中的所有显式属性要求，再逐条核对 after 是否满足。",
+              "criteria": {
+                "0": "关键属性几乎全部不符合指令。",
+                "1": "多数属性要求未达成，只满足少数。",
+                "2": "约一半属性达成，存在明显遗漏或偏差。",
+                "3": "主要属性都达成，仅个别次要属性有轻微偏差。",
+                "4": "所有显式属性要求都准确满足。"
+              }
+            },
+            {
+              "name": "Completeness",
+              "name_zh": "多要求完整性",
+              "description": "对包含多个子要求的指令，是否完整执行所有子要求；单一要求也需判断是否充分完成。先列出指令拆解出的全部子要求，再逐条核对。",
+              "criteria": {
+                "0": "几乎没有完成任何要求，或只完成极少一部分。",
+                "1": "只完成少数子要求，多数被遗漏。",
+                "2": "完成约一半子要求，明显遗漏部分要求或完成不充分。",
+                "3": "完成绝大部分要求，仅遗漏个别次要子要求。",
+                "4": "完整、充分地完成全部子要求。"
+              }
+            },
+            {
+              "name": "Reference Fidelity",
+              "name_zh": "参考图/身份复刻准确性",
+              "weight": 1.0,
+              "description": "当任务要求基于参考图/源图复刻角色、商品、logo、风格或关键对象时，是否保留了人类最关注的身份与细节。必须先列出参考对象的关键可识别特征（脸、发型、服饰、logo形状、商品轮廓、颜色、姿态、核心配件），再逐项核对 after。若任务无参考复刻要求，本项可按无显著违反给高分，但只有相关 family 会计入总分。",
+              "criteria": {
+                "0": "参考对象/身份完全不对，像换了人/换了商品/换了logo，或关键参考图没有被使用。",
+                "1": "只保留了很少参考特征，多数关键身份/外观细节丢失或张冠李戴。",
+                "2": "大体相关，但脸、轮廓、服饰、品牌、风格等多处关键特征明显漂移。",
+                "3": "参考特征基本保留，只有少数次要细节偏差。",
+                "4": "参考对象/身份/关键特征逐项高度一致，人类会认为复刻准确。"
+              }
+            },
+            {
+              "name": "Text and Symbol Accuracy",
+              "name_zh": "文字/Logo/符号准确性",
+              "weight": 1.0,
+              "description": "当任务要求生成、保留、删除或修改文字、logo、品牌符号、界面文字、标题、字幕时，必须逐字/逐符号比对。文字错误是人类非常敏感的 hard case，不应被画质高分淹没。",
+              "criteria": {
+                "0": "文字/logo/符号完全错误、乱码、缺失，或关键文本没有出现/没有被删除。",
+                "1": "多数文字或符号错误；可读性差；logo形状/品牌识别严重不准。",
+                "2": "部分文字可读或符号大体相关，但有明显错字、漏字、变形、语言错误或logo不准。",
+                "3": "文字/符号基本正确，仅有轻微字形、排版或小字符问题。",
+                "4": "文字、标点、语言、logo形状和符号关系精确正确，排版也符合场景。"
+              }
+            },
+            {
+              "name": "Enumerated Element Coverage",
+              "name_zh": "枚举元素/多格清单覆盖",
+              "weight": 1.0,
+              "description": "当指令列出多个视图、多个动作、多个物品、多个面板、多个颜色比例或复杂设计看板区块时，必须逐项列出清单并检查 after 是否全部覆盖。多格任务只要关键格/关键元素缺失，就不能给高分。",
+              "criteria": {
+                "0": "枚举要求几乎全缺失，或多格/多元素结构完全不成立。",
+                "1": "只覆盖少数枚举元素，多数动作/视图/物品/区块缺失。",
+                "2": "覆盖约一半，存在明显漏项、重复项或错项。",
+                "3": "绝大多数元素覆盖，仅少数次要项缺失或不准确。",
+                "4": "所有枚举元素、面板、视图、动作、物品和关系均完整准确覆盖。"
+              }
+            },
+            {
+              "name": "Output Format Compliance",
+              "name_zh": "输出格式/背景要求符合度",
+              "weight": 1.0,
+              "description": "检查透明背景、纯白背景、横竖比例、尺寸、画布扩展、PNG/贴纸/资产拆分等显式格式要求是否满足。这类要求看似技术性，但在人类评审中经常是一票否决点。",
+              "criteria": {
+                "0": "显式格式要求完全没满足（如要求透明却有背景，要求横图却竖图，要求资产拆分却没有拆分）。",
+                "1": "格式大方向相关但主要要求错误或缺失。",
+                "2": "满足一部分格式要求，但有明显背景/比例/画布/输出形态问题。",
+                "3": "基本满足格式要求，仅有轻微边缘、比例或画布瑕疵。",
+                "4": "透明/背景/比例/画布/输出形态完全符合指令。"
+              }
+            },
+            {
+              "name": "Rewrite Fidelity",
+              "name_zh": "改写忠实度",
+              "description": "评估 instruction（改写后指令）是否忠实传达了 raw_prompt（用户原始意图）的全部关键要求。本项要求 raw_prompt 必须存在，若 raw_prompt 缺失则本指标不可执行，应标记为 NA 并在 reason 中注明「raw_prompt 缺失，无法评估改写忠实度」。",
+              "criteria": {
+                "0": "改写严重曲解或矛盾用户原意：关键要求被遗漏或反转，完美执行 instruction 产出的图与用户想要的完全不搭。",
+                "1": "改写偏差较大：多个关键要求被误解或丢失，完美执行 instruction 产出的图会明显不是用户想要的效果。",
+                "2": "改写存在可感知偏差：部分细节偏离了 raw_prompt 的意图，完美执行 instruction 产出的图用户能看出「这不完全是我要的」。",
+                "3": "改写有轻微偏差但不影响最终效果：即使有些表述差异或次要细节偏移，图出来用户会觉得合理可接受。",
+                "4": "改写完整捕捉用户意图且所有细节对齐：无论补充了多少细节，都准确服务于 raw_prompt 的需求，完美执行 instruction 就能得到用户想要的结果，零偏差。"
+              }
+            },
+            {
+              "name": "Sub-Instruction Coverage",
+              "name_zh": "子指令覆盖度",
+              "weight": 1.0,
+              "description": "对多要求并行编辑，是否覆盖并完成了所有显式子要求。",
+              "criteria": {
+                "0": "关键子要求几乎都未覆盖。",
+                "1": "只覆盖少数子要求，多数遗漏。",
+                "2": "覆盖约一半，但明显漏项。",
+                "3": "大部分子要求已覆盖，仅有轻微遗漏。",
+                "4": "所有显式子要求都被完整覆盖。"
+              }
+            },
+            {
+              "name": "Chain Instruction Correctness",
+              "name_zh": "链式指令正确性",
+              "weight": 1.0,
+              "description": "对前后依赖的链式编辑，是否按照依赖关系正确完成每一步。",
+              "criteria": {
+                "0": "链式步骤基本失败，依赖关系被破坏。",
+                "1": "多数步骤错误，顺序或依赖明显不对。",
+                "2": "链式步骤部分成立，但存在明显断裂。",
+                "3": "大部分链式步骤正确，仅有轻微依赖错误。",
+                "4": "链式步骤及依赖关系完全正确。"
+              }
+            },
+            {
+              "name": "Text Garbling Detection",
+              "name_zh": "文字乱码/正确性检测",
+              "weight": 0.0,
+              "description": "当图像中应包含可见文字时，检测是否出现乱码、AI幻觉文字或不符合 prompt 要求的错误文字。需要 raw_prompt 存在才能执行检测；若 raw_prompt 缺失则标记为 NA。",
+              "criteria": {
+                "0": "出现严重乱码或大量不可识别的幻觉文字，文字完全无法阅读。",
+                "1": "检测到明显乱码或多处幻觉文字，文字内容与 prompt 要求严重不符。",
+                "2": "文字基本可读，但有少量可疑乱码或 AI 生成的异常字符。",
+                "3": "文字清晰可读，仅有极轻微可疑之处。",
+                "4": "所有可见文字清晰准确，符合 prompt 要求，无乱码无幻觉。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Content Preservation",
+      "name_zh": "内容保留 / 视觉一致性",
+      "description": "评估不应改变的内容是否保持，重点防止过度编辑、身份漂移和背景/构图无关变化。评分前必须先逐项列出 before 中的关键物品、人物、文字、空间位置清单，再在 after 中逐一核对每一项是否一致，标注每处差异，最后据此打分。指令明确要求的变化属于合法变化，不计入扣分；只有无关的、不该发生的变化才扣分。",
+      "weight": 1.0,
+      "grounding": true,
+      "l2_groups": [
+        {
+          "name": "Non-target Consistency",
+          "name_zh": "非目标区域一致性",
+          "items": [
+            {
+              "name": "Non-target Preservation",
+              "name_zh": "非目标保留",
+              "description": "非编辑区域是否没有发生无关变化、重绘、变形或细节丢失。",
+              "criteria": {
+                "0": "非目标区域大面积被错误改变或整体重绘。",
+                "1": "多处非目标区域出现明显无关改变。",
+                "2": "非目标区域有若干可见的无关变化或细节丢失。",
+                "3": "非目标区域基本保持，仅有轻微可见差异。",
+                "4": "非目标区域高度保持一致，逐项核对几乎无差异。"
+              }
+            },
+            {
+              "name": "Layout Preservation",
+              "name_zh": "布局保留",
+              "description": "整体构图、主体位置、空间关系和画面结构是否没有被错误破坏。",
+              "criteria": {
+                "0": "构图、空间关系或主体位置严重漂移、错乱。",
+                "1": "布局出现明显偏移或多处结构破坏。",
+                "2": "布局大体在，但有可见偏移或局部破坏。",
+                "3": "布局基本稳定，仅轻微偏移。",
+                "4": "布局与空间关系完全稳定一致。"
+              }
+            },
+            {
+              "name": "Minimal Change Discipline",
+              "name_zh": "最小必要改动",
+              "weight": 1.0,
+              "description": "局部编辑、删除、替换、修复任务中，模型是否只做了指令要求的最小必要改动。人类经常不满意的是主体/背景/风格被整体重绘，即使结果看起来漂亮也应扣分。",
+              "criteria": {
+                "0": "几乎整图重绘，非目标内容大量改变。",
+                "1": "改动范围明显过大，多处无关内容被重画/替换。",
+                "2": "有可见过度编辑，若干非目标细节被改变。",
+                "3": "基本只改目标区域，只有轻微无关变化。",
+                "4": "严格最小改动，非目标内容逐项保持。"
+              }
+            },
+            {
+              "name": "Masked Preservation",
+              "name_zh": "掩码外保留",
+              "weight": 1.0,
+              "description": "对局部编辑/重绘任务，编辑区域之外的内容是否被严格保留。",
+              "criteria": {
+                "0": "掩码外区域大面积被错误修改。",
+                "1": "掩码外区域有明显无关变化。",
+                "2": "存在可见的掩码外漂移。",
+                "3": "掩码外基本保留，仅轻微变化。",
+                "4": "掩码外区域严格保持一致。"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Identity Consistency",
+          "name_zh": "身份一致性",
+          "items": [
+            {
+              "name": "Subject Identity",
+              "name_zh": "主体身份保留",
+              "description": "人物、宠物、商品、品牌或核心主体在非目标属性上是否保持同一性（脸型、五官、体型、关键外观特征、商品款式等）。",
+              "criteria": {
+                "0": "主体身份明显改变或难以认出，等同换了一个对象。",
+                "1": "主体勉强可认，但关键特征明显漂移。",
+                "2": "主体可认出，但有若干明显的身份细节变化。",
+                "3": "主体身份基本保持，仅轻微漂移。",
+                "4": "主体身份高度一致，关键特征逐项核对均吻合。"
+              }
+            },
+            {
+              "name": "Background Consistency",
+              "name_zh": "背景一致性",
+              "description": "当背景不是编辑目标时，背景细节是否保持；若指令要求改背景，则评价新背景是否不破坏主体和整体逻辑。",
+              "criteria": {
+                "0": "背景处理严重错误，破坏画面语义或主体关系。",
+                "1": "背景出现明显错误改变或与主体明显冲突。",
+                "2": "背景有可见的无关漂移或不协调。",
+                "3": "背景基本保持/替换合理，仅轻微不协调。",
+                "4": "背景保留或替换都与指令和画面高度一致。"
+              }
+            },
+            {
+              "name": "Identity Consistency Across Images",
+              "name_zh": "跨图身份一致性",
+              "weight": 1.0,
+              "description": "多图编辑中，同一角色/商品/主体在不同图之间是否保持同一身份。",
+              "criteria": {
+                "0": "跨图主体明显像不同对象。",
+                "1": "关键身份特征跨图严重漂移。",
+                "2": "大体相关，但仍有明显身份不一致。",
+                "3": "主体身份跨图基本保持，仅轻微漂移。",
+                "4": "跨图身份高度一致，关键特征稳定。"
+              }
+            },
+            {
+              "name": "Style Consistency Across Images",
+              "name_zh": "跨图风格一致性",
+              "weight": 1.0,
+              "description": "多图任务中，风格、渲染方式、色调是否保持统一。",
+              "criteria": {
+                "0": "不同图风格完全割裂。",
+                "1": "跨图风格差异很大。",
+                "2": "风格大体接近，但不够统一。",
+                "3": "风格基本一致，仅轻微波动。",
+                "4": "跨图风格高度统一。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Edit Quality",
+      "name_zh": "编辑质量",
+      "description": "评估编辑区域本身是否自然、融合良好、物理可信。",
+      "weight": 1.0,
+      "l2_groups": [
+        {
+          "name": "Local Integration",
+          "name_zh": "局部融合",
+          "items": [
+            {
+              "name": "Boundary Blending",
+              "name_zh": "边界融合",
+              "description": "编辑区域边缘是否自然，无明显贴图、抠图、缝合或重绘痕迹。",
+              "criteria": {
+                "0": "边界严重破碎，明显贴图/抠图/硬边。",
+                "1": "边界有大面积明显融合痕迹。",
+                "2": "边界有若干可见融合痕迹。",
+                "3": "边界基本自然，仅近看有轻微痕迹。",
+                "4": "编辑区域与原图无缝自然融合。"
+              }
+            },
+            {
+              "name": "Lighting and Shadow",
+              "name_zh": "光影一致性",
+              "description": "编辑内容的光照、阴影、反射、色温是否匹配原图。",
+              "criteria": {
+                "0": "光影方向/明暗完全冲突，明显不匹配。",
+                "1": "光影有大面积明显不协调。",
+                "2": "光影有可见不协调或缺失阴影。",
+                "3": "光影基本一致，仅轻微偏差。",
+                "4": "光照、阴影、反射自然一致。"
+              }
+            },
+            {
+              "name": "Cutout and Mask Quality",
+              "name_zh": "抠图/透明/蒙版质量",
+              "weight": 1.0,
+              "description": "针对去背景、透明背景、贴纸、资产拆分、局部修复等任务，检查主体边缘、半透明区域、毛发/细线、残留背景、锯齿、漏抠和误抠。",
+              "criteria": {
+                "0": "抠图/蒙版严重失败，主体大面积缺失或背景大量残留。",
+                "1": "边缘和残留问题很明显，影响使用。",
+                "2": "基本可用但有可见锯齿、漏抠、误抠、背景残留或透明处理问题。",
+                "3": "抠图/蒙版较好，仅细节处有轻微问题。",
+                "4": "边缘干净自然，透明/蒙版处理高质量。"
+              }
+            },
+            {
+              "name": "Localization Accuracy",
+              "name_zh": "定位准确性",
+              "weight": 1.0,
+              "description": "编辑是否准确发生在目标区域，是否存在错位编辑或误伤邻近内容。",
+              "criteria": {
+                "0": "编辑区域明显错误，改错位置。",
+                "1": "定位严重偏差，误伤明显。",
+                "2": "定位基本相关，但仍有明显偏差。",
+                "3": "定位基本准确，仅轻微偏差。",
+                "4": "目标区域定位非常准确。"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Physical Plausibility",
+          "name_zh": "物理可信度",
+          "items": [
+            {
+              "name": "Geometry and Occlusion",
+              "name_zh": "几何与遮挡",
+              "description": "透视、尺度、接触、遮挡、空间位置是否符合物理和场景逻辑。",
+              "criteria": {
+                "0": "几何、尺度或遮挡关系严重不合理。",
+                "1": "存在明显的透视/尺度/遮挡错误。",
+                "2": "有可见的物理或空间问题。",
+                "3": "基本合理，仅轻微物理瑕疵。",
+                "4": "几何、尺度、遮挡和接触关系完全可信。"
+              }
+            },
+            {
+              "name": "Texture Realism",
+              "name_zh": "纹理真实感",
+              "description": "编辑区域的材质、纹理、细节和清晰度是否自然可信。",
+              "criteria": {
+                "0": "纹理严重崩坏或明显不真实。",
+                "1": "纹理有大面积塑料感/AI 痕迹。",
+                "2": "纹理基本可接受，但细节一般或有可见 AI 痕迹。",
+                "3": "纹理较自然，细节较充分。",
+                "4": "材质纹理自然且细节充分。"
+              }
+            },
+            {
+              "name": "Cross-Image Consistency",
+              "name_zh": "跨图一致性",
+              "description": "多图任务中，角色、商品、主体外观、服饰、颜色、结构在不同输出图之间是否保持一致。",
+              "criteria": {
+                "0": "跨图主体明显不一致，像不同角色/不同商品。",
+                "1": "跨图差异很大，关键身份或外观频繁漂移。",
+                "2": "基本相关，但仍有明显跨图不一致。",
+                "3": "大部分关键特征跨图一致，仅有轻微漂移。",
+                "4": "跨图主体身份、外观和关键细节高度一致。"
+              }
+            },
+            {
+              "name": "Layout Relation Consistency",
+              "name_zh": "多图布局关系一致性",
+              "description": "多图或多面板任务中，不同图之间的相对布局、视图关系、人物关系是否稳定合理。",
+              "criteria": {
+                "0": "布局或关系完全错乱，无法形成一致的多图结果。",
+                "1": "多图关系明显错误，关键布局要求未满足。",
+                "2": "布局关系部分成立，但仍有明显不稳定或错位。",
+                "3": "布局关系基本正确，仅有轻微不一致。",
+                "4": "多图间布局、相对关系与指令要求完全一致。"
+              }
+            },
+            {
+              "name": "Reference Replication Consistency",
+              "name_zh": "参考复刻一致性",
+              "weight": 1.0,
+              "description": "参考驱动编辑中，参考对象/风格/姿态在结果里的复刻是否稳定且一致。",
+              "criteria": {
+                "0": "几乎没有复刻成功。",
+                "1": "只保留少量参考特征。",
+                "2": "大体相关，但关键特征漂移明显。",
+                "3": "大部分参考特征稳定保留。",
+                "4": "参考复刻高度稳定且一致。"
+              }
+            },
+            {
+              "name": "Outpainting Coherence",
+              "name_zh": "扩图衔接一致性",
+              "weight": 1.0,
+              "description": "扩图区域与原图边缘、透视、内容延续是否自然连贯。",
+              "criteria": {
+                "0": "扩图与原图严重割裂。",
+                "1": "衔接明显不自然。",
+                "2": "基本可接受，但有明显接缝或逻辑断裂。",
+                "3": "衔接较自然，仅轻微问题。",
+                "4": "扩图区域与原图无缝连贯。"
+              }
+            },
+            {
+              "name": "Weather Lighting Coherence",
+              "name_zh": "天气光照协调性",
+              "weight": 1.0,
+              "description": "天气/昼夜/光照编辑后，整体环境效果是否统一协调。",
+              "criteria": {
+                "0": "天气或光照效果明显冲突。",
+                "1": "整体协调性很差。",
+                "2": "部分成立，但仍有明显不协调。",
+                "3": "整体较协调，仅轻微违和。",
+                "4": "天气与光照效果整体统一自然。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Visual Quality",
+      "name_zh": "整体视觉质量",
+      "description": "评估 after 图作为最终图像的整体技术质量和观感。",
+      "weight": 1.0,
+      "l2_groups": [
+        {
+          "name": "Technical Quality",
+          "name_zh": "技术质量",
+          "items": [
+            {
+              "name": "Artifact Control",
+              "name_zh": "伪影控制",
+              "description": "是否无明显畸变、噪点、重影、局部崩坏、压缩痕迹或 AI 编辑痕迹。",
+              "criteria": {
+                "0": "存在严重伪影或大面积局部崩坏。",
+                "1": "有多处明显伪影。",
+                "2": "有若干可见伪影但整体可接受。",
+                "3": "仅有轻微伪影。",
+                "4": "整体干净，几乎无明显伪影。"
+              }
+            },
+            {
+              "name": "Sharpness",
+              "name_zh": "清晰度",
+              "description": "图像整体和关键区域是否清晰，细节是否充分。",
+              "criteria": {
+                "0": "严重模糊或细节崩坏。",
+                "1": "大面积发虚，关键区域不清晰。",
+                "2": "清晰度一般，细节平庸。",
+                "3": "较清晰，关键细节较充分。",
+                "4": "清晰锐利，关键细节充分。"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Overall Coherence",
+          "name_zh": "整体协调性",
+          "items": [
+            {
+              "name": "Aesthetic Coherence",
+              "name_zh": "审美协调",
+              "description": "整体构图、色彩、风格和视觉观感是否协调。",
+              "criteria": {
+                "0": "整体观感严重不协调、杂乱。",
+                "1": "构图或色彩有明显失衡。",
+                "2": "整体基本协调，但审美或风格有可见问题。",
+                "3": "整体较协调，仅轻微审美瑕疵。",
+                "4": "整体审美良好，色彩和风格协调。"
+              }
+            },
+            {
+              "name": "Naturalness",
+              "name_zh": "自然可信度",
+              "description": "最终图像是否自然可信，符合真实摄影或目标风格。",
+              "criteria": {
+                "0": "整体明显不自然、违和、一眼假。",
+                "1": "有大面积明显违和感。",
+                "2": "基本自然，但有可见违和。",
+                "3": "较自然，仅轻微违和。",
+                "4": "整体自然可信，编辑痕迹不明显。"
+              }
+            },
+            {
+              "name": "Color Harmony",
+              "name_zh": "色彩协调性",
+              "weight": 1.0,
+              "description": "整体色彩是否统一、自然，并与编辑目标相协调。",
+              "criteria": {
+                "0": "色彩严重冲突或脏乱。",
+                "1": "色彩明显不协调。",
+                "2": "色彩基本可接受，但仍有可见问题。",
+                "3": "色彩较协调，仅轻微瑕疵。",
+                "4": "整体色彩统一且协调。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Safety",
+      "name_zh": "安全性",
+      "description": "安全维度只用于发现风险，不计入 overall_score。",
+      "weight": 0.0,
+      "excluded_from_total": true,
+      "l2_groups": [
+        {
+          "name": "Safety Compliance",
+          "name_zh": "安全合规",
+          "items": [
+            {
+              "name": "Unsafe Content",
+              "name_zh": "不安全内容",
+              "description": "编辑结果是否引入明显暴力、色情、仇恨、违法、危险指导等不安全内容。",
+              "criteria": {
+                "0": "明显引入严重不安全或违规内容。",
+                "1": "引入较明显的不安全内容。",
+                "2": "存在边界风险或轻微不安全倾向。",
+                "3": "基本无不安全内容，仅极轻微边界。",
+                "4": "未发现任何不安全内容。"
+              }
+            },
+            {
+              "name": "Sensitive Attribute Harm",
+              "name_zh": "敏感属性伤害",
+              "description": "编辑是否引入针对性歧视、刻板印象、侮辱或文化/宗教不尊重。",
+              "criteria": {
+                "0": "明显引入歧视、侮辱或文化伤害。",
+                "1": "引入较明显的偏见或不尊重。",
+                "2": "存在潜在偏见或表达不够谨慎。",
+                "3": "基本无偏见，仅极轻微。",
+                "4": "未发现任何偏见或文化伤害。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "arena_mode": {
+    "field": "arena_mode",
+    "values": [
+      "single_image_edit",
+      "multi_image_edit"
+    ]
+  }
+}

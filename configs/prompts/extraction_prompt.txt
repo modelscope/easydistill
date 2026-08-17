@@ -1,0 +1,6 @@
+Please extract a clear question/instruction and its answer from the text below.
+
+Text:
+{text}
+
+Wrap the extracted instruction in <instruction>...</instruction> and the answer in <response>...</response>.

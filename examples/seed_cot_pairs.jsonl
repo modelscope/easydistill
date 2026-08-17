@@ -1,0 +1,5 @@
+{"problem": "What is the sum of the first 10 positive integers?", "answer": "The sum of the first n positive integers is n(n+1)/2. For n=10, this is 10*11/2 = 55."}
+{"problem": "A train travels 60 kilometers in 30 minutes. What is its average speed in kilometers per hour?", "answer": "30 minutes is 0.5 hours. Speed is distance divided by time, so 60 km / 0.5 h = 120 km/h."}
+{"problem": "If a rectangle has a length of 8 cm and a width of 5 cm, what is its area?", "answer": "The area of a rectangle is length times width, so 8 cm * 5 cm = 40 cm²."}
+{"problem": "Solve for x: 2x + 5 = 17.", "answer": "Subtract 5 from both sides: 2x = 12. Then divide by 2: x = 6."}
+{"problem": "A store offers a 20% discount on a $50 jacket. What is the final price?", "answer": "20% of $50 is $10. Subtract the discount from the original price: $50 - $10 = $40."}

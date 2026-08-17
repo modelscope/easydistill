@@ -1,0 +1,29 @@
+# Basic T2V/I2V distillation via a PAI-EAS deployed video model.
+# Flow: seed prompts (optionally with first_frame_image) -> t2v_generate -> SFT.
+# first_frame_image accepts local paths or http(s) URLs.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+
+job_type: t2v_distill
+
+t2v_backend:
+  type: pai_video
+  endpoint_url: ${EAS_ENDPOINT_URL}    # e.g. http://xxx.pai-eas.aliyuncs.com/v1
+  token: ${EAS_TOKEN}
+  model_id: wan-video                  # adjust to your deployed video model
+  # auth_prefix: ""                    # use "" for EAS endpoints without Bearer
+  output_dir: outputs/t2v_videos       # async binary videos are saved here
+  poll_interval: 10.0
+  max_poll_wait: 1800.0
+
+generation:
+  size: "1280*720"
+  # duration: 5                        # seconds; backend default when omitted
+  max_workers: 1
+  show_progress: true
+
+sft:
+  skip_empty: true
+
+dataset:
+  input_path: examples/seed_t2v_prompts.jsonl
+  output_path: outputs/t2v_sft_pai_eas.jsonl

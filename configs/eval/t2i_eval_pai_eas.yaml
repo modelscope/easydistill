@@ -1,0 +1,28 @@
+# Standalone VLM-as-judge evaluation for generated images via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Input rows must contain `optimized_prompt` and `image_urls` fields.
+
+job_type: t2i_eval
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B          # adjust to your deployed VLM
+  timeout: 120.0
+  max_retries: 3
+
+eval:
+  metrics:
+    - prompt_consistency
+    - aesthetic_quality
+    - detail_richness
+    - artifact_absence
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: outputs/t2i_generated.jsonl
+  output_path: outputs/t2i_evaluated_pai_eas.jsonl

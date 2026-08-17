@@ -1,0 +1,65 @@
+# VLM judge dimension pool for T2V/I2V frame-based evaluation.
+#
+# Each entry defines one scoring dimension for the VLMChecker: what it
+# measures and the 0-4 scoring criteria.  The VLM judges ONLY what sparse
+# sampled frames can reliably show (per-frame content and cross-frame
+# identity); dynamic qualities (motion smoothness, temporal execution,
+# camera verification) belong to the omni checker, which sees the full
+# video stream.
+#
+# Select a subset via `metrics` in the vlm checker config; add custom
+# dimensions by pointing `dimensions_file` at your own copy of this file.
+#
+# applicable: "always" or "i2v_only" (the judge is told to mark i2v_only
+# dimensions as not applicable for plain T2V rows).
+
+prompt_consistency:
+  applicable: always
+  description: >-
+    How faithfully the frames depict the subjects, scene, style, props and
+    events described in the text prompt.
+  criteria:
+    "4": Every prompt element is present and correctly depicted across the frames.
+    "3": All key elements present; minor attributes deviate.
+    "2": Some key elements present but notable subjects, actions or style aspects are missing.
+    "1": Major elements missing or contradicting the prompt.
+    "0": The video is unrelated to the prompt.
+
+visual_quality:
+  applicable: always
+  description: >-
+    Per-frame image quality; sharpness, composition, color, lighting, and
+    freedom from generation artifacts (anatomy errors, object fusion,
+    garbled text, rendering glitches).
+  criteria:
+    "4": Crisp, well-composed, artifact-free frames throughout.
+    "3": Good quality with minor flaws in few frames.
+    "2": Acceptable but with noticeable blur or artifacts in several frames.
+    "1": Poor quality; heavy artifacts or blur dominate.
+    "0": Broken frames; largely incoherent imagery.
+
+subject_consistency:
+  applicable: always
+  description: >-
+    Identity stability of the main subject(s) across frames; same face,
+    hair, clothing, body shape and style, with no drift, swapping or
+    unexplained appearance/disappearance of subjects.
+  criteria:
+    "4": Subjects fully consistent across all frames.
+    "3": Consistent with minor drift in fine details.
+    "2": Recognizable but with clear attribute drift (clothing/hair changes).
+    "1": Frequent identity drift; subjects morph between frames.
+    "0": Subjects are different entities across frames.
+
+first_frame_consistency:
+  applicable: i2v_only
+  description: >-
+    For image-to-video rows only; whether the video preserves the subject,
+    scene, style and layout of the conditioning first frame while evolving
+    naturally from it.
+  criteria:
+    "4": Seamlessly continues the first frame's content and style.
+    "3": Preserves the first frame well with minor drift.
+    "2": Roughly follows the first frame with clear deviations.
+    "1": Major subjects or scene deviate from the first frame.
+    "0": The video is unrelated to the conditioning first frame.

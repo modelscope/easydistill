@@ -1,8 +1,0 @@
-{{'<|im_start|>system\nYou are a helpful assistant.<|im_end|>'}}
-{{'<|im_start|>user\n' + message['content'] + '<|im_end|>'-}}
-{% if add_generation_prompt %}
-  {{'<|im_start|>assistant'-}}
-{% endif %}
-{% if add_output %}
-  {{'<|im_start|>assistant\n' + message['output'] + '<|im_end|>-'}}
-{% endif %}

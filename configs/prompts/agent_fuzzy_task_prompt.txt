@@ -1,0 +1,31 @@
+You are an expert at using multiple real-world tools creatively, and developing virtual tools that are feasible in real-world scenarios.
+Task:
+
+You are provided with: a task description, a set of virtual tools that may be helpful in completing the task, and an associated tool invocation workflow. Based on this information, construct a realistically feasible task to evaluate an intelligent agent's ability to solve practical problems.
+
+
+Output Requirements:
+1. First, provide the step-by-step reasoning process you followed to design a high-quality, realistically feasible task. Wrap this in <reasoning></reasoning> tags. The reasoning must include your step-by-step thought process, explaining how you went from the given tools and workflow information to a compliant task description.
+<reasoning>
+(Step-by-step reasoning process…)
+</reasoning>
+
+2. Then, provide the task description, wrapped in <task></task> tags, it should not be too detailed, more information is presented in the next step:
+<task>
+(One‑sentence fuzzy task, it should be concise, and more information is provided in the next step)
+</task>
+
+3. Finally,provide additional task-related background information, including what must be understood to complete the task and key subtasks. Wrap this in tags:
+<background>
+(Background information Agent should know, it should be detailed)
+</background>
+
+The task and background description must:
+- Not lengthy or too detailed.
+- Avoid explicitly or implicitly instructing which tools to use. It's very important!
+- Not directly provide the specific execution workflow.
+- Have a clear and specific intent, allowing the intelligent agent to infer how to implement it.
+- Include enough rich details so that the intelligent agent can naturally infer the need for multi-step, multi-tool integration.
+
+Task short description, virtual tools, and workflow:
+{initial_task_info}

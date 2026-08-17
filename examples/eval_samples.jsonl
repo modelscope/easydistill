@@ -1,0 +1,3 @@
+{"instruction": "What is the capital of France?", "output": "Paris"}
+{"instruction": "Explain quantum computing in one sentence.", "output": "Quantum computing uses qubits to perform calculations."}
+{"instruction": "Write a Python function that reverses a string.", "output": "def reverse(s): return s[::-1]"}

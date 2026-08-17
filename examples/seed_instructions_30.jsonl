@@ -1,0 +1,30 @@
+{"id": "1", "instruction": "Explain the concept of knowledge distillation in one paragraph."}
+{"id": "2", "instruction": "Write a Python function that reverses a string without using slicing."}
+{"id": "3", "instruction": "What are the main differences between supervised fine-tuning and reinforcement learning from human feedback?"}
+{"id": "4", "instruction": "Explain how gradient descent works and why learning rate matters."}
+{"id": "5", "instruction": "Write a SQL query to find the top 3 customers by total order amount."}
+{"id": "6", "instruction": "What is the difference between TCP and UDP? Give one use case for each."}
+{"id": "7", "instruction": "Explain the concept of closure in JavaScript with a simple example."}
+{"id": "8", "instruction": "Write a Python decorator that measures and prints the execution time of a function."}
+{"id": "9", "instruction": "What is the CAP theorem? Explain each property with a database example."}
+{"id": "10", "instruction": "Explain what Docker is and how it differs from a virtual machine."}
+{"id": "11", "instruction": "Write a Python function to check if a binary tree is a valid binary search tree."}
+{"id": "12", "instruction": "Explain the difference between mutex and semaphore in concurrent programming."}
+{"id": "13", "instruction": "What is the Transformer architecture? Briefly describe self-attention."}
+{"id": "14", "instruction": "Write a regex pattern to validate an email address and explain each part."}
+{"id": "15", "instruction": "Explain the difference between supervised and unsupervised learning with examples."}
+{"id": "16", "instruction": "Write a Python function that implements merge sort and explain the time complexity."}
+{"id": "17", "instruction": "What is REST API? List the four most common HTTP methods and their purposes."}
+{"id": "18", "instruction": "Explain how HTTPS works, including the role of certificates and TLS handshake."}
+{"id": "19", "instruction": "Write a Python class for a circular queue with enqueue and dequeue methods."}
+{"id": "20", "instruction": "What is the difference between LSTM and GRU? Which is faster and why?"}
+{"id": "21", "instruction": "Explain the concept of normalization in neural networks (BatchNorm vs LayerNorm)."}
+{"id": "22", "instruction": "Write a Python function to find the longest common subsequence of two strings using dynamic programming."}
+{"id": "23", "instruction": "What is the difference between correlation and causation? Give a real-world example."}
+{"id": "24", "instruction": "Explain what garbage collection is in Python and how reference counting works."}
+{"id": "25", "instruction": "Write a Python function to detect a cycle in a linked list."}
+{"id": "26", "instruction": "Explain the concept of A/B testing and how to determine statistical significance."}
+{"id": "27", "instruction": "What is the difference between async/await and threading in Python?"}
+{"id": "28", "instruction": "Write a Python function to calculate the edit distance (Levenshtein distance) between two strings."}
+{"id": "29", "instruction": "Explain the concept of backpropagation in neural networks step by step."}
+{"id": "30", "instruction": "What is the difference between SQL JOIN types (INNER, LEFT, RIGHT, FULL)? Give examples."}

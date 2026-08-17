@@ -1,0 +1,86 @@
+# Advanced T2I distillation pipeline using Qwen-Image.
+# Flow: seed prompt -> prompt optimization -> T2I generation -> VLM eval -> quality filter -> SFT.
+# Set PAI_TOKEN_API_KEY (text/VLM) and DASHSCOPE_API_KEY (Qwen-Image T2I) env vars or fill below.
+# Usage:
+#   easydistill --config configs/t2i/advanced_t2i_distill_qwen_image.yaml
+
+job_type: advanced_t2i_distill
+
+backend:              # Text model for prompt optimization
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: https://cn-beijing.pai-token.aliyuncs.com/v1
+  model_id: qwen3.7-max
+
+eval_backend:         # VLM for image evaluation (optional, falls back to backend)
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: https://cn-beijing.pai-token.aliyuncs.com/v1
+  model_id: qwen3.6-plus
+
+t2i_backend:         # T2I backend for image generation (Qwen-Image requires DashScope key)
+  type: qwen_image
+  api_key: ${DASHSCOPE_API_KEY}
+  model_id: qwen-image2.0-pro
+
+generation:
+  size: "1024*1024"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+
+eval:
+  metrics:
+    - prompt_consistency
+    - aesthetic_quality
+    - detail_richness
+    - artifact_absence
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+  show_progress: true
+
+sft:
+  skip_empty: true
+  min_prompt_length: 5
+  max_images_per_prompt: 1
+
+pipeline:
+  - stage: prompt_optimize
+    config:
+      temperature: 0.7
+      max_tokens: 1024
+      max_workers: 4
+      show_progress: true
+    output_path: outputs/t2i_qwen_image_stage1_prompts.jsonl
+
+  - stage: t2i_generate
+    config:
+      size: "1024*1024"
+      n: 1
+      max_workers: 3
+      show_progress: true
+    output_path: outputs/t2i_qwen_image_stage2_images.jsonl
+
+  - stage: t2i_eval
+    config:
+      max_workers: 4
+      show_progress: true
+    output_path: outputs/t2i_qwen_image_stage3_evaluated.jsonl
+
+  - stage: quality_filter
+    config:
+      min_scores:
+        prompt_consistency: 6
+        aesthetic_quality: 5
+      keep_top_ratio: 0.8
+    output_path: outputs/t2i_qwen_image_stage4_filtered.jsonl
+
+  - stage: build_t2i_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_sft_qwen_image_advanced.jsonl
+  prompt_key: prompt

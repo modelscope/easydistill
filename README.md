@@ -1,223 +1,294 @@
-# EasyDistill: Easy Knowledge Distillation for Large Language Models
+# EasyDistill 2
 
-<div align="center">
+EasyDistill 2 is a config-driven knowledge distillation toolkit for turning black-box teacher models into high-quality training data. It composes atomic operators—generation, evaluation, filtering, rewriting, balancing, and preference scoring—into end-to-end pipelines that produce SFT datasets, DPO preference pairs, and multi-modal training data.
 
-[中文](./README_zh.md) | [English](./README.md)
+EasyDistill 2 是一个配置驱动的知识蒸馏工具包，用于将黑盒教师模型转化为高质量训练数据。它将生成、评估、过滤、改写、平衡与偏好评分等原子算子组合为端到端流水线，产出 SFT 数据集、DPO 偏好对以及多模态训练数据。
 
-</div>
+> **Upgrading from 1.0 / 从 1.0 升级**: EasyDistill 2 is a rewrite and is not backward compatible with 1.0 configs or APIs. The 1.0 implementation remains available on the [`1.0`](https://github.com/modelscope/easydistill/tree/1.0) branch and the `v1.0.0` tag. / EasyDistill 2 为重写版本，与 1.0 的配置和 API 不向后兼容。1.0 实现保留在 [`1.0`](https://github.com/modelscope/easydistill/tree/1.0) 分支与 `v1.0.0` 标签。
 
-Introducing **EasyDistill**, a pioneering toolkit on knowledge distillation (KD) for large language models (LLMs). With the growing complexity and size of LLMs, **EasyDistill** offers a versatile and user-friendly platform to streamline the KD process, supporting both black-box and white-box methodologies. It facilitates efficient model training, enabling smaller models to emulate the performance of larger ones without compromising accuracy. **EasyDistill** boasts an extensive range of features, including data synthesis, supervised fine-tuning, ranking optimization, and reinforcement learning, all tailored for various KD scenarios. Designed to accommodate both System 1 (fast, intuitive) and System 2 (slow, analytical) cognitive models, the toolkit is modular and easy to use, with a simple command-line interface guiding users. Beyond academic exploration, **EasyDistill** anchors practical industrial solutions, offering robust distilled models and open-source datasets, while also showcasing seamless integration with Alibaba Cloud’s AI platform, PAI. Committed to bridging theoretical advancements with practical needs, **EasyDistill** empowers the NLP community, making state-of-the-art KD strategies accessible to researchers and industry practitioners alike. 
+Key capabilities / 核心能力：
 
+- **Backend-agnostic generation / 后端无关的生成**: works with any OpenAI-compatible endpoint—OpenAI API, Azure OpenAI, vLLM, local servers, PAI-Token, and PAI-EAS. / 支持任意 OpenAI 兼容端点：OpenAI API、Azure OpenAI、vLLM、本地服务、PAI-Token 与 PAI-EAS。
+- **SFT and DPO data / SFT 与 DPO 数据**: build supervised fine-tuning datasets or chosen/rejected preference pairs for alignment. / 构建监督微调数据集或用于对齐训练的 chosen/rejected 偏好对。
+- **Text and multi-modal / 文本与多模态**: distill instructions, chain-of-thought reasoning, vision-language conversations, agent trajectories, and text-to-image data. / 蒸馏指令、思维链推理、视觉语言对话、Agent 轨迹与文生图数据。
+- **Composable pipelines / 可组合流水线**: use ready-made end-to-end pipelines or mix individual operators to match your data strategy. / 使用开箱即用的端到端流水线，或自由组合单个算子以匹配数据策略。
+- **Training-ready outputs / 训练就绪输出**: exported formats work directly with LLaMA-Factory and ms-swift. / 导出格式可直接用于 LLaMA-Factory 与 ms-swift。
 
-# News
+## Installation / 安装
 
-- **AgentKD**: We have released AgentKD, which can **directly generate diverse virtual tool-use tasks** from persona seeds to tools, policies and test cases, and produce teacher-model solution trajectories for knowledge distillation. Virtual tools are **pre-defined** with their schemas and possible return results; the **LLM simulates** tool execution (no real API calls). The data can also be used for **RL training**, with evaluation rubrics provided. Refer to [Here](./easydistill/agentkd).
-- Dec 19th: We have released OmniThoughtV, multi-modal CoTs distilled and filtered from Qwen-VL-max.
-- July 28th: We have released the functionalities of knowledge distillation from MLLM (aka MMKD). Refer to [Here](./easydistill/mmkd). Evaluations on the qualities of instruction-following and CoT datasets have been updated. Refer to [Here](./easydistill/eval).
-- June 25th: We have released a new series of DistilQWen models named DistilQwen-ThoughtY, togeter with OmniThought-0528 (CoTs distilled from DeepSeek-R1-0528).
+```bash
+pip install -e .
+```
 
+For the PAI-Token and PAI-EAS backends you also need the `openai` package: / 若使用 PAI-Token 和 PAI-EAS 后端，还需安装 `openai` 包：
 
-# Technical Articles
+```bash
+pip install openai
+```
 
-We have a series of technical articles on the functionalities of EasyDistill.
+## Quick start / 快速开始
 
-- [面向 Interleaved Thinking 的大模型 Agent 蒸馏实践](https://zhuanlan.zhihu.com/p/1992286983679141168)
-- [OmniThoughtV：面向多模态深度思考的高质量数据蒸馏](https://mp.weixin.qq.com/s/DoIpiauTxLwR9TtaZwbK5w)
-- [基于模型蒸馏的大模型文案生成最佳实践](https://developer.aliyun.com/article/1675249)
-- [DistillQwen-ThoughtY：通过变长思维链蒸馏，全面提升模型推理能力！](https://developer.aliyun.com/article/1669748)
-- [DistilQwen-ThoughtX：变长思维链推理模型，能力超越DeepSeek蒸馏模型](https://developer.aliyun.com/article/1665220)
-- [阿里云人工智能平台 PAI 开源 EasyDistill 框架助力大语言模型轻松瘦身](https://developer.aliyun.com/article/1664823)
-- [人工智能平台 PAI DistilQwen2.5-DS3-0324发布：知识蒸馏+快思考=更高效解决推理难题](https://developer.aliyun.com/article/1661734)
-- [DistilQwen2.5-R1发布：知识蒸馏助推小模型深度思考](https://developer.aliyun.com/article/1659288)
-- [DistilQwen2.5发布：通义千问蒸馏小模型再升级](https://developer.aliyun.com/article/1653842)
-- [DistilQwen2：通义千问大模型的知识蒸馏实践](https://developer.aliyun.com/article/1633882)
-- [基于多轮课程学习的大语言模型蒸馏算法TAPIR](https://developer.aliyun.com/article/1635146)
+Every job uses the same CLI entry point. The `job_type` field in the config selects the workflow, and each workflow ships paired `_pai_token` / `_pai_eas` configs.
 
+每个任务使用相同的 CLI 入口。配置文件中的 `job_type` 字段选择具体工作流，每个工作流都提供成对的 `_pai_token` / `_pai_eas` 配置。
 
+```bash
+# 1. Set credentials for your backend / 按所用后端设置凭据
+export PAI_TOKEN_API_KEY=your_key            # PAI-Token
+export PAI_TOKEN_BASE_URL=https://your-endpoint/v1   # PAI-Token (optional / 可选)
 
-## Overview
+export EAS_ENDPOINT_URL=https://your-service.cn-beijing.pai-eas.aliyuncs.com/v1   # PAI-EAS
+export EAS_TOKEN=your_token                  # PAI-EAS
 
-![EasyDistill Framework](resources/framework.png)
+export DASHSCOPE_API_KEY=your_key            # T2I (Wanx / Qwen-Image)
 
-- **Toolkit Features**: EasyDistill provides versatile functionalities, including data synthesis, supervised fine-tuning, logits distillation, ranking optimization, and reinforcement learning techniques tailored for KD scenarios. **AgentKD** extends the toolkit with virtual tool-use data synthesis: tools and their possible return results are pre-defined; the LLM simulates tool execution. It generates diverse tool-use metadata and teacher-model solution trajectories for distillation. The data also supports **RL training** with evaluation rubrics for reward modeling.
-- **Compatibility**: It supports both System 1 (fast, intuitive) and System 2 (slow, analytical) models.
-- **User-Friendly**: With its modular design and simple command-line interface, EasyDistill makes experimentation and implementation of KD strategies straightforward.
-- **Industrial Integration**: Incorporates KD-based solutions and supports integration with platforms such as Alibaba Cloud’s Platform for AI (PAI).
+export EAS_VIDEO_ENDPOINT_URL=https://your-video-service.pai-eas.aliyuncs.com   # T2V (EAS video / EAS 视频)
+export EAS_VIDEO_TOKEN=your_token            # T2V (EAS video / EAS 视频)
 
+# 2. Run any workflow / 运行任意工作流
+easydistill --config configs/basic/instruct_distill_pai_token.yaml
+```
 
-## Getting Started
+Discover supported jobs and models without a config:
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/modelscope/easydistill
-    cd EasyDistill
-    ```
+无需配置文件即可查看支持的作业与模型：
 
-2. Install the required dependencies:
-    ```bash
-    python setup.py install
-    ```
+```bash
+easydistill --list-jobs      # list all job_type values / 列出所有 job_type
+easydistill --list-models    # list Model Zoo entries / 列出模型库
+```
 
-3. Explore the usage of EasyDistill through the command-line interface:
-    ```bash
-    easydistill --config <config-file-path>
-    ```
+Pick a config from the tables below; each linked doc covers stage-level options and data formats.
 
-    The config file expresses the detailed settings of any knowledge distillation jobs that **EasyDistill** supports. A sample of black-box distillation config can be shown below:
-    ```json
-    {
-        "job_type": "kd_black_box_local",
-        "dataset": {
-            "instruction_path": "train.json",
-            "labeled_path": "train_labeled.json",
-            "template" : "chat_template/chat_template_kd.jinja",
-            "seed": 42
-        },
-        "inference":{
-            "enable_chunked_prefill": true,
-            "seed": 777,
-            "gpu_memory_utilization": 0.9,
-            "temperature": 0.8,
-            "trust_remote_code": true,
-            "enforce_eager": false,
-            "max_model_len": 4096,
-            "max_new_tokens": 512
-        },
-        "models": {
-            "teacher": "teacher/Qwen/Qwen2.5-7B-Instruct/",
-            "student": "student/Qwen/Qwen2.5-0.5B-Instruct/"
-        },
-        "training": {
-            "output_dir": "./result/",
-            "num_train_epochs": 3,
-            "per_device_train_batch_size": 1,
-            "gradient_accumulation_steps": 8,
-            "save_steps": 1000,
-            "max_length": 512,
-            "logging_steps": 1,
-            "learning_rate": 2e-5,
-            "weight_decay": 0.05,
-            "warmup_ratio": 0.1,
-            "lr_scheduler_type": "cosine"
-        }
-    }
-    ```
+从下方表格选择配置；各阶段选项与数据格式见对应文档。
 
-## DistilQwen Series
+## Workflows / 工作流
 
-The **DistilQwen** models represent a robust suite of distilled language models derived from the **EasyDistill** toolkit. Designed to capitalize on the principles of knowledge distillation, DistilQwen models offer a significant reduction in model size while maintaining high performance, making them ideal for resource-constrained environments. Whether you're aiming for efficient deployment in industrial scenarios or seeking to explore advanced KD methodologies, **DistilQwen** models are poised to meet diverse application needs with agility and precision.
+### Basic distillation / 基础蒸馏
 
+Single-stage distillation: generate teacher outputs for seed data and build an SFT dataset. / 单阶段蒸馏：为种子数据生成教师输出并构建 SFT 数据集。
 
-### What's New: Adaptive Thinking Models
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `instruct_distill` | Teacher responses for seed instructions. / 为种子指令生成教师回复。 | `configs/basic/instruct_distill_pai_token.yaml` | [EN](docs/instruction_distillation.md) · [中文](docs/instruction_distillation_zh.md) |
+| `cot_distill` | Chain-of-thought reasoning traces. / 生成思维链推理轨迹。 | `configs/basic/cot_distill_pai_token.yaml` | [EN](docs/cot_distillation.md) · [中文](docs/cot_distillation_zh.md) |
+| `mm_instruct_distill` | Responses for `(image, instruction)` pairs. / 为 `(图像, 指令)` 样本对生成回复。 | `configs/basic/mm_instruct_distill_pai_token.yaml` | [EN](docs/mm_distillation.md) · [中文](docs/mm_distillation_zh.md) |
+| `mm_cot_distill` | Visual chain-of-thought traces. / 生成视觉思维链轨迹。 | `configs/basic/mm_cot_distill_pai_token.yaml` | [EN](docs/mm_cot_distillation.md) · [中文](docs/mm_cot_distillation_zh.md) |
 
-The most recent **DistilQwen** series is **DistilQwen-ThoughtX** and **DistilQwen-ThoughtY**, which exhibits improved reasoning abilities and generates CoTs with more optimal lengths compared to its predecessors. The **DistilQwen-ThoughtX** model series is developed from the innovative **OmniThought** dataset by utilizing the novel Reasoning Verbosity (RV) and Cognitive Difficulty (CD) scores, which ensure that models receive rich, high-quality training data reflecting optimal CoT output length and difficulty. **DistilQwen-ThoughtY** is further trained based on Qwen3 as student models and DeepSeek-R1-0528 as the teacher model. The performance of **DistilQwen-ThoughtX** and **DistilQwen-ThoughtY** is shown below.
+### Instruction pipelines / 指令蒸馏流水线
 
+End-to-end pipelines chaining synthesis, generation, evaluation, filtering, and SFT building. / 将合成、生成、评估、过滤与 SFT 构建串联的端到端流水线。
 
-| **Model**                                     | **AIME2024** | **MATH500** | **GPQA-D** | **LCB V2** | **Avg.**  | **Download** |
-|-----------------------------------------------|--------------|-------------|------------|------------|-----------|--------------|
-| **DistillQwen-ThoughtY-4B**                   | **76.7**     | **95.2**    | **56.1**   | **75.8**   | **76.0**  |[HF](https://huggingface.co/alibaba-pai/DistilQwen-ThoughtY-4B) & [MS](https://modelscope.cn/models/PAI/DistillQwen-ThoughtY-4B)|
-| OpenThinker-7B                                | 31.3         | 83.0        | 42.4       | 39.9       | 49.1      |              |
-| DeepSeek-R1-Distill-Qwen-7B                   | 57.3         | 89.6        | 47.3       | 48.4       | 60.6      |              |
-| OpenThinker2-7B                               | 50.0         | 88.4        | 49.3       | 55.6       | 60.8      |              |
-| **DistilQwen-ThoughtX-7B**                    | 56.7         | 90.2        | 50.0       | 56.8       | 63.4      |[HF](https://huggingface.co/alibaba-pai/DistilQwen-ThoughtX-7B) & [MS](https://modelscope.cn/models/pai/DistilQwen-ThoughtX-7B)|
-| **DistillQwen-ThoughtY-8B**                   | **76.7**     | **94.6**    | **62.1**   | **78.1**   | **77.9**  |[HF](https://huggingface.co/alibaba-pai/DistilQwen-ThoughtY-8B) & [MS](https://modelscope.cn/models/PAI/DistillQwen-ThoughtY-8B)|
-| LIMO-32B                                      | 56.7         | 86.6        | 58.1       | 60.0       | 65.3      |              |
-| OpenThinker-32B                               | 66.0         | 90.6        | 61.6       | 68.9       | 71.7      |              |
-| DeepSeek-R1-Distill-Qwen-32B                  | 74.7         | 90.0        | 62.4       | 72.3       | 74.8      |              |
-| OpenThinker2-32B                              | 76.7         | 90.8        | **64.1**   | 72.5       | 76.0      |              |
-| Light-R1-32B                                  | 74.7         | 90.4        | 62.0       | 56.0       | 70.7      |              |
-| s1.1-32B                                      | 59.3         | 87.4        | 62.0       | 58.7       | 66.8      |              |
-| **DistilQwen-ThoughtX-32B**                   | 80.0         | 92.6        | 64.0       | 73.4       | 77.5      |[HF](https://huggingface.co/alibaba-pai/DistilQwen-ThoughtX-32B) & [MS](https://modelscope.cn/models/pai/DistilQwen-ThoughtX-32B)|
-| **DistillQwen-ThoughtY-32B**                  | **90.0**     | **95.2**    | 63.6	      | **76.3**   | **81.3**  |[HF](https://huggingface.co/alibaba-pai/DistilQwen-ThoughtY-32B) & [MS](https://modelscope.cn/models/PAI/DistillQwen-ThoughtY-32B)|
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `advanced_instruct_distill` | Expand → generate → judge → filter → SFT. / 扩充 → 生成 → 裁判 → 过滤 → SFT。 | `configs/pipeline/advanced_instruct_distill_pai_token.yaml` | [EN](docs/advanced_instruct_distill.md) · [中文](docs/advanced_instruct_distill_zh.md) |
+| `balanced_instruct_distill` | Balance category distribution before generation. / 生成前先平衡指令类别分布。 | `configs/pipeline/balanced_instruct_distill_pai_token.yaml` | [EN](docs/balanced_instruct_distill.md) · [中文](docs/balanced_instruct_distill_zh.md) |
+| `augmented_instruct_distill` | Refine seeds, then generate and distill. / 精练种子指令后生成并蒸馏。 | `configs/pipeline/augmented_instruct_distill_pai_token.yaml` | [EN](docs/augmented_instruct_distill.md) · [中文](docs/augmented_instruct_distill_zh.md) |
 
-The **OmniThought** and **OmniThought-0528** datasets are also publicly available. Refer to the Datasets section.
+Standalone synthesis operators (`instruction_expansion`, `seed_anchored_expansion`, `instruction_refinement`, `instruction_response_extraction`) live in `configs/rewrite/`; see [instruction_balancing.md](docs/instruction_balancing.md).
 
-### System 1 Models
+独立的合成算子（`instruction_expansion`、`seed_anchored_expansion`、`instruction_refinement`、`instruction_response_extraction`）位于 `configs/rewrite/`，参见 [instruction_balancing_zh.md](docs/instruction_balancing_zh.md)。
 
-**DistilQwen2** is an enhanced version of the Qwen2 models, equipped with improved instruction-following capabilities for various NLP tasks. We employ GPT-4 and Qwen-max as teacher models to generate high-quality responses, with the balance on the task distributions of input instructions. Following SFT, a rank optimization process is performed using the DPO algorithm to enhance alignment between the student models and the teacher models. **DistilQwen2.5** models are trained using a combination of black-box and white-box KD algorithms. We adhere to the same instruction data processing and black-box SFT procedure as employed in the production of **DistilQwen2**. Subsequently, white-box training is applied to refine the students' acquisition of intricate knowledge from the teacher models, specifically utilizing Qwen2.5-72B-Instruct as open-source teacher models. The performance of **DistilQwen2** and **DistilQwen2.5** is shown below.
+### CoT distillation / 思维链蒸馏
 
-| **Model**                          | **AlpacaEval 2.0 (length control)** | **MT-Bench** | **MT-Bench (single)** | **IFEval (instruct-loose)** | **IFEval (strict-prompt)** | **Download** |
-|------------------------------------|-------------------------------------|--------------|-----------------------|-----------------------------|----------------------------|--------------|
-| Qwen2.5-0.5B-Instruct              | 2.46                                | 5.49         | 6.26                  | 42.81                       | 30.31                      |              |
-| **DistilQwen2.5-0.5B-Instruct**    | **4.89**                            | **5.78**     | **6.83**              | **52.61**                   | **37.82**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-0.5B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-0.5B-Instruct)|
-| Qwen2-1.5B-Instruct                | 5.22                                | 5.85         | 6.45                  | 41.37                       | 28.10                      |              |
-| **DistilQwen2-1.5B-Instruct**      | **8.28**                            | **6.42**     | **7.12**              | **49.76**                   | **36.04**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2-1.5B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2-1.5B-Instruct)|
-| Qwen2.5-1.5B-Instruct              | 6.69                                | 7.09         | 7.66                  | 55.40                       | 40.11                      |              |
-| **DistilQwen2.5-1.5B-Instruct**    | **13.69**                           | **7.35**     | **7.99**              | **61.10**                   | **74.49**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-1.5B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-1.5B-Instruct)|
-| Qwen2.5-3B-Instruct                | 17.98                               | 7.92         | 8.40                  | 61.18                       | 74.58                      |              |
-| **DistilQwen2.5-3B-Instruct**      | **20.91**                           | **8.37**     | **8.97**              | **67.03**                   | **77.36**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-3B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-3B-Instruct)|
-| Qwen2-7B-Instruct                  | 24.33                               | 8.27         | 8.68                  | 66.67                       | 52.31                      |              |
-| **DistilQwen2-7B-Instruct**        | **25.35**                           | **8.40**     | **9.03**              | **71.46**                   | **60.26**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2-7B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2-7B-Instruct)|
-| Qwen2.5-7B-Instruct                | 31.43                               | 8.52         | 8.83                  | 81.53                       | 72.10                      |              |
-| **DistilQwen2.5-7B-Instruct**      | **34.86**                           | **8.76**     | **9.22**              | **83.48**                   | **73.27**                  |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-7B-Instruct) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-7B-Instruct)|
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `advanced_cot_distill` | Generate CoT, score with RV/CD, mix by difficulty bins, build SFT. / 生成 CoT，按 RV/CD 评分、按难度分箱混合并构建 SFT。 | `configs/pipeline/advanced_cot_distill_pai_token.yaml` | [EN](docs/cot_rvcd_mixer.md) · [中文](docs/cot_rvcd_mixer_zh.md) |
+| `cot_long2short` / `cot_short2long` | Rewrite CoT length in either direction. / 思维链长转短与短转长改写。 | `configs/rewrite/cot_long2short_pai_token.yaml` | [EN](docs/cot_distillation.md) · [中文](docs/cot_distillation_zh.md) |
+
+### Multi-modal pipelines / 多模态流水线
+
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `advanced_mm_distill` | Multi-modal generate → eval → filter → SFT. / 多模态生成 → 评估 → 过滤 → SFT。 | `configs/pipeline/advanced_mm_distill_pai_token.yaml` | [EN](docs/mm_distillation.md) · [中文](docs/mm_distillation_zh.md) |
+| `advanced_mm_cot_distill` | Visual CoT with RV/CD/correctness scoring. / 视觉思维链，含 RV/CD/正确性评分。 | `configs/pipeline/advanced_mm_cot_distill_pai_token.yaml` | [EN](docs/mm_cot_distillation.md) · [中文](docs/mm_cot_distillation_zh.md) |
+| `advanced_mm_cot_distill` (OmniThoughtV config / OmniThoughtV 配置变体) | Same job_type as above; reproduces the OmniThoughtV `<thinking>/<answer>` trace recipe. / 与上行为同一 job_type；复现 OmniThoughtV `<thinking>/<answer>` 轨迹配方。 | `configs/pipeline/omnithoughtv_mm_cot_distill_pai_token.yaml` | [EN](docs/mm_cot_distillation.md) · [中文](docs/mm_cot_distillation_zh.md) |
+| `mm_cot_long2short` / `mm_cot_short2long` | Rewrite visual CoT length. / 视觉思维链长度改写。 | `configs/rewrite/mm_cot_long2short_pai_token.yaml` | [EN](docs/mm_cot_distillation.md) · [中文](docs/mm_cot_distillation_zh.md) |
+
+### Agent distillation / Agent 蒸馏
+
+Synthesize virtual tool-use tasks from persona seeds, roll out multi-turn agent trajectories with a LangGraph ReAct loop, and build SFT or DPO training data.
+
+从角色种子合成虚拟工具使用任务，通过 LangGraph ReAct 循环展开多轮 Agent 轨迹，并构建 SFT 或 DPO 训练数据。
+
+| `job_type` | Config | Docs |
+|---|---|---|
+| `agent_distill` | `configs/pipeline/agent_distill_pai_token.yaml` | [EN](docs/agent_distillation.md) · [中文](docs/agent_distillation_zh.md) |
+
+### Search agent distillation / 搜索 Agent 蒸馏
+
+Evolve simple seed QA pairs into verified multi-hop search tasks through a Strategist-driven closed loop (expand via atomic-QA entity bridging, refine, quality gate, solver-verified difficulty rating), roll out tool-using ReAct search trajectories (mock-simulated or real Google/Jina search), and build SFT training data.
+
+通过策略师驱动的闭环将简单种子问答进化为经验证的多跳搜索任务（原子 QA 实体桥接加跳、受控模糊化、质量门禁、解题实测定难度），展开带工具（模拟或真实 Google/Jina 检索）的 ReAct 搜索轨迹，并构建 SFT 训练数据。
+
+| `job_type` | Config | Docs |
+|---|---|---|
+| `search_agent_distill` | `configs/pipeline/search_agent_distill_pai_token.yaml` | [EN](docs/search_agent_distillation.md) · [中文](docs/search_agent_distillation_zh.md) |
+
+### T2I distillation / 文生图蒸馏
+
+Distill seed text prompts into multi-modal SFT data with generated images. Supports Tongyi Wanxiang (Wanx), Qwen-Image, and PAI-Diffusion backends via the `t2i_backend` config section.
 
 
-We have released two instruction following datasets to public. Refer to the Datasets section.
+将种子文本提示蒸馏为含生成图片的多模态 SFT 数据。通过 `t2i_backend` 配置节支持通义万相（Wanx）、Qwen-Image 与 PAI-Diffusion 后端。
 
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `t2i_distill` | Basic text-to-image distillation. / 基础文生图蒸馏。 | `configs/t2i/t2i_distill_wanx.yaml` | [EN](docs/t2i_distillation.md) · [中文](docs/t2i_distillation_zh.md) |
+| `advanced_t2i_distill` | Prompt optimization → T2I generation → VLM judge → filter → SFT. / Prompt 优化 → 文生图 → VLM 裁判 → 过滤 → SFT。 | `configs/t2i/advanced_t2i_distill_wanx.yaml` | [EN](docs/t2i_distillation.md) · [中文](docs/t2i_distillation_zh.md) |
 
-### System 2 Models
+### T2V distillation / 文生视频蒸馏
 
-The **DistilQwen2.5-R1** model series utilizes DeepSeek-R1 as the teacher model. To align the reasoning abilities of smaller distilled models with their intrinsic cognitive capacities, the models are further refined using our CogPO algorithm, which outperforms other training methods. Additionally, we transfer the fast-thinking reasoning capabilities from DeepSeek-V3-0324 to the **DistilQwen2.5-DS3-0324** models. To shorten the reasoning process, the CoT simplification operator are employed to reduce the number of tokens in the training data for **DistilQwen2.5-R1**. Combined with a rewritten dataset comprising DeepSeek-V3-0324's CoT distillation data, we develop the **DistilQwen2.5-DS3-0324** models. The performance of **DistilQwen2.5-R1** and **DistilQwen2.5-DS3-0324** is shown below.
+Distill seed text prompts — optionally conditioned on a first-frame image (I2V) — into multi-modal SFT data with generated videos. Supports PAI-Token gateway video models and PAI-EAS deployed video models via the `t2v_backend` config section; T2V and I2V rows may be mixed in one batch. Expensive stages support opt-in resume (`resume: true`) with row-level checkpointing.
 
-| **Model**                             | **AIME2024** | **MATH-500** | **GPQA Diamond** | **LiveCodeBench V2** | **Download** |
-|---------------------------------------|--------------|--------------|------------------|----------------------|--------------|
-| Qwen2.5-3B-Instruct                   | 6.67         | 62.6         | 32.83            | 11.35                |              |
-| **DistilQwen2.5-DS3-0324-3B**         | **16.67**    | **70.0**     | **34.34**        | **18.00**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-DS3-0324-3B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-DS3-0324-3B)|
-| Qwen2.5-7B-Instruct                   | 10.0         | 73.6         | 33.30            | 30.72                |              |
-| **DistilQwen2.5-7B-R1**               | **23.33**    | **77.8**     | **37.88**        | **36.40**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-R1-7B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-R1-7B)|
-| **DistilQwen2.5-DS3-0324-7B**         | **43.33**    | **88.4**     | **42.93**        | **46.38**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-DS3-0324-7B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-DS3-0324-7B)|
-| Qwen2.5-14B-Instruct                  | 16.7         | 78.2         | 43.43            | 37.38                |              |
-| **DistilQwen2.5-14B-R1**              | **26.67**    | **82.6**     | **45.45**        | **41.49**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-R1-14B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-R1-14B)|
-| **DistilQwen2.5-DS3-0324-14B**        | **46.67**    | **90.8**     | **51.52**        | **54.40**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-DS3-0324-14B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-DS3-0324-14B)|
-| Qwen2.5-32B-Instruct                  | 16.67        | 81.4         | 45.50            | 47.36                |              |
-| **DistilQwen2.5-32B-R1**              | **46.67**    | **87.0**     | **48.99**        | **55.97**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-R1-32B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-R1-32B)|
-| **DistilQwen2.5-DS3-0324-32B**        | **70.00**    | **93.8**     | **62.12**        | **65.95**            |[HF](https://huggingface.co/alibaba-pai/DistilQwen2.5-DS3-0324-32B) & [MS](https://modelscope.cn/models/PAI/DistilQwen2.5-DS3-0324-32B)|
+将种子文本提示（可选以首帧图像为条件，即 I2V）蒸馏为含生成视频的多模态 SFT 数据。通过 `t2v_backend` 配置节支持 PAI-Token 网关视频模型与 PAI-EAS 自部署视频模型；T2V 与 I2V 行可混合在同一批数据中。高开销阶段支持可选断点续跑（`resume: true`）及行级 checkpoint。
 
-All the **DistilQwen** models are publicly available in HuggingFace and ModelScope.
+| `job_type` | Purpose / 用途 | Config | Docs |
+|---|---|---|---|
+| `t2v_distill` | Basic text/image-to-video distillation. / 基础文生/图生视频蒸馏。 | `configs/basic/t2v_distill_pai_token.yaml` | [EN](docs/t2v_distillation.md) · [中文](docs/t2v_distillation_zh.md) |
+| `advanced_t2v_distill` | Prompt optimization → video generation → video eval (VLM/omni/VBench) → filter → SFT. / Prompt 优化 → 视频生成 → 视频评估（VLM/omni/VBench）→ 过滤 → SFT。 | `configs/pipeline/advanced_t2v_distill_pai_token.yaml` | [EN](docs/t2v_distillation.md) · [中文](docs/t2v_distillation_zh.md) |
+| `t2v_prompt_optimize` / `t2v_generation` / `t2v_eval` | Standalone single stages for debugging or resuming. / 独立单阶段，便于调试或续跑。 | — | [EN](docs/t2v_distillation.md) · [中文](docs/t2v_distillation_zh.md) |
 
+### PE rewrite distillation / PE 改写蒸馏
 
+Expand seed prompts, rewrite them via a plan/rewrite/reflection teacher agent chain, score with a combined nine-metric LLM judge, filter, and build a prompt-rewriting SFT dataset. Every stage is also exposed as a standalone `job_type` (`seed_anchored_expansion`, `agentic_rewrite`, `pe_rewrite_eval`, `pe_rewrite_filter`, `pe_rewrite_build_sft`) for debugging or resuming from an intermediate JSONL.
 
+扩展种子 prompt，经 plan/rewrite/reflection 教师 Agent 链改写，由九维合并 LLM 裁判打分、过滤并构建 prompt 改写 SFT 数据集。每个阶段也均以独立 `job_type` 透出（`seed_anchored_expansion`、`agentic_rewrite`、`pe_rewrite_eval`、`pe_rewrite_filter`、`pe_rewrite_build_sft`），便于调试或从中间 JSONL 续跑。
 
-## Released Datasets
+| `job_type` | Config | Docs |
+|---|---|---|
+| `pe_rewrite_distill` | `configs/pipeline/pe_rewrite_distill_from_seeds_pai_token.yaml` | [EN](docs/pe_rewrite.md) · [中文](docs/pe_rewrite_zh.md) |
 
-We have also released several datasets based on the **EasyDistill** framework.
+### Preference data / 偏好数据
 
-### Instruction Following Datasets
+Build chosen/rejected preference pairs for direct preference optimization (DPO). / 构建用于直接偏好优化（DPO）的 chosen/rejected 偏好对。
 
-To assist community developers in avoiding catastrophic forgetting when fine-tuning the **DistilQwen** model, we have open-sourced two datasets: **DistilQwen_100K** and **DistilQwen_1M**. These datasets are intended to provide a solid foundation for model fine-tuning, enhancing adaptability to new tasks while retaining performance on previous tasks. Additionally, it can be utilized to improve instruction-following capabilities when fine-tuning other similar large language models. These datasets cover a range of contents, including mathematics, code, knowledge-based Q&A, instruction following, and creative generation, with a total dataset size of 100K and 1M entries. Users can integrate **DistilQwen_100K** and **DistilQwen_1M**, or its subsets, with their own data during model fine-tuning to ensure excellent downstream task performance while maintaining the model's general capabilities, thus preserving its ability to generalize.
+| `job_type` | Variant / 变体 | Purpose / 用途 | Config | Docs |
+|---|---|---|---|---|
+| `dpo_data_build` | `dpo_instruct_*` | Preference pairs for instruction data. / 指令数据偏好对。 | `configs/preference/dpo_instruct_pai_token.yaml` | [EN](docs/dpo_distillation.md) · [中文](docs/dpo_distillation_zh.md) |
+| `dpo_data_build` | `dpo_cot_*` | Preference pairs for CoT data. / 思维链数据偏好对。 | `configs/preference/dpo_cot_pai_token.yaml` | [EN](docs/dpo_distillation.md) · [中文](docs/dpo_distillation_zh.md) |
 
+The `dpo_instruct_*` and `dpo_cot_*` names are config-file naming patterns; the actual CLI `job_type` is always `dpo_data_build`. Set `dpo.task_type` inside the config to `instruct` or `cot`.
 
-### Chain-of-Thought Reasoning Datasets
+`dpo_instruct_*` 与 `dpo_cot_*` 是配置文件命名模式；实际 CLI `job_type` 始终为 `dpo_data_build`。在配置内通过 `dpo.task_type` 选择 `instruct` 或 `cot`。
 
-**OmniThought** is a large-scale dataset featuring **2 million** Chain-of-Thought (CoT) processes generated and validated by DeepSeek-R1 and QwQ-32B. Each CoT process in **OmniThought** is annotated with novel Reasoning Verbosity (RV) and Cognitive Difficulty (CD) scores, which describe the appropriateness of CoT verbosity and cognitive difficulty level for models to comprehend these reasoning processes. Based on our **OmniThought** dataset, we further train and release a series of high-performing models (**DistilQwen-ThoughtX-7B** and **DistilQwen-ThoughtX-32B**), specifically equipped with stronger reasoning abilities and optimal CoT output length and difficulty level. Refer to `recipes/open_datasets` for details. In addition, **OmniThought-0528** is an extension to **OmniThought** featuring **365 thousand** Chain-of-Thought (CoT) processes generated and validated by DeepSeek-R1-0528. 
+### Evaluation / 评估
 
-All the datasets are publicly available in HuggingFace and ModelScope.
+Score existing datasets with LLM/VLM judges, without regenerating them. / 使用 LLM/VLM 裁判为已有数据集打分，无需重新生成。
 
-| **Dataset**       | **Size**  | **Download**                                                                                                                  |
-|-------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------|
-| DistilQwen_100K   | 100K      | [HF](https://huggingface.co/datasets/alibaba-pai/DistilQwen_100k) & [MS](https://modelscope.cn/datasets/PAI/DistilQwen_100k)  |
-| DistilQwen_1M     | 1M        | [HF](https://huggingface.co/datasets/alibaba-pai/DistilQwen_1M) & [MS](https://modelscope.cn/datasets/PAI/DistilQwen_1M)      |
-| OmniThought       | 2M        | [HF](https://huggingface.co/datasets/alibaba-pai/OmniThought) & [MS](https://modelscope.cn/datasets/PAI/OmniThought)          |
-| OmniThought-0528  | 365K      | [HF](https://huggingface.co/datasets/alibaba-pai/OmniThought-0528) & [MS](https://modelscope.cn/datasets/PAI/OmniThought-0528)|
+| Task / 任务 | Config | Docs |
+|---|---|---|
+| Instruction / CoT / multi-modal / T2I judging | `configs/eval/` | [EN](docs/data_formats.md) · [中文](docs/data_formats_zh.md) |
+| T2I / TI2I image evaluation / 文生图与图文生图评测 | `configs/eval/t2i_ti2i/` | [EN](docs/t2i_ti2i_eval.md) · [中文](docs/t2i_ti2i_eval_zh.md) |
 
+### Standalone operators / 独立算子
 
-## Reference
+Every pipeline stage is also exposed as a standalone `job_type` for debugging, resuming from an intermediate JSONL, or building custom workflows. / 每个流水线阶段均作为独立 `job_type` 透出，便于调试、从中间 JSONL 续跑或构建自定义工作流。
 
-We have [an arxiv paper](https://arxiv.org/abs/2505.20888) for you to cite for the EasyDistill library. Below are papers related to our project.
+| Category / 类别 | `job_type` | Config example / 配置示例 | Docs |
+|---|---|---|---|
+| Instruction synthesis / 指令合成 | `instruction_expansion`, `seed_anchored_expansion`, `instruction_refinement`, `instruction_response_extraction` | `configs/rewrite/instruction_expansion_pai_token.yaml` | [instruction_balancing.md](docs/instruction_balancing.md) |
+| PE rewrite / PE 改写 | `agentic_rewrite`, `pe_rewrite_eval`, `pe_rewrite_filter`, `pe_rewrite_build_sft` | `configs/rewrite/pe_rewrite_eval_pai_token.yaml` | [pe_rewrite.md](docs/pe_rewrite.md) |
+| CoT rewrite / CoT 改写 | `cot_long2short`, `cot_short2long` | `configs/rewrite/cot_long2short_pai_token.yaml` | [cot_distillation.md](docs/cot_distillation.md) |
+| MM CoT rewrite / 多模态 CoT 改写 | `mm_cot_long2short`, `mm_cot_short2long` | `configs/rewrite/mm_cot_long2short_pai_token.yaml` | [mm_cot_distillation.md](docs/mm_cot_distillation.md) |
+| T2I stages / 文生图阶段 | `prompt_optimize`, `t2i_generation`, `t2i_single_model_eval`, `t2i_multi_model_eval`, `ti2i_single_model_eval`, `ti2i_multi_model_eval`, `t2i_eval` | `configs/t2i/prompt_optimize_pai_token.yaml` | [t2i_distillation.md](docs/t2i_distillation.md), [t2i_ti2i_eval.md](docs/t2i_ti2i_eval.md) |
+| T2V stages / 文生视频阶段 | `t2v_prompt_optimize`, `t2v_generation`, `t2v_eval` | `configs/basic/t2v_distill_pai_token.yaml` | [t2v_distillation.md](docs/t2v_distillation.md) |
+| Evaluation / 评估 | `instruct_eval`, `cot_eval`, `mm_instruct_eval`, `mm_cot_eval` | `configs/eval/instruct_eval_pai_token.yaml` | [data_formats.md](docs/data_formats.md) |
 
-- Chengyu Wang, Junbing Yan, Wenrui Cai, Yuanhao Yue, Jun Huang. EasyDistill: A Comprehensive Toolkit for Effective Knowledge Distillation of Large Language Models. arXiv preprint
-- Wenrui Cai, Chengyu Wang, Junbing Yan, Jun Huang, Xiangzhong Fang. Reasoning with OmniThought: A Large CoT Dataset with Verbosity and Cognitive Difficulty Annotations. arXiv preprint
-- Wenrui Cai, Chengyu Wang, Junbing Yan, Jun Huang, Xiangzhong Fang. Training Small Reasoning LLMs with Cognitive Preference Alignment. arXiv preprint
-- Chengyu Wang, Junbing Yan, Yuanhao Yue, Jun Huang. DistilQwen2.5: Industrial Practices of Training Distilled Open Lightweight Language Models. **ACL 2025**
-- Yuanhao Yue, Chengyu Wang, Jun Huang, Peng Wang. Building a Family of Data Augmentation Models for Low-cost LLM Fine-tuning on the Cloud. **COLING 2025**
-- Yuanhao Yue, Chengyu Wang, Jun Huang, Peng Wang. Distilling Instruction-following Abilities of Large Language Models with Task-aware Curriculum Planning. **EMNLP 2024**
+A complete `job_type → config → doc` matrix is available in [docs/job_type_index.md](docs/job_type_index.md) / [docs/job_type_index_zh.md](docs/job_type_index_zh.md).
 
+## Supported backends / 支持的后端
 
-## License
+| Backend / 后端 | Config `type` | Notes / 说明 |
+|---|---|---|
+| OpenAI-compatible / OpenAI 兼容 | `openai` | Any OpenAI-compatible endpoint (OpenAI API, Azure OpenAI, vLLM, llama.cpp, etc.). / 任意 OpenAI 兼容端点（OpenAI API、Azure OpenAI、vLLM、llama.cpp 等）。 |
+| PAI-Token | `pai_token` | OpenAI-compatible PAI-Token endpoint with API-key auth. / 使用 API Key 认证的 OpenAI 兼容 PAI-Token 端点。 |
+| PAI-EAS | `pai_eas` | OpenAI-compatible EAS endpoint with token auth. / 使用 Token 认证的 OpenAI 兼容 EAS 端点。 |
 
-This project is licensed under the [Apache License (Version 2.0)](LICENSE). This toolkit also contains some code modified from other repos under other open-source licenses. See the [NOTICE](NOTICE) file for more information.
+For text-to-image jobs, a separate `t2i_backend` section selects the T2I backend: `wanx` (Tongyi Wanxiang via dashscope), `qwen_image` (Qwen-Image via dashscope), or `pai_diffusion` (PAI-EAS deployed diffusion models).
 
+文生图任务通过独立的 `t2i_backend` 节选择 T2I 后端：`wanx`（通义万相，经 dashscope）、`qwen_image`（Qwen-Image，经 dashscope）或 `pai_diffusion`（PAI-EAS 部署的扩散模型）。
 
-## Join in the Discussion
+See [docs/backends.md](docs/backends.md) or [docs/backends_zh.md](docs/backends_zh.md) for backend configuration details, credential environment variables, and OpenAI/vLLM examples.
 
-We welcome community partners to collaborate and contribute to the development, and welcome to join the DingTalk group: 117440002081 to participate in the discussion.
+后端配置详情、凭据环境变量与 OpenAI/vLLM 示例见 [docs/backends.md](docs/backends.md) 或 [docs/backends_zh.md](docs/backends_zh.md)。
+
+## Resources / 相关资源
+
+- **[Model Zoo](docs/model_zoo.md)** — Open-source DistilQwen and AgenticQwen models and public datasets. / 开源 DistilQwen、AgenticQwen 模型与公开数据集。
+- **[DistilQwen Series](docs/distilqwen_series.md)** — DistilQwen model benchmarks and download links. / DistilQwen 模型评测结果与下载链接。
+- **[Papers & News](docs/papers.md)** — Academic papers and technical articles about EasyDistill. / EasyDistill 相关学术论文与技术文章。
+
+## Documentation / 文档
+
+**Reference / 总览与参考**
+
+| Topic / 主题 | English | 中文 |
+|---|---|---|
+| Pipelines overview / 流水线总览 | [pipelines.md](docs/pipelines.md) | [pipelines_zh.md](docs/pipelines_zh.md) |
+| Job type index / job_type 索引 | [job_type_index.md](docs/job_type_index.md) | [job_type_index_zh.md](docs/job_type_index_zh.md) |
+| Backends / 后端 | [backends.md](docs/backends.md) | [backends_zh.md](docs/backends_zh.md) |
+| Data formats / 数据格式 | [data_formats.md](docs/data_formats.md) | [data_formats_zh.md](docs/data_formats_zh.md) |
+| Training guide / 训练指南 | [training_guide.md](docs/training_guide.md) | [training_guide_zh.md](docs/training_guide_zh.md) |
+| Model zoo / 模型库 | [model_zoo.md](docs/model_zoo.md) | [model_zoo_zh.md](docs/model_zoo_zh.md) |
+| DistilQwen series / DistilQwen 系列 | [distilqwen_series.md](docs/distilqwen_series.md) | [distilqwen_series_zh.md](docs/distilqwen_series_zh.md) |
+| Papers & news / 论文与文章 | [papers.md](docs/papers.md) | [papers_zh.md](docs/papers_zh.md) |
+
+**Text distillation / 文本蒸馏**
+
+| Topic / 主题 | English | 中文 |
+|---|---|---|
+| Instruction distillation / 指令蒸馏 | [instruction_distillation.md](docs/instruction_distillation.md) | [instruction_distillation_zh.md](docs/instruction_distillation_zh.md) |
+| Advanced instruction pipeline / 高级指令流水线 | [advanced_instruct_distill.md](docs/advanced_instruct_distill.md) | [advanced_instruct_distill_zh.md](docs/advanced_instruct_distill_zh.md) |
+| Balanced instruction pipeline / 平衡指令流水线 | [balanced_instruct_distill.md](docs/balanced_instruct_distill.md) | [balanced_instruct_distill_zh.md](docs/balanced_instruct_distill_zh.md) |
+| Augmented instruction pipeline / 增强指令流水线 | [augmented_instruct_distill.md](docs/augmented_instruct_distill.md) | [augmented_instruct_distill_zh.md](docs/augmented_instruct_distill_zh.md) |
+| Instruction balancing / 指令平衡 | [instruction_balancing.md](docs/instruction_balancing.md) | [instruction_balancing_zh.md](docs/instruction_balancing_zh.md) |
+| CoT distillation / 思维链蒸馏 | [cot_distillation.md](docs/cot_distillation.md) | [cot_distillation_zh.md](docs/cot_distillation_zh.md) |
+| CoT RV/CD mixer / 思维链 RV/CD 混合器 | [cot_rvcd_mixer.md](docs/cot_rvcd_mixer.md) | [cot_rvcd_mixer_zh.md](docs/cot_rvcd_mixer_zh.md) |
+| DPO distillation / DPO 蒸馏 | [dpo_distillation.md](docs/dpo_distillation.md) | [dpo_distillation_zh.md](docs/dpo_distillation_zh.md) |
+
+**Multi-modal & T2I / 多模态与文生图**
+
+| Topic / 主题 | English | 中文 |
+|---|---|---|
+| Multi-modal distillation / 多模态蒸馏 | [mm_distillation.md](docs/mm_distillation.md) | [mm_distillation_zh.md](docs/mm_distillation_zh.md) |
+| Multi-modal CoT distillation / 多模态思维链蒸馏 | [mm_cot_distillation.md](docs/mm_cot_distillation.md) | [mm_cot_distillation_zh.md](docs/mm_cot_distillation_zh.md) |
+| Agent distillation / Agent 蒸馏 | [agent_distillation.md](docs/agent_distillation.md) | [agent_distillation_zh.md](docs/agent_distillation_zh.md) |
+| Search agent distillation / 搜索 Agent 蒸馏 | [search_agent_distillation.md](docs/search_agent_distillation.md) | [search_agent_distillation_zh.md](docs/search_agent_distillation_zh.md) |
+| T2I distillation / 文生图蒸馏 | [t2i_distillation.md](docs/t2i_distillation.md) | [t2i_distillation_zh.md](docs/t2i_distillation_zh.md) |
+| T2I / TI2I evaluation / 文生图评测 | [t2i_ti2i_eval.md](docs/t2i_ti2i_eval.md) | [t2i_ti2i_eval_zh.md](docs/t2i_ti2i_eval_zh.md) |
+| PE rewrite distillation / PE 改写蒸馏 | [pe_rewrite.md](docs/pe_rewrite.md) | [pe_rewrite_zh.md](docs/pe_rewrite_zh.md) |
+
+## Project structure / 项目结构
+
+```
+easydistill/
+  backends/        # ModelBackend abstraction / 模型后端抽象
+  basic/           # Basic distillation runners / 基础蒸馏运行器
+  cli/             # CLI entry point and runners / CLI 入口与运行器
+  data/            # Core data models / 核心数据模型
+  eval/            # LLM-as-judge evaluators / LLM 裁判评估器
+  models/          # Model zoo registry and model metadata / 模型仓库注册与元数据
+  operators/       # Atomic generation, preference, and RV/CD operators / 原子生成、偏好与 RV/CD 算子
+  pipeline/        # End-to-end pipelines / 端到端流水线
+  prompts/         # Prompt loading helpers / 提示词加载工具
+  rewrite/         # Instruction and CoT rewrite operators / 指令与 CoT 重写算子
+  utils/           # I/O, config, and schema helpers / I/O、配置与 schema 辅助工具
+configs/           # Example configs for each backend and workflow / 各后端与工作流示例配置
+  t2i/             # T2I distillation configs / 文生图蒸馏配置
+  basic/           # Basic distillation configs / 基础蒸馏配置
+  eval/            # Evaluation configs / 评估配置
+  pipeline/        # End-to-end pipeline configs / 端到端流水线配置
+  preference/      # Preference distillation configs / 偏好蒸馏配置
+  prompts/         # Prompt templates and eval prompt collections / 提示词模板与裁判提示词集合
+  rewrite/         # Rewrite operator configs / 重写算子配置
+examples/          # Seed instruction and problem examples / 种子指令与问题示例
+docs/              # Documentation / 文档
+tests/             # Unit and smoke tests / 单元与冒烟测试
+```
+
+## License / 许可证
+
+This project is licensed under the [Apache License, Version 2.0](LICENSE). / 本项目采用 [Apache License, Version 2.0](LICENSE) 许可证。
+
+See the [NOTICE](NOTICE) file for attribution and copyright information. / 归属与版权信息见 [NOTICE](NOTICE) 文件。

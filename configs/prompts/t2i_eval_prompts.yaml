@@ -1,0 +1,76 @@
+# T2I image evaluation prompts.
+# Default prompts for the T2IImageEvaluator; override via eval.prompts_file or eval.prompts.
+# Each key maps a metric name to a prompt template with {instruction} and {output} placeholders.
+# {instruction} = the text prompt used to generate the image.
+# {output} = a reference to the generated image (the VLM sees the image directly).
+
+prompt_consistency: |
+  You are an expert judge evaluating the Prompt Consistency of an AI-generated image.
+  Prompt Consistency Evaluation Focus: Assess how accurately and completely the generated
+  image reflects the content described in the text prompt. A high-scoring image faithfully
+  depicts all key elements mentioned in the prompt, while a low-scoring image misses,
+  distorts, or contradicts important aspects of the prompt.
+  Scoring Guidelines (0-9):
+  0-1 The image is completely unrelated to the prompt.
+  2-3 Major elements are missing or incorrect.
+  4-5 Some key elements are present but notable aspects are missing.
+  6-7 Most key elements are correctly depicted with minor discrepancies.
+  8-9 The image faithfully and completely depicts all aspects of the prompt.
+  Given the Text Prompt and the Generated Image, you will:
+  1. Analyze the Prompt Consistency of the image
+  2. Determine a score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Text Prompt: {instruction}
+  Generated Image: {output}
+
+aesthetic_quality: |
+  You are an expert judge evaluating the Aesthetic Quality of an AI-generated image.
+  Aesthetic Quality Evaluation Focus: Assess the visual appeal of the image including
+  composition, color harmony, lighting, and overall artistic merit.
+  Scoring Guidelines (0-9):
+  0-1 Visually unappealing; broken composition, extremely poor colors.
+  2-3 Below average; unbalanced or dull with noticeable visual flaws.
+  4-5 Average; acceptable but unremarkable composition and color.
+  6-7 Good; well-composed with harmonious colors and effective lighting.
+  8-9 Exceptional; striking composition, masterful color and light.
+  Given the Text Prompt and the Generated Image, you will:
+  1. Analyze the Aesthetic Quality of the image
+  2. Determine a score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Text Prompt: {instruction}
+  Generated Image: {output}
+
+detail_richness: |
+  You are an expert judge evaluating the Detail Richness of an AI-generated image.
+  Detail Richness Evaluation Focus: Assess the level of fine detail and texture present
+  in the generated image. A high-scoring image contains rich, intricate details across
+  all regions, while a low-scoring image is blurry, flat, or lacks fine detail.
+  Scoring Guidelines (0-9):
+  0-1 Extremely blurry or flat; almost no discernible detail.
+  2-3 Mostly blurry or flat with minimal detail in small areas.
+  4-5 Moderate detail; some areas are sharp while others lack texture.
+  6-7 Good detail; most of the image contains clear textures and fine elements.
+  8-9 Exceptional detail; the entire image is crisp with rich textures throughout.
+  Given the Text Prompt and the Generated Image, you will:
+  1. Analyze the Detail Richness of the image
+  2. Determine a score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Text Prompt: {instruction}
+  Generated Image: {output}
+
+artifact_absence: |
+  You are an expert judge evaluating the absence of visual artifacts in an AI-generated image.
+  Artifact Absence Evaluation Focus: Assess whether the image is free from generation
+  artifacts such as anatomical errors, object fusion, nonsensical text, or rendering glitches.
+  Scoring Guidelines (0-9):
+  0-1 Severe artifacts throughout; the image is largely incoherent.
+  2-3 Multiple noticeable artifacts that significantly detract from the image.
+  4-5 Some artifacts present; distracting but the image is still broadly coherent.
+  6-7 Minor artifacts; mostly clean with small issues that are easy to overlook.
+  8-9 No visible artifacts; the image is completely clean and coherent.
+  Given the Text Prompt and the Generated Image, you will:
+  1. Analyze the Artifact Absence of the image
+  2. Determine a score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Text Prompt: {instruction}
+  Generated Image: {output}

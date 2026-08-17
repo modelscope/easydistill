@@ -1,0 +1,149 @@
+# Advanced T2V/I2V distillation pipeline via PAI-Token (LLM/VLM) + Wanx video.
+# Flow: prompt_optimize -> t2v_generate -> t2v_eval -> quality_filter -> build_t2v_sft.
+# Rows with `first_frame_image` run in I2V mode; rows without it run plain T2V.
+
+job_type: advanced_t2v_distill
+
+# Text/VLM model for prompt optimization (I2V rows attach the first frame,
+# so a VLM is recommended when the seed file contains I2V rows).
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-plus
+
+# VLM judge for video evaluation (falls back to `backend` when omitted).
+eval_backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-plus
+
+# Video generation backend.
+t2v_backend:
+  type: pai_token_video
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: happyhorse-1.1-t2v
+  i2v_model_id: happyhorse-1.1-i2v
+  poll_interval: 5.0
+  max_poll_wait: 1800.0
+  output_dir: outputs/t2v_videos     # finished videos are downloaded here
+                                     # (rows carry local paths; remote URLs
+                                     # kept in metadata.remote_urls)
+
+generation:
+  resolution: 720P                   # 480P | 720P | 1080P
+  # ratio: 16:9                      # T2V-only; omit to keep the model default
+  duration: 5                        # integer seconds in [3, 15]
+  max_workers: 1
+  # Per-row overrides (T2V rows only): seed rows may carry `resolution`
+  # (a tier like 480P/720P/1080P, or `auto` for an LLM-inferred aspect
+  # ratio) and/or `ratio` (e.g. 16:9, 9:16); they override the values
+  # above for that row.  I2V rows always follow their first frame; set
+  # i2v_frame_check to guard degenerate frames: off | warn | skip | raise.
+  # i2v_frame_check: skip
+  # i2v_frame_min_edge: 256          # minimum short edge in pixels
+  # i2v_frame_max_aspect: 3.0        # max long/short edge ratio
+
+sft:
+  skip_empty: true
+
+eval:
+  # Composable checker chain: each entry is one BaseVideoChecker with its
+  # own knobs; order = execution order; `enabled: false` switches one off.
+  # Each checker records its own raw score columns; unify/filter downstream.
+  checkers:
+    - type: vbench                   # objective per-video scores, 0-1 floats
+      # Install VBench into its own venv (its pinned deps conflict with
+      # easydistill's; needs Python <= 3.11):
+      #   python3.10 -m venv /path/to/vbench_env
+      #   /path/to/vbench_env/bin/pip install vbench
+      # then set vbench_bin below (or the VBENCH_BIN env var).  A GPU is
+      # needed for most dimensions; without a usable setup the checker logs
+      # a warning and leaves its columns blank (vbench_skipped_reason).
+      enabled: false
+      # vbench_bin: /path/to/vbench_env/bin/vbench
+      # vbench_repo: /path/to/VBench   # alternative: run from a repo clone
+      dimensions:
+        - motion_smoothness
+        - dynamic_degree
+        - imaging_quality
+        - temporal_flickering
+    - type: vlm                      # frame-based VLM judge, one structured
+                                     # multi-dimension call per row, 0-4 ints
+                                     # (+ <dim>_confidence / <dim>_reason)
+      metrics:
+        - prompt_consistency
+        - visual_quality
+        - subject_consistency
+        - first_frame_consistency    # auto not-applicable for plain T2V rows
+      frame_sample_count: 8
+      frame_max_size: 768
+      temperature: 0.0
+      max_tokens: 2048
+      max_workers: 4
+    - type: omni                     # full-video judge: dynamic dimensions
+                                     # (motion_quality / temporal_execution /
+                                     # camera_accuracy), 0-4 ints. Needs a
+                                     # video-capable endpoint; enable after
+                                     # configuring one below.
+      enabled: false
+      # backend:                     # dedicated video-understanding endpoint
+      #   type: pai_token
+      #   api_key: ${PAI_TOKEN_API_KEY}
+      #   base_url: ${PAI_TOKEN_BASE_URL}
+      #   model_id: qwen3.5-omni-plus
+      # video_transport: auto        # auto | url | base64
+      # max_video_mb: 100
+  # Metrics used by quality_filter's top-k/ratio averaging.
+  metrics:
+    - prompt_consistency
+    - visual_quality
+    - subject_consistency
+
+pipeline:
+  - stage: prompt_optimize
+    config:
+      # Two-stage optimization (extract -> compose): 2 LLM calls per row.
+      # A generic caption schema is built in; for best quality set
+      # `schema_file` (or inline `schema`) to a schema written from your
+      # target video model's official prompt guideline.
+      # schema_file: path/to/your_model_caption_schema.txt
+      temperature: 0.7
+      max_tokens: 1024
+      show_progress: true
+      max_workers: 4
+    output_path: outputs/t2v_stage1_optimized.jsonl
+
+  - stage: t2v_generate
+    config:
+      show_progress: true
+      # Resume from this stage's output_path on re-run: completed rows are
+      # reused and each new video is checkpointed row-by-row, so a crashed
+      # run never re-generates finished videos.  Delete the output file to
+      # force a full re-run (e.g. after changing generation parameters).
+      resume: true
+    output_path: outputs/t2v_stage2_generated.jsonl
+
+  - stage: t2v_eval
+    config:
+      show_progress: true
+      # Rows already scored in the output file are not re-evaluated.
+      resume: true
+    output_path: outputs/t2v_stage3_evaluated.jsonl
+
+  - stage: quality_filter
+    config:
+      # VLM judge scores are on the 0-4 scale.
+      min_scores:
+        prompt_consistency: 3
+        visual_quality: 2
+    output_path: outputs/t2v_stage4_filtered.jsonl
+
+  - stage: build_t2v_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_t2v_prompts.jsonl
+  output_path: outputs/t2v_sft_pai_token.jsonl

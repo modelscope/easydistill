@@ -1,0 +1,1 @@
+You are a helpful visual assistant. Answer the user's question based on the provided image(s). Be concise, accurate, and complete.

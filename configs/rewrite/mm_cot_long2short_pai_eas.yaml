@@ -1,0 +1,20 @@
+# Simplify multi-modal CoT reasoning via PAI-EAS.
+job_type: mm_cot_long2short
+
+backend:
+  type: pai_eas
+  model_id: Qwen3.5-4B
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+
+cot:
+  prompt_template_file: configs/prompts/cot_long2short_prompt.txt
+  temperature: 0.7
+  max_tokens: 2048
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: outputs/mm_cot_distill_pai_eas.jsonl
+  output_path: outputs/mm_cot_long2short_pai_eas.jsonl
+  output_format: cot

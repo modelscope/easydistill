@@ -1,0 +1,24 @@
+{
+  "easydistill_sft": {
+    "file_name": "../outputs/sft_eas.jsonl",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "messages"
+    },
+    "tags": {
+      "role_tag": "role",
+      "content_tag": "content",
+      "user_tag": "user",
+      "assistant_tag": "assistant",
+      "system_tag": "system"
+    }
+  },
+  "easydistill_sft_alpaca": {
+    "file_name": "../outputs/alpaca.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "response": "output"
+    }
+  }
+}

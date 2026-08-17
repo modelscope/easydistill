@@ -1,0 +1,38 @@
+# Basic T2I distillation using PAI-EAS deployed Qwen-Image model.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill below.
+# Usage:
+#   easydistill --config configs/t2i/t2i_distill_pai_diffusion.yaml
+
+job_type: t2i_distill
+
+t2i_backend:
+  type: pai_diffusion
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen-Image
+  auth_prefix: ""           # EAS uses raw token without "Bearer" prefix
+  output_dir: outputs/t2i_images  # save downloaded images to disk
+  poll_interval: 5.0
+  max_poll_wait: 300.0
+
+generation:
+  size: "1328*1328"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+  # Qwen-Image specific parameters (passed through as kwargs)
+  seed: 42
+  negative_prompt: ""
+  infer_steps: 50
+  cfg_scale: 4
+
+sft:
+  skip_empty: true
+  min_prompt_length: 5
+  max_images_per_prompt: 1
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_sft_pai_diffusion.jsonl
+  prompt_key: prompt

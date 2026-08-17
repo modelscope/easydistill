@@ -1,0 +1,25 @@
+# PE rewrite judge via PAI-Token: scores each (original, rewritten) prompt
+# pair on 7 anchored 0-9 metrics + 2 boolean hard checks in a SINGLE judge
+# call per row (combined 9-metric verdict JSON). Scores are appended to the
+# input rows (scene / lineage / trace fields pass through) so the quality
+# filter stage can group results by scene.
+job_type: pe_rewrite_eval
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-max          # judge model, separate from the plus teacher
+
+eval:
+  # prompts_file: configs/prompts/pe_rewrite/eval_prompts.yaml (default;
+  # must contain the `combined` template). The nine metrics are fixed and
+  # always scored together in one call.
+  temperature: 0.0
+  max_tokens: 512                # one JSON verdict carrying all nine scores
+  max_workers: 8
+  show_progress: true
+
+dataset:
+  input_path: outputs/agentic_rewritten_pai_token.jsonl
+  output_path: outputs/pe_rewrite_scored_pai_token.jsonl

@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.venv/
+
+# uv
+.uv_cache/
+uv.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+
+# Outputs
+outputs/
+result/
+*.log
+dummy*
+
+
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/
+
+# Local configs with secrets
+.env
+.env.local
+configs/*_local.yaml
+configs/*_local.json
+configs/eval/**/provider_runtime.local.yaml
+
+# PE rewrite local working assets (kept locally, not part of the repo)
+examples/gen_images.py
+examples/run_planner_only.py
+examples/qwen_bench_infer.jsonl
+examples/table_aaarena_0708_fixed.json
+examples/table_aaarena_0708_fixed.xlsx
+docs/pe_rewrite_distill_plan_zh.md
+docs/pe_rewrite_progress_zh.md
+
+# Scratch/debug files
+unused

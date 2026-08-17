@@ -1,0 +1,2 @@
+{"id": "mm_seed_0", "instruction": "Describe what you see in this image.", "images": ["examples/mm_sample_image.png"]}
+{"id": "mm_seed_1", "instruction": "What color is the main object in the image?", "images": ["examples/mm_sample_image.png"]}

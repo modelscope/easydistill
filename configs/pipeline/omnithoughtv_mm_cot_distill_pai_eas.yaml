@@ -1,0 +1,62 @@
+# OmniThoughtV-style multi-modal CoT distillation pipeline via PAI-EAS.
+# Reproduces the OmniThoughtV dataset recipe: seed visual problems ->
+# mm_cot_distill (<thinking>/<answer> traces) -> mm_cot_eval (RV/CD/logical
+# correctness) -> quality_filter -> SFT.
+# The released OmniThoughtV datasets were distilled from Qwen-VL-max on
+# FineVision seeds; deploy a multi-modal teacher on EAS and set model_id to
+# the exact deployed model name.
+
+job_type: advanced_mm_cot_distill
+
+backend:
+  type: pai_eas
+  model_id: Qwen3.5-4B
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+
+generation:
+  system_prompt: "You are a helpful assistant to think step by step. Provide your reasoning steps within <thinking></thinking> tags and give your final answer within <answer></answer> tags."
+  temperature: 0.7
+  max_tokens: 4096
+
+sft:
+  skip_empty: true
+  min_length: 10
+  max_length: 16384
+
+eval:
+  prompts_file: configs/prompts/default_cot_eval_prompts.yaml
+  metrics:
+    - reasoning_verbosity
+    - cognitive_difficulty
+    - logical_correctness
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+
+pipeline:
+  - stage: mm_cot_distill
+    config:
+      prompt_template_file: configs/prompts/mm_cot_thinking_prompt.txt
+      temperature: 0.7
+      max_tokens: 4096
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/omnithoughtv_stage1_generated.jsonl
+
+  - stage: mm_cot_eval
+    config:
+      show_progress: true
+      max_workers: 4
+    output_path: outputs/omnithoughtv_stage2_evaluated.jsonl
+
+  - stage: quality_filter
+    config: {}
+    output_path: outputs/omnithoughtv_stage3_filtered.jsonl
+
+  - stage: build_sft
+    config: {}
+
+dataset:
+  input_path: examples/mm_seed_cot_problems.jsonl
+  output_path: outputs/omnithoughtv_sft_pai_eas.jsonl

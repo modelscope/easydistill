@@ -1,3 +1,0 @@
-datasets:
-  - json_path: "data/multi_box_grounding_RL_sample.json"    
-    sampling_strategy: "all"            # or "first:100", "random:50%", "end:10" 

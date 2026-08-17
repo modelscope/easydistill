@@ -1,0 +1,51 @@
+job_type: dpo_data_build
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: kimi-k2.6
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  output_path: outputs/dpo_instruct_dataset_pai_token.json
+
+generation:
+  system_prompt: "You are a helpful assistant."
+  temperature: 0.8
+  max_tokens: 2048
+  max_workers: 4
+  show_progress: true
+
+preference:
+  scorer: llm_judge
+  n: 2
+
+pipeline:
+  - stage: generate_candidates
+    config:
+      n: 2
+      max_workers: 4
+      show_progress: true
+    output_path: outputs/dpo_instruct_candidates_pai_token.jsonl
+
+  - stage: score_candidates
+    config:
+      scorer: llm_judge
+      metrics: ["helpfulness", "correctness"]
+      max_workers: 4
+      temperature: 0.0
+      max_tokens: 512
+      show_progress: true
+    output_path: outputs/dpo_instruct_scores_pai_token.jsonl
+
+  - stage: build_preference_pairs
+    config:
+      min_margin: 0.0
+      max_pairs_per_prompt: 1
+      require_chosen_correct: false
+    output_path: outputs/dpo_instruct_pairs_pai_token.jsonl
+
+  - stage: build_preference_dataset
+    config:
+      format: llama_factory_alpaca

@@ -1,0 +1,37 @@
+reasoning_verbosity: |
+  You are an expert judge tasked with evaluating the Reasoning Verbosity of a Chain-of-Thought (CoT) for a given problem and its answer. Reasoning Verbosity Evaluation Focus: Assess how well the CoT's length and step complexity match the problem's inherent difficulty. An optimal chain is neither missing essential steps nor padded with needless digressions. A simple question should be solved with a brief, direct chain; a challenging one may justifiably require a longer path with reflection and error-checking. Scoring Guidelines (0-9):
+  0-1 Minimal verbosity, straightforward expression with little to no elaboration.
+  2-3 Clear and concise reasoning with necessary explanations.
+  4-5 Moderate verbosity with detailed explanations and thorough reasoning.
+  6-7 Extensive verbosity with comprehensive justification and exploration of complex connections.
+  8-9 High verbosity with deep, exhaustive exploration of reasoning; involves extensive elaboration, nested justifications, and consideration of counterarguments or alternative perspectives.
+  Given Problem, Answer with Chain-of-Thought, you will:
+  1. Analyze the Reasoning Verbosity
+  2. Determine score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Problem: {instruction}
+  Answer with Chain-of-Thought: {output}
+
+cognitive_difficulty: |
+  You are an expert judge assessing the Cognitive Difficulty of a Chain-of-Thought (CoT) for a given problem and its answer. Cognitive Difficulty Evaluation Focus: The level of reasoning competence required for a model to follow and reproduce the chain faithfully. Judge the reasoning approach, techniques, and overall difficulty. Higher scores correspond to more advanced concepts, abstractions, or multi-layer reasoning patterns. Scoring Guidelines (0-9):
+  0-1 Elementary facts or a single trivial operation.
+  2-3 Multi-step arithmetic, explicit enumeration, basic rule chaining.
+  4-5 Early-undergraduate logic/algebra; one non-obvious insight.
+  6-7 Advanced undergraduate techniques (determinants, dynamic programming, layered code reasoning, etc).
+  8-9 Graduate-level abstraction, nested proofs, intricate algorithmic analysis.
+  Given Problem, Answer with Chain-of-Thought, you will:
+  1. Analyze the Cognitive Difficulty
+  2. Determine a score using the above criteria
+  3. Output ONLY the integer score (0-9), place your score in <score></score>
+  Problem: {instruction}
+  Answer with Chain-of-Thought: {output}
+
+logical_correctness: |
+  You are a rigorous logical validator analyzing problem-solving components. Your task is to separately assess the validity of the reasoning process and final solution. Given Problem, Answer with Chain-of-Thought, you will:
+  1. Verify stepwise logical coherence and soundness
+  2. Confirm all critical problem constraints are properly addressed
+  3. Check for self-contradictions or unsupported leaps in logic
+  4. Verify the process can actually derive the proposed solution
+  5. Output ONLY the 1/0 answer (1 for true, 0 for false) for logical correctness, place your answer in <score></score>
+  Problem: {instruction}
+  Answer with Chain-of-Thought: {output}

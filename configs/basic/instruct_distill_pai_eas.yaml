@@ -1,0 +1,24 @@
+# Basic distillation using a self-deployed model on PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Usage:
+#   easydistill --config configs/basic/instruct_distill_pai_eas.yaml
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+
+generation:
+  system_prompt: "You are a helpful assistant."
+  temperature: 0.7
+  max_tokens: 2048
+  show_progress: true
+  max_workers: 10  # concurrent API calls; reduce to 1 if 429 errors occur
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  output_path: outputs/sft_pai_eas.jsonl
+  instruction_key: instruction
+  skip_empty: true
+  min_length: 10

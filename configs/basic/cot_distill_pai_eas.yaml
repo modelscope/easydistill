@@ -1,0 +1,22 @@
+# Generate chain-of-thought reasoning and solutions via EAS.
+job_type: cot_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+cot:
+  prompt_template_file: configs/prompts/cot_generation_prompt.txt
+  temperature: 0.7
+  max_tokens: 2048
+  show_progress: true
+  max_workers: 3
+
+dataset:
+  input_path: examples/seed_cot_problems.jsonl
+  problem_key: problem
+  output_path: outputs/cot_distill_pai_eas.jsonl

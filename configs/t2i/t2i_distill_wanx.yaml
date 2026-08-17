@@ -1,0 +1,28 @@
+# Basic T2I distillation using Tongyi Wanxiang (Wanx) via dashscope.
+# Set DASHSCOPE_API_KEY env var or fill api_key below.
+# Usage:
+#   easydistill --config configs/t2i/t2i_distill_wanx.yaml
+
+job_type: t2i_distill
+
+t2i_backend:
+  type: wanx
+  api_key: ${DASHSCOPE_API_KEY}
+  model_id: wanx2.1-t2i-turbo
+
+generation:
+  size: "1024*1024"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+
+sft:
+  skip_empty: true
+  min_prompt_length: 5
+  max_images_per_prompt: 1
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_sft_wanx.jsonl
+  prompt_key: prompt

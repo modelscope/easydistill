@@ -1,0 +1,64 @@
+# Advanced CoT distillation pipeline via PAI-EAS.
+# Flow: problems -> CoT generation -> RV/CD scoring -> RV/CD mixing -> SFT dataset.
+
+job_type: advanced_cot_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+generation:
+  system_prompt: "You are a helpful assistant. Think step by step and provide clear reasoning."
+  temperature: 0.7
+  max_tokens: 2048
+
+sft:
+  skip_empty: true
+  min_length: 10
+  max_length: 4096
+
+eval:
+  prompts_file: configs/prompts/default_cot_eval_prompts.yaml
+  metrics:
+    - reasoning_verbosity
+    - cognitive_difficulty
+    - logical_correctness
+  temperature: 0.0
+  max_tokens: 256
+  max_workers: 4
+
+pipeline:
+  - stage: cot_distill
+    config:
+      prompt_template_file: configs/prompts/cot_generation_prompt.txt
+      temperature: 0.7
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/cot_bp_stage1_generated.jsonl
+
+  - stage: cot_rvcd_score
+    config:
+      show_progress: true
+      max_workers: 4
+    output_path: outputs/cot_bp_stage2_scored.jsonl
+
+  - stage: cot_mix_by_rv_cd
+    config:
+      mode: sft
+      cd_bins: [0, 3, 6, 10]
+      rv_target: matched
+      samples_per_bin: 100
+      min_correctness: 1
+    output_path: outputs/cot_bp_stage3_mixed.jsonl
+
+  - stage: build_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_cot_problems.jsonl
+  output_path: outputs/cot_bp_sft_pai_eas.jsonl

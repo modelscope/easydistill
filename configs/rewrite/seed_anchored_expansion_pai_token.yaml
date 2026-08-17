@@ -1,0 +1,24 @@
+# Seed-anchored expansion via PAI-Token: each seed is expanded independently
+# into same-scenario prompts, with per-round topic dedup and lineage fields.
+job_type: seed_anchored_expansion
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.7-plus
+
+synthesis:
+  prompt_template_file: configs/prompts/pe_rewrite/expansion_prompt.txt
+  rounds: 2                    # rounds per seed; later rounds avoid generated topics
+  generations_per_round: 5     # prompts requested per LLM call
+  # round_retry_attempts: 2    # extra retries when a round parses to nothing (default 2)
+  temperature: 0.9
+  max_tokens: 4096
+  show_progress: true
+  max_workers: 4               # seeds expanded concurrently
+
+dataset:
+  input_path: examples/seed_pe_prompts.jsonl
+  instruction_key: instruction
+  output_path: outputs/seed_anchored_expanded_pai_token.jsonl

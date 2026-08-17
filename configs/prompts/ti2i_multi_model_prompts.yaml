@@ -1,0 +1,55 @@
+# Prompt templates for the TI2I multi-model (multi-teacher Debate) evaluator
+# (easydistill/eval/ti2i_multi_model.py). Override via `prompts_file` or inline
+# `prompts` in the eval config. Templates are rendered with str.format(), so
+# literal JSON braces are escaped as {{ }}.
+#
+# TI2I 多模型（多教师 Debate）评估器提示词模板。可在 eval 配置中用 `prompts_file`
+# 指向副本或用内联 `prompts` 覆盖；模板用 str.format() 渲染，字面 JSON 大括号需写成 {{ }}。
+
+# 教师打分：case × 教师 × L1 组粒度。占位符：{context} {l1_group} {dim_block}
+teacher: |
+  你是图像评估教师，请对下面的图像编辑结果打分。
+  {context}
+  本次只评估 L1 组「{l1_group}」下的这些 L3 维度（0-4 分，五档）：
+  {dim_block}
+
+  要求：
+  - 每个维度独立判断；不适用的维度写 applicable=false 且 score=null，并说明原因。
+  - reason 用中文，给出可核查的图像证据描述。
+  - 只输出严格 JSON（不要 Markdown 代码块）：
+  {{"dimension_judgments": [{{"dimension": "维度名", "applicable": true, "score": 0, "confidence": 0.9, "reason": "中文理由"}}]}}
+
+# 多数票理由规范化（reason_model）。占位符：{dimension} {score} {votes}
+reason_synthesis: |
+  你是评审理由规范器。请把下面维度的多教师意见提纯为一段简洁中文理由（不改分数与结论）。
+  维度：{dimension}（多数票分数 {score}）
+  各教师意见：{votes}
+  只输出严格 JSON：{{"reason": "规范化中文理由"}}
+
+# Debate Step1 独立初评（arbiter）。占位符：{dimension} {context} {criteria} {teacher_scores}
+debate_step1: |
+  你是独立仲裁法官。请重新观察编辑前后图像，对冲突维度「{dimension}」给出独立初评。
+  {context}
+  维度评分标准（0-4）：
+  {criteria}
+  各教师给分：{teacher_scores}
+  只输出严格 JSON：{{"score": 0, "applicable": true, "confidence": 0.9, "reason": "中文理由"}}
+
+# Debate Step2 控辩论点（arbiter）。占位符：{dimension} {context} {teacher_scores} {step1_score}
+debate_step2: |
+  你是控辩双方书记员。针对维度「{dimension}」的分歧（教师给分 {teacher_scores}，你的初评 {step1_score}），
+  请同时写出控方（低分立场）与辩方（高分立场）论点，必须 grounding 到编辑前后图像内容。
+  {context}
+  只输出严格 JSON：{{"prosecution": "控方论点", "defense": "辩方论点"}}
+
+# Debate Step3 终审裁决（arbiter）。占位符：{dimension} {context} {criteria} {teacher_scores} {step1} {prosecution} {defense}
+debate_step3: |
+  你是最终仲裁法官。综合教师分数、你的初评与控辩论点，对维度「{dimension}」给出终审裁决。
+  {context}
+  维度评分标准（0-4）：
+  {criteria}
+  教师给分：{teacher_scores}
+  Step1 初评：{step1}
+  Step2 控方：{prosecution}
+  Step2 辩方：{defense}
+  只输出严格 JSON：{{"score": 0, "applicable": true, "confidence": 0.9, "reason": "中文裁决理由", "adopted": "final"}}

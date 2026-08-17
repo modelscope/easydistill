@@ -1,0 +1,71 @@
+# Balanced instruction distillation pipeline via PAI-EAS.
+# Flow: seed instructions -> expansion -> instruction_balance -> teacher generation -> SFT dataset.
+
+job_type: balanced_instruct_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+generation:
+  system_prompt: "You are a helpful assistant. Provide concise and accurate answers."
+  temperature: 0.7
+  max_tokens: 2048
+
+eval:
+  prompts_file: configs/prompts/default_eval_prompts.yaml
+  metrics:
+    - informativeness
+    - helpfulness
+    - generalization
+    - correctness
+  temperature: 0.0
+  max_tokens: 2048
+  max_workers: 4
+
+pipeline:
+  - stage: instruction_expansion
+    config:
+      prompt_template_file: configs/prompts/expansion_prompt.txt
+      num_in_context_samples: 2
+      num_output_samples: 3
+      temperature: 0.8
+      max_tokens: 2048
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/balanced_stage1_expanded.jsonl
+
+  - stage: instruction_balance
+    config:
+      instruction_key: instruction
+      category_key: category
+      categories: ["General"]
+      target_distribution:
+        General: 1.0
+      category_prompt: "Classify the instruction below as General. Wrap the category in <answer>...</answer>.\nInstruction: {instruction}"
+      max_workers: 4
+      show_progress: true
+      seed: 42
+      temperature: 0.0
+      max_tokens: 2048
+    output_path: outputs/balanced_stage2_balanced.jsonl
+
+  - stage: generate
+    config:
+      show_progress: true
+      max_workers: 3
+    output_path: outputs/balanced_stage3_generated.jsonl
+
+  - stage: build_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_instructions.jsonl
+  output_path: outputs/balanced_instruct_distill_sft_pai_eas.jsonl
+  skip_empty: true
+  min_length: 10
+  max_length: 8192

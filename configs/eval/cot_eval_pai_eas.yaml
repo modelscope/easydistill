@@ -1,0 +1,25 @@
+# Evaluate chain-of-thought samples via EAS.
+job_type: cot_eval
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B
+  timeout: 120.0
+  max_retries: 3
+
+eval:
+  prompts_file: configs/prompts/default_cot_eval_prompts.yaml
+  metrics:
+    - reasoning_verbosity
+    - cognitive_difficulty
+    - logical_correctness
+  temperature: 0.0
+  max_tokens: 256
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: examples/cot_eval_samples.jsonl
+  output_path: outputs/cot_eval_pai_eas.jsonl

@@ -1,0 +1,24 @@
+# Standalone T2I image generation via Tongyi Wanxiang (Wanx).
+# Generates images from prompts and saves the resulting image URLs.
+# Usage:
+#   export DASHSCOPE_API_KEY=your_key
+#   easydistill --config configs/t2i/t2i_generation_wanx.yaml
+
+job_type: t2i_generation
+
+t2i_backend:
+  type: wanx
+  api_key: ${DASHSCOPE_API_KEY}
+  model_id: wanx2.1-t2i-turbo
+
+generation:
+  size: "1024*1024"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_generated.jsonl
+  prompt_key: prompt

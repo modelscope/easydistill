@@ -1,0 +1,28 @@
+# Standalone VLM-as-judge evaluation for generated images.
+# Input rows must contain `optimized_prompt` and `image_urls` fields.
+# Usage:
+#   export PAI_TOKEN_API_KEY=your_key
+#   easydistill --config configs/eval/t2i_eval_pai_token.yaml
+
+job_type: t2i_eval
+
+backend:
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: ${PAI_TOKEN_BASE_URL}
+  model_id: qwen3.6-plus
+
+eval:
+  metrics:
+    - prompt_consistency
+    - aesthetic_quality
+    - detail_richness
+    - artifact_absence
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: outputs/t2i_generated.jsonl
+  output_path: outputs/t2i_evaluated.jsonl

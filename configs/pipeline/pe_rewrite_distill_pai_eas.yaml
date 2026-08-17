@@ -1,0 +1,53 @@
+# End-to-end PE rewrite text pipeline via PAI-EAS in ONE command.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Flow: agentic_rewrite -> pe_rewrite_eval -> quality_filter -> build_sft.
+# Each stage writes its intermediate jsonl for auditing; dataset.output_path
+# holds the final SFT dataset. Prepend a seed_anchored_expansion stage for
+# production runs that start from seeds instead of ready prompts.
+job_type: pe_rewrite_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B          # default model (teacher steps); adjust to your deployed model
+  timeout: 120.0
+  max_retries: 3
+
+pipeline:
+  - stage: agentic_rewrite
+    config:
+      plan:
+        temperature: 0.3
+        max_tokens: 256
+      rewrite:
+        temperature: 0.7
+        max_tokens: 8192
+      reflection:
+        model_id: Qwen3.5-4B    # stronger checker; adjust to your deployed model
+        temperature: 0.3
+        max_tokens: 8192
+      max_workers: 10
+      show_progress: true
+      stream_output_path: outputs/pe_distill_rewrite.stream.jsonl
+    output_path: outputs/pe_distill_rewrite.jsonl
+  - stage: pe_rewrite_eval
+    config:
+      model_id: Qwen3.5-4B      # judge separated from the teacher on a shared endpoint
+      temperature: 0.0
+      max_tokens: 512
+      max_workers: 10
+    output_path: outputs/pe_distill_scored.jsonl
+  - stage: quality_filter
+    config:
+      per_scene: false
+    output_path: outputs/pe_distill_filtered.jsonl
+  - stage: build_sft
+
+sft:
+  system_prompt_zh_file: configs/prompts/pe_rewrite/student_system_zh.txt
+  system_prompt_en_file: configs/prompts/pe_rewrite/student_system_en.txt
+
+dataset:
+  input_path: examples/bench_rewrite_input.jsonl
+  output_path: outputs/pe_distill_sft.jsonl

@@ -1,0 +1,95 @@
+# Search-agent distillation pipeline via PAI-EAS.
+# Flow: seed QA -> task evolution (Strategist/Expand/Refine/QualityGate/Verify/Judge)
+# -> solver trajectory rollout -> judge filter -> SFT dataset.
+#
+# NOTE: A PAI-EAS endpoint serves ONE deployed model, so per-role model_id
+# overrides are not meaningful here — all roles share the deployed model and
+# only differ in temperature / max_tokens / no_think. To give roles different
+# models (e.g. a stronger judge), use the pai_token variant instead:
+# configs/pipeline/search_agent_distill_pai_token.yaml
+
+job_type: search_agent_distill
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3-32B        # adjust to your deployed model
+  timeout: 180.0
+  max_retries: 3
+
+generation:
+  temperature: 0.7
+  max_tokens: 4096
+
+sft:
+  min_length: 10
+  max_length: 65536
+
+# Roles mirror the original SearchSynthAgent step_models (see the pai_token
+# config for the role descriptions). Each role accepts temperature /
+# max_tokens / no_think; no_think appends the /no_think marker to user
+# prompts for Qwen3 hybrid-thinking deployments.
+search_agent:
+  roles:
+    strategist:
+      temperature: 0.0
+      max_tokens: 8192
+    synthesis:
+      temperature: 0.7
+      max_tokens: 8192
+    search_sim:
+      temperature: 0.7
+      max_tokens: 4096
+      no_think: true
+    judge:
+      temperature: 0.0
+      max_tokens: 4096
+    solver:
+      temperature: 0.7
+      max_tokens: 4096
+      no_think: true
+  tools:
+    mode: mock            # mock = LLM-simulated search/browse; real = Google + Jina
+    num_results: 5
+    browse_max_chars: 500   # original mock default; raise for richer pages
+    # Real mode only:
+    # google_api_key: ${GOOGLE_API_KEY}
+    # google_cx: ${GOOGLE_CX}
+    # jina_api_key: ${JINA_API_KEY}
+    # cache_db_path: outputs/search_cache.db
+
+pipeline:
+  - stage: search_task_evolve
+    config:
+      max_levels: 4
+      max_iterations: 20
+      num_generations: 1    # independent evolution rounds per seed (original --num_generations)
+      # resume_from: outputs/search_agent_stage1_tasks.jsonl  # skip seeds already evolved
+      fast_verify: false
+      fast_verify_runs: 4
+      final_eval_runs: 4
+      solver_max_steps: 12
+      keep_filtered: false
+      max_workers: 2
+    output_path: outputs/search_agent_stage1_tasks.jsonl
+
+  - stage: search_trajectory
+    config:
+      repeat_times: 4
+      max_steps: 12
+      max_workers: 4
+    output_path: outputs/search_agent_stage2_trajectories.jsonl
+
+  - stage: search_judge_filter
+    config:
+      require_correct: true
+      min_turns: 2
+      selection: correct_shortest
+    output_path: outputs/search_agent_stage3_filtered.jsonl
+
+  - stage: build_sft
+
+dataset:
+  input_path: examples/seed_search_qa.jsonl
+  output_path: outputs/search_agent_sft_pai_eas.jsonl

@@ -1,0 +1,16 @@
+# PE rewrite stage 4: filter judged rows by the plan-doc score thresholds
+# (intent_fidelity/text_rendering/usability >=7, enrichment/concreteness >=6,
+# coverage/scene >=5, boolean hard checks must be true) plus top-80% keep.
+# Local job: no backend / LLM calls.
+job_type: pe_rewrite_filter
+
+quality_filter:
+  # min_scores: override the built-in plan-doc thresholds here if needed.
+  # Hard score gates only; no top-ratio pruning, so every row passing the
+  # gates goes through. Add keep_top_ratio to prune further (per-scene by
+  # default; set per_scene: false for global ranking).
+  per_scene: false
+
+dataset:
+  input_path: outputs/bench_rewrite_scored.jsonl
+  output_path: outputs/bench_rewrite_filtered.jsonl

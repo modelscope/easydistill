@@ -1,0 +1,101 @@
+# Advanced T2I distillation pipeline using PAI-EAS deployed Qwen-Image.
+# Flow: seed prompt -> prompt optimization -> T2I generation -> VLM eval -> quality filter -> SFT.
+# Set PAI_TOKEN_API_KEY, EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill below.
+# Usage:
+#   easydistill --config configs/t2i/advanced_t2i_distill_pai_diffusion.yaml
+
+job_type: advanced_t2i_distill
+
+backend:              # Text model for prompt optimization
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: https://cn-beijing.pai-token.aliyuncs.com/v1
+  model_id: qwen3.7-max
+
+eval_backend:         # VLM for image evaluation (optional, falls back to backend)
+  type: pai_token
+  api_key: ${PAI_TOKEN_API_KEY}
+  base_url: https://cn-beijing.pai-token.aliyuncs.com/v1
+  model_id: qwen3.6-plus
+
+t2i_backend:         # T2I backend for image generation (Qwen-Image on EAS)
+  type: pai_diffusion
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen-Image
+  auth_prefix: ""           # EAS uses raw token without "Bearer" prefix
+  output_dir: outputs/t2i_images  # save downloaded images to disk
+  poll_interval: 5.0
+  max_poll_wait: 300.0
+
+generation:
+  size: "1328*1328"
+  n: 1
+  max_workers: 4
+  retry_attempts: 3
+  show_progress: true
+  # Qwen-Image specific parameters (passed through as kwargs)
+  seed: 42
+  negative_prompt: ""
+  infer_steps: 50
+  cfg_scale: 4
+
+eval:
+  metrics:
+    - prompt_consistency
+    - aesthetic_quality
+    - detail_richness
+    - artifact_absence
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+  show_progress: true
+
+sft:
+  skip_empty: true
+  min_prompt_length: 5
+  max_images_per_prompt: 1
+
+pipeline:
+  - stage: prompt_optimize
+    config:
+      temperature: 0.7
+      max_tokens: 1024
+      max_workers: 4
+      show_progress: true
+    output_path: outputs/t2i_pai_stage1_prompts.jsonl
+
+  - stage: t2i_generate
+    config:
+      size: "1328*1328"
+      n: 1
+      max_workers: 3
+      show_progress: true
+      # Qwen-Image specific parameters
+      seed: 42
+      negative_prompt: ""
+      infer_steps: 50
+      cfg_scale: 4
+    output_path: outputs/t2i_pai_stage2_images.jsonl
+
+  - stage: t2i_eval
+    config:
+      max_workers: 4
+      show_progress: true
+    output_path: outputs/t2i_pai_stage3_evaluated.jsonl
+
+  - stage: quality_filter
+    config:
+      min_scores:
+        prompt_consistency: 6
+        aesthetic_quality: 5
+      keep_top_ratio: 0.8
+    output_path: outputs/t2i_pai_stage4_filtered.jsonl
+
+  - stage: build_t2i_sft
+    config: {}
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_sft_pai_diffusion_advanced.jsonl
+  prompt_key: prompt

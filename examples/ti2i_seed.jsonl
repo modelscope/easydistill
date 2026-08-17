@@ -1,0 +1,3 @@
+{"case_id": "ti2i-0001", "instruction": "把图中的天空替换为晚霞，保持其他内容不变", "before_image": "mm_sample_image.png", "after_image": "mm_sample_image.png"}
+{"case_id": "ti2i-0002", "instruction": "Remove the text watermark in the bottom-right corner and keep the rest of the image unchanged", "before_image": "mm_sample_image.png", "after_image": "mm_sample_image.png"}
+{"case_id": "ti2i-0003", "instruction": "将整体色调改为黑白，仅保留画面中心主体的原有颜色", "before_image": "mm_sample_image.png", "after_image": "mm_sample_image.png", "reference_images": ["mm_sample_image.png"]}

@@ -1,0 +1,13 @@
+### Question
+
+{problem}
+
+### Output Format (Strictly Enforced)
+
+<thinking>
+Clearly explain your reasoning step by step. Describe how you arrived at the conclusion.
+The reasoning process MUST BE enclosed within <thinking> </thinking> tags.
+</thinking>
+<answer>
+Your final answer to the user's question.
+</answer>

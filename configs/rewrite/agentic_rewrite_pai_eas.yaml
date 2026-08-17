@@ -1,0 +1,33 @@
+# Agentic prompt rewrite via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Each input prompt goes through a plan -> rewrite -> reflection teacher chain.
+# Rows run concurrently; the three steps within one row are sequential.
+job_type: agentic_rewrite
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B          # default model for all steps; adjust as needed
+  timeout: 120.0
+  max_retries: 3
+
+agentic_rewrite:
+  plan:
+    temperature: 0.3
+    max_tokens: 1024
+  rewrite:
+    scene_prompt_dir: configs/prompts/pe_rewrite
+    temperature: 0.7
+    max_tokens: 8192
+  reflection:
+    model_id: Qwen3.5-4B        # stronger checker; adjust to your deployed model
+    temperature: 0.3
+    max_tokens: 8192
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: outputs/seed_anchored_expanded_pai_eas.jsonl
+  instruction_key: instruction
+  output_path: outputs/agentic_rewritten_pai_eas.jsonl

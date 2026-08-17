@@ -1,0 +1,23 @@
+# Evaluate multi-modal instruction-following responses via PAI-EAS.
+job_type: mm_instruct_eval
+
+backend:
+  type: pai_eas
+  model_id: Qwen3.5-4B
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+
+eval:
+  prompts_file: configs/prompts/default_eval_prompts.yaml
+  metrics:
+    - informativeness
+    - helpfulness
+    - correctness
+  temperature: 0.0
+  max_tokens: 512
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: outputs/mm_instruct_distill_pai_eas.jsonl
+  output_path: outputs/mm_instruct_eval_pai_eas.jsonl

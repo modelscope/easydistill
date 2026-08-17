@@ -1,0 +1,4 @@
+{"id": "1", "prompt": "一只猫在月球表面缓慢行走，扬起细小的尘埃"}
+{"id": "2", "prompt": "赛博朋克城市夜景，镜头缓缓推进，霓虹灯在雨中闪烁", "resolution": "1080P", "ratio": "16:9"}
+{"id": "3", "prompt": "一朵花从含苞到盛开的延时摄影", "resolution": "auto"}
+{"id": "4", "prompt": "画面中的场景逐渐入夜，远处雷峰塔的灯光亮起", "first_frame_image": "examples/seed_t2v_first_frame.jpg"}

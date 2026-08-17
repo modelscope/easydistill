@@ -1,0 +1,24 @@
+# Standalone T2I prompt optimization via PAI-EAS.
+# Set EAS_ENDPOINT_URL and EAS_TOKEN env vars or fill them below.
+# Rewrites seed text prompts into rich, descriptive prompts for T2I models.
+
+job_type: prompt_optimize
+
+backend:
+  type: pai_eas
+  endpoint_url: ${EAS_ENDPOINT_URL}
+  token: ${EAS_TOKEN}
+  model_id: Qwen3.5-4B          # adjust to your deployed text model
+  timeout: 120.0
+  max_retries: 3
+
+prompt_optimize:
+  temperature: 0.7
+  max_tokens: 1024
+  max_workers: 4
+  show_progress: true
+
+dataset:
+  input_path: examples/seed_t2i_prompts.jsonl
+  output_path: outputs/t2i_prompt_optimized_pai_eas.jsonl
+  prompt_key: prompt
