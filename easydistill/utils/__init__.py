@@ -13,7 +13,14 @@
 # limitations under the License.
 # ==============================================================================
 
-from .config import expand_env_vars, load_config, load_expanded_config
+from .config import (
+    config_list,
+    config_number,
+    config_section,
+    expand_env_vars,
+    load_config,
+    load_expanded_config,
+)
 from .constants import (
     DEFAULT_MAX_TOKENS,
     DEFAULT_MAX_WORKERS,
@@ -60,6 +67,9 @@ __all__ = [
     "load_config",
     "load_expanded_config",
     "expand_env_vars",
+    "config_section",
+    "config_list",
+    "config_number",
     "validate_config",
     "progress",
     "is_image_url",

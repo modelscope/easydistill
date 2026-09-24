@@ -505,7 +505,13 @@ class AppConfig(BaseModel):
     pipeline: List[PipelineStageConfig] = Field(default_factory=list)
 
     # Jobs that run purely on local files, without any model backend.
-    _LOCAL_JOBS = frozenset({"pe_rewrite_filter", "pe_rewrite_build_sft"})
+    _LOCAL_JOBS = frozenset({
+        "pe_rewrite_filter",
+        "pe_rewrite_build_sft",
+        "system1_build_cases",
+        "system1_aggregate",
+        "system1_build_dataset",
+    })
 
     # Jobs that provide their own teacher pool for evaluation.
     _TEACHER_JOBS = frozenset({

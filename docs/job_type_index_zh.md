@@ -30,6 +30,7 @@
 | `pe_rewrite_distill` | Plan/rewrite/reflection → 裁判 → 过滤 → SFT，用于 prompt 改写。 | `configs/pipeline/pe_rewrite_distill_from_seeds_pai_token.yaml` | [pe_rewrite_zh.md](pe_rewrite_zh.md) |
 | `agent_distill` | 合成工具使用任务并构建 Agent 轨迹 SFT/DPO 数据。 | `configs/pipeline/agent_distill_pai_token.yaml`（SFT）或 `configs/pipeline/agent_distill_dpo_pai_token.yaml`（DPO） | [agent_distillation_zh.md](agent_distillation_zh.md) |
 | `search_agent_distill` | 将种子 QA 演化为多跳搜索任务并构建 SFT 数据。 | `configs/pipeline/search_agent_distill_pai_token.yaml` | [search_agent_distillation_zh.md](search_agent_distillation_zh.md) |
+| `system1_distill` | 构建类型化决策案例，获取教师分布，聚合并输出 RLCD 训练数据。 | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation_zh.md](system1_distillation_zh.md) |
 
 ## 偏好数据
 
@@ -58,6 +59,15 @@
 | `pe_rewrite_eval` | 使用多维 LLM 裁判为 prompt 改写打分。 | `configs/rewrite/pe_rewrite_eval_pai_token.yaml` | [pe_rewrite_zh.md](pe_rewrite_zh.md) |
 | `pe_rewrite_filter` | 按分数阈值与 top ratio 过滤已打分改写。 | `configs/rewrite/pe_rewrite_filter.yaml` | [pe_rewrite_zh.md](pe_rewrite_zh.md) |
 | `pe_rewrite_build_sft` | 从过滤后的改写构建 SFT 样本。 | `configs/rewrite/pe_rewrite_build_sft.yaml` | [pe_rewrite_zh.md](pe_rewrite_zh.md) |
+
+## System-1 蒸馏阶段
+
+| `job_type` | 用途 | 代表性配置 | 文档 |
+|---|---|---|---|
+| `system1_build_cases` | 从原始行 + schema 构建类型化决策案例行（本地，无 LLM）。 | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation_zh.md](system1_distillation_zh.md) |
+| `system1_elicit` | 为每个案例问题获取教师概率分布。 | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation_zh.md](system1_distillation_zh.md) |
+| `system1_aggregate` | 将获取样本聚合为教师标签（本地，无 LLM）。 | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation_zh.md](system1_distillation_zh.md) |
+| `system1_build_dataset` | 输出训练就绪案例行（本地，无 LLM）。 | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation_zh.md](system1_distillation_zh.md) |
 
 ## 评估算子
 

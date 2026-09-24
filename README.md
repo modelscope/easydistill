@@ -172,6 +172,16 @@ The `dpo_instruct_*` and `dpo_cot_*` names are config-file naming patterns; the 
 
 `dpo_instruct_*` 与 `dpo_cot_*` 是配置文件命名模式；实际 CLI `job_type` 始终为 `dpo_data_build`。在配置内通过 `dpo.task_type` 选择 `instruct` 或 `cot`。
 
+### System-1 distillation / System-1 蒸馏
+
+Elicit a teacher model's typed-decision probability distributions over decision options for each case, aggregate the samples into soft labels, and emit RLCD training data for a student model's decision head. The four stages (`build_cases`, `elicit`, `aggregate`, `build_dataset`) support stage-level resume; the `elicit` stage additionally supports row-level checkpointing. The `labeled` variant skips `elicit`/`aggregate` and passes gold labels through directly. A shipped training entry (`examples/system1_train_entry.py`) fine-tunes Laya's typed-decision head on the output dataset with GRPO-style policy gradients.
+
+为每个案例获取教师模型在决策选项上的类型化概率分布，将样本聚合为软标签，输出用于学生模型决策头的 RLCD 训练数据。四个阶段（`build_cases`、`elicit`、`aggregate`、`build_dataset`）支持阶段级续跑；`elicit` 阶段还支持行级 checkpoint。`labeled` 变体跳过 `elicit`/`aggregate`，直接透传 gold 标签。自带训练入口（`examples/system1_train_entry.py`）以 GRPO 式策略梯度在输出数据集上微调 Laya 的类型化决策头。
+
+| `job_type` | Config | Input example / 输入示例 | Docs |
+|---|---|---|---|
+| `system1_distill` | `configs/system1/system1_distill_pai_token.yaml` · `configs/system1/system1_distill_pai_eas.yaml` | `examples/system1_sms_raw.jsonl` | [EN](docs/system1_distillation.md) · [中文](docs/system1_distillation_zh.md) |
+
 ### Evaluation / 评估
 
 Score existing datasets with LLM/VLM judges, without regenerating them. / 使用 LLM/VLM 裁判为已有数据集打分，无需重新生成。
@@ -194,6 +204,7 @@ Every pipeline stage is also exposed as a standalone `job_type` for debugging, r
 | T2I stages / 文生图阶段 | `prompt_optimize`, `t2i_generation`, `t2i_single_model_eval`, `t2i_multi_model_eval`, `ti2i_single_model_eval`, `ti2i_multi_model_eval`, `t2i_eval` | `configs/t2i/prompt_optimize_pai_token.yaml` | [t2i_distillation.md](docs/t2i_distillation.md), [t2i_ti2i_eval.md](docs/t2i_ti2i_eval.md) |
 | T2V stages / 文生视频阶段 | `t2v_prompt_optimize`, `t2v_generation`, `t2v_eval` | `configs/basic/t2v_distill_pai_token.yaml` | [t2v_distillation.md](docs/t2v_distillation.md) |
 | Evaluation / 评估 | `instruct_eval`, `cot_eval`, `mm_instruct_eval`, `mm_cot_eval` | `configs/eval/instruct_eval_pai_token.yaml` | [data_formats.md](docs/data_formats.md) |
+| System-1 stages / System-1 阶段 | `system1_build_cases`, `system1_elicit`, `system1_aggregate`, `system1_build_dataset` | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](docs/system1_distillation.md) |
 
 A complete `job_type → config → doc` matrix is available in [docs/job_type_index.md](docs/job_type_index.md) / [docs/job_type_index_zh.md](docs/job_type_index_zh.md).
 
@@ -282,6 +293,7 @@ configs/           # Example configs for each backend and workflow / 各后端�
   preference/      # Preference distillation configs / 偏好蒸馏配置
   prompts/         # Prompt templates and eval prompt collections / 提示词模板与裁判提示词集合
   rewrite/         # Rewrite operator configs / 重写算子配置
+  system1/         # System-1 distillation configs / System-1 蒸馏配置
 examples/          # Seed instruction and problem examples / 种子指令与问题示例
 docs/              # Documentation / 文档
 tests/             # Unit and smoke tests / 单元与冒烟测试

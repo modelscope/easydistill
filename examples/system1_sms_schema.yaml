@@ -1,0 +1,9 @@
+# Flat two-option schema for the SMS walkthrough. `type` defaults to
+# "choice" and `label_field` to "label"; hierarchical scenarios
+# (banking77 style) declare `groups:` instead of `options:`.
+name: sms_spam
+question: spam
+instructions: "Classify the SMS message."
+options:
+  spam: "Unsolicited commercial or fraudulent message"
+  ham: "Legitimate personal, service, or transactional message"

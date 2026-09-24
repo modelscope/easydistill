@@ -26,6 +26,7 @@ from .mm_distillation import MMDistillationPipeline
 from .pe_rewrite_distill import PERewriteDistillPipeline
 from .preference_distillation import PreferenceDistillationPipeline
 from .search_agent_distill import SearchAgentDistillationPipeline
+from .system1_distillation import System1DistillationPipeline
 from .t2i_distillation import T2IDistillationPipeline
 from .t2v_distillation import T2VDistillationPipeline
 
@@ -43,4 +44,5 @@ __all__ = [
     "T2VDistillationPipeline",
     "AgentDistillationPipeline",
     "SearchAgentDistillationPipeline",
+    "System1DistillationPipeline",
 ]

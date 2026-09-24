@@ -40,6 +40,13 @@ from .pipeline import (
 )
 from .preference import run_dpo_data_build
 from .synthesis import run_synthesis
+from .system1 import (
+    run_system1_aggregate,
+    run_system1_build_cases,
+    run_system1_build_dataset,
+    run_system1_distill,
+    run_system1_elicit,
+)
 from .t2i import (
     run_advanced_t2i_distill,
     run_prompt_optimize,
@@ -102,4 +109,9 @@ __all__ = [
     "run_advanced_t2v_distill",
     "run_agent_distill",
     "run_search_agent_distill",
+    "run_system1_distill",
+    "run_system1_build_cases",
+    "run_system1_elicit",
+    "run_system1_aggregate",
+    "run_system1_build_dataset",
 ]

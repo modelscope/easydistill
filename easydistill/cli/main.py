@@ -54,6 +54,11 @@ from .runners import (
     run_prompt_optimize,
     run_search_agent_distill,
     run_synthesis,
+    run_system1_aggregate,
+    run_system1_build_cases,
+    run_system1_build_dataset,
+    run_system1_distill,
+    run_system1_elicit,
     run_t2i_distill,
     run_t2i_eval,
     run_t2i_generation,
@@ -126,6 +131,11 @@ _JOB_DISPATCH: Dict[str, Callable[[str], None]] = {
     "advanced_t2v_distill": run_advanced_t2v_distill,
     "agent_distill": run_agent_distill,
     "search_agent_distill": run_search_agent_distill,
+    "system1_distill": run_system1_distill,
+    "system1_build_cases": run_system1_build_cases,
+    "system1_elicit": run_system1_elicit,
+    "system1_aggregate": run_system1_aggregate,
+    "system1_build_dataset": run_system1_build_dataset,
 }
 
 # Human-readable descriptions for CLI discovery.
@@ -214,6 +224,18 @@ _JOB_DESCRIPTIONS: Dict[str, str] = {
         "Evolve seed QA into multi-hop search tasks, roll out search-agent "
         "trajectories, and build SFT training data."
     ),
+    "system1_distill": (
+        "Build typed-decision cases, elicit teacher distributions, "
+        "aggregate, and emit RLCD training data."
+    ),
+    "system1_build_cases": (
+        "Build typed-decision case rows from raw rows and a schema (local, no LLM)."
+    ),
+    "system1_elicit": "Elicit teacher probability distributions for every case question.",
+    "system1_aggregate": (
+        "Aggregate elicitation records into teacher labels (local, no LLM)."
+    ),
+    "system1_build_dataset": "Emit RLCD training-ready case rows (local, no LLM).",
 }
 
 

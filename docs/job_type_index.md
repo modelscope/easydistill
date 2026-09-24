@@ -30,6 +30,7 @@ For an interactive list, run `easydistill --list-jobs`.
 | `pe_rewrite_distill` | Plan/rewrite/reflection → judge → filter → SFT for prompt rewriting. | `configs/pipeline/pe_rewrite_distill_from_seeds_pai_token.yaml` | [pe_rewrite.md](pe_rewrite.md) |
 | `agent_distill` | Synthesize tool-use tasks and build agent trajectory SFT/DPO data. | `configs/pipeline/agent_distill_pai_token.yaml` (SFT) or `configs/pipeline/agent_distill_dpo_pai_token.yaml` (DPO) | [agent_distillation.md](agent_distillation.md) |
 | `search_agent_distill` | Evolve seed QA into multi-hop search tasks and build SFT data. | `configs/pipeline/search_agent_distill_pai_token.yaml` | [search_agent_distillation.md](search_agent_distillation.md) |
+| `system1_distill` | Build typed-decision cases, elicit teacher distributions, aggregate, and emit RLCD training data. | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](system1_distillation.md) |
 
 ## Preference data
 
@@ -58,6 +59,15 @@ For an interactive list, run `easydistill --list-jobs`.
 | `pe_rewrite_eval` | Score prompt rewrites with a multi-dimension LLM judge. | `configs/rewrite/pe_rewrite_eval_pai_token.yaml` | [pe_rewrite.md](pe_rewrite.md) |
 | `pe_rewrite_filter` | Filter judged rewrites by score thresholds and top ratio. | `configs/rewrite/pe_rewrite_filter.yaml` | [pe_rewrite.md](pe_rewrite.md) |
 | `pe_rewrite_build_sft` | Build SFT samples from filtered rewrites. | `configs/rewrite/pe_rewrite_build_sft.yaml` | [pe_rewrite.md](pe_rewrite.md) |
+
+## System-1 distillation stages
+
+| `job_type` | Purpose | Representative config | Documentation |
+|---|---|---|---|
+| `system1_build_cases` | Build typed-decision case rows from raw rows + schema (local, no LLM). | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](system1_distillation.md) |
+| `system1_elicit` | Elicit teacher probability distributions for every case question. | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](system1_distillation.md) |
+| `system1_aggregate` | Aggregate elicitation samples into teacher labels (local, no LLM). | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](system1_distillation.md) |
+| `system1_build_dataset` | Emit training-ready case rows (local, no LLM). | `configs/system1/system1_distill_pai_token.yaml` | [system1_distillation.md](system1_distillation.md) |
 
 ## Evaluation operators
 

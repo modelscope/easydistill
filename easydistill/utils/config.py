@@ -20,7 +20,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, Match
+from typing import Any, Dict, List, Match, Optional, TypeVar, Union, cast
 
 import yaml
 
@@ -87,6 +87,88 @@ def validate_config_paths(config: Dict[str, Any]) -> None:
             stage_obj = Path(stage_output)
             if stage_obj.exists() and stage_obj.is_dir():
                 raise ValueError(f"Stage output path is a directory: {stage_output}")
+
+
+def coerce_int(value: Any) -> Optional[int]:
+    """Return *value* as an int, or ``None`` when it is not usable as a count."""
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        try:
+            return int(text, 10)
+        except ValueError:
+            pass
+        try:
+            return int(float(text))
+        except ValueError:
+            return None
+    return None
+
+
+def coerce_float(value: Any) -> Optional[float]:
+    """Return *value* as a float, or ``None`` when it is not a number."""
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+_Num = TypeVar("_Num", int, float)
+
+
+def config_number(cfg: Any, key: str, default: _Num, *, where: str) -> _Num:
+    """Read a numeric config field without letting a typo kill the caller."""
+    raw = cfg.get(key, default) if isinstance(cfg, dict) else default
+    value: Optional[Union[int, float]] = (
+        coerce_int(raw) if isinstance(default, int) else coerce_float(raw)
+    )
+    if value is None:
+        logger.warning(
+            "%s.%s = %r is not a number; using %r instead.",
+            where, key, raw, default,
+        )
+        return default
+    return cast(_Num, value)
+
+
+def config_list(config: Any, key: str, *, where: str) -> List[Any]:
+    """Return ``config[key]`` as a list, tolerating the shapes humans write."""
+    if not isinstance(config, dict):
+        return []
+    value = config.get(key)
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple)):
+        return list(value)
+    if isinstance(value, (str, int, float, bool)):
+        logger.warning(
+            "%s.%s = %r is a single value, not a list; reading it as one entry.",
+            where, key, value,
+        )
+        return [value]
+    logger.warning("%s.%s = %r cannot be read as a list; ignoring it.", where, key, value)
+    return []
+
+
+def config_section(config: Any, key: str) -> Dict[str, Any]:
+    """Return ``config[key]`` as a dict, falling back to ``{}`` for anything else.
+
+    YAML maps a key written with no value to ``None``, not ``{}``; this helper
+    keeps the usual ``config.get(key, {}).get(...)`` chain safe against that.
+    """
+    if not isinstance(config, dict):
+        return {}
+    value = config.get(key)
+    return value if isinstance(value, dict) else {}
 
 
 def load_expanded_config(path: str) -> Dict[str, Any]:
