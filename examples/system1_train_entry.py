@@ -35,6 +35,7 @@ Requires the laya research package (model, tokenizer, and training utilities).
 
 import argparse
 import json
+import math
 import os
 import random
 import subprocess
@@ -236,7 +237,7 @@ def train(args: argparse.Namespace) -> None:
         {"params": head_params, "lr": LR_HEAD}
     ], weight_decay=0.01)
 
-    total_updates = (len(my_items) // (MICRO_BATCH * GRAD_ACCUM)) * EPOCHS
+    total_updates = math.ceil(len(my_items) / (MICRO_BATCH * GRAD_ACCUM)) * EPOCHS
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=max(1, total_updates), eta_min=1e-6
     )

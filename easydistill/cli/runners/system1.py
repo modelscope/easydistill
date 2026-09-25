@@ -235,10 +235,12 @@ def run_system1_distill(config_path: str) -> None:
     resume_cfg = system1_cfg.get("resume")
     resume = True if resume_cfg is None else bool(resume_cfg)
 
-    backend = build_backend(cfg["backend"])
+    needs_backend = any(stage.get("stage") == "elicit" for stage in stages)
+    backend = build_backend(cfg["backend"]) if needs_backend else None
     try:
-        if any(stage.get("stage") == "elicit" for stage in stages):
+        if needs_backend:
             check_backend_health(backend)
         _run_pipeline(cfg, system1_cfg, stages, dataset_cfg, backend, resume)
     finally:
-        close_backends(backend)
+        if backend is not None:
+            close_backends(backend)

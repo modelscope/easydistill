@@ -525,6 +525,12 @@ class AppConfig(BaseModel):
     def _require_some_backend(self) -> "AppConfig":
         if self.job_type in self._LOCAL_JOBS:
             return self
+        # system1_distill with variant=labeled skips elicit/aggregate (local-only).
+        if self.job_type == "system1_distill":
+            extra = self.__pydantic_extra__ or {}
+            system1_cfg = extra.get("system1")
+            if isinstance(system1_cfg, dict) and system1_cfg.get("variant") == "labeled":
+                return self
         if self.job_type in self._TEACHER_JOBS:
             if not self.teachers:
                 raise ValueError(
