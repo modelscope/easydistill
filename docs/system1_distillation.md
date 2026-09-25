@@ -196,6 +196,8 @@ Each question gets K=4 teacher samples. Each sample is a separate API call with 
   "sample": 0,
   "ok": true,
   "probabilities": {"spam": 0.0, "ham": 1.0},
+  "pick": null,
+  "analysis": null,
   "model": "qwen3.7-max",
   "usage": {
     "prompt_tokens": 126,
@@ -207,7 +209,9 @@ Each question gets K=4 teacher samples. Each sample is a separate API call with 
 }
 ```
 
-All 4 samples for this row returned `{"spam": 0.0, "ham": 1.0}` — the teacher consistently and correctly identified this as ham. The `elicitations` field is added to each case row:
+`pick` holds the single chosen option for the `k_sample_freq` method (instead of `probabilities`); `analysis` carries the two-stage method's first-stage text. Both are `null` for `k_verbalized_mean`.
+
+All 4 samples for this row returned `{"spam": 0.0, "ham": 1.0}` — the teacher consistently and correctly identified this as ham. The `elicitations` field is added to each case row (the stage output keeps one row per case):
 
 ```json
 {

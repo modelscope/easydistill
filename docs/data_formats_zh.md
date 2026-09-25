@@ -524,11 +524,13 @@ SFT 行的 system 消息为分语言的学生改写指令。裁判分数与 `age
 
 #### `system1_elicit` 输出
 
-每个教师采样一行，主键为 `{case_id}|{question_id}|{sample_index}`；每个案例行还会附加 `elicitations` 摘要（`method`、`model`、`samples`）：
+每个案例一行，行内 `elicitations` 字典将每个问题 id 映射到 `{method, model, samples}`。每个采样记录主键为 `{case_id}|{question_id}|{sample_index}`，携带解析后的 `probabilities`（`k_sample_freq` 方法下为 `pick`）、two_stage 方法存在时的第一段 `analysis` 文本，以及 `model`、`usage`、`errors`：
 
 ```jsonl
-{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late..."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "source": {"id": "sms-001", "label": "ham", "text": "..."}, "elicitations": {"spam": {"method": "k_verbalized_mean", "model": "qwen3.7-max", "samples": [{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "pick": null, "analysis": null, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}]}}}
 ```
+
+行级续跑使用内部 `output_path.partial` checkpoint（每个采样一条记录），中断的 elicit 运行不会对已完成的采样重复计费。
 
 #### `system1_aggregate` 输出
 

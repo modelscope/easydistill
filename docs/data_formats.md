@@ -524,11 +524,13 @@ Case rows: the raw `label` is expanded into a one-hot gold distribution, `state`
 
 #### `system1_elicit` output
 
-One row per teacher sample, keyed `{case_id}|{question_id}|{sample_index}`; an `elicitations` summary (`method`, `model`, `samples`) is also attached to each case row:
+One row per case, with an `elicitations` dict mapping each question id to `{method, model, samples}`. Each sample record is keyed `{case_id}|{question_id}|{sample_index}` and carries the parsed `probabilities` (or `pick` for `k_sample_freq`), the two-stage `analysis` text when present, plus `model`, `usage`, and `errors`:
 
 ```jsonl
-{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late..."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "source": {"id": "sms-001", "label": "ham", "text": "..."}, "elicitations": {"spam": {"method": "k_verbalized_mean", "model": "qwen3.7-max", "samples": [{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "pick": null, "analysis": null, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}]}}}
 ```
+
+Row-level resume uses an internal `output_path.partial` checkpoint holding one record per sample, so interrupted elicit runs do not re-bill finished samples.
 
 #### `system1_aggregate` output
 

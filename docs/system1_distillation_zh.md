@@ -196,6 +196,8 @@ pipeline:
   "sample": 0,
   "ok": true,
   "probabilities": {"spam": 0.0, "ham": 1.0},
+  "pick": null,
+  "analysis": null,
   "model": "qwen3.7-max",
   "usage": {
     "prompt_tokens": 126,
@@ -207,7 +209,9 @@ pipeline:
 }
 ```
 
-此行的全部 4 个样本均返回 `{"spam": 0.0, "ham": 1.0}` — 教师一致且正确地判定为 ham。`elicitations` 字段被添加到每个案例行：
+`pick` 在 `k_sample_freq` 方法下保存单选选项（替代 `probabilities`）；`analysis` 携带 two_stage 方法的第一阶段文本。两者在 `k_verbalized_mean` 下均为 `null`。
+
+此行的全部 4 个样本均返回 `{"spam": 0.0, "ham": 1.0}` — 教师一致且正确地判定为 ham。`elicitations` 字段被添加到每个案例行（阶段输出保持每个案例一行）：
 
 ```json
 {
