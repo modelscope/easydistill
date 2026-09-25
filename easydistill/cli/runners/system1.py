@@ -119,15 +119,16 @@ def _effective_stages(
     config cannot override a system1-level ``variant: labeled`` (which
     would make build_dataset expect a teacher payload that doesn't exist).
     """
-    result = list(stages)
+    result = [{**stage} for stage in stages]
     if variant == "labeled":
         result = [
             stage for stage in result if stage.get("stage") not in ("elicit", "aggregate")
         ]
     for stage in result:
         if stage.get("stage") == "build_dataset":
-            config = stage.setdefault("config", {})
-            config["variant"] = variant
+            stage_config = dict(stage.get("config") or {})
+            stage_config["variant"] = variant
+            stage["config"] = stage_config
     return result
 
 
@@ -232,6 +233,36 @@ def run_system1_build_dataset(config_path: str) -> None:
     )
 
 
+def _run_labeled_local(
+    cfg: Dict[str, Any],
+    system1_cfg: Dict[str, Any],
+    stages: List[Dict[str, Any]],
+    dataset_cfg: Dict[str, Any],
+    resume: bool,
+) -> None:
+    """Run the labeled (gold-passthrough) flow without a teacher backend."""
+    from easydistill.utils import load_dataset_rows, save_jsonl
+
+    source, trimmed = _apply_resume_plan(_configured_stages(stages), resume)
+    data = load_dataset_rows(source) if source else load_dataset_rows(dataset_cfg["input_path"])
+    for stage in trimmed:
+        stage_name = stage["stage"]
+        stage_config = {**system1_cfg, **(stage.get("config") or {})}
+        output_path = stage.get("output_path")
+        if stage_name == "build_cases":
+            data = System1BuildCasesOperator(config=stage_config).run(data)
+        elif stage_name == "build_dataset":
+            data = System1BuildDatasetOperator(config=stage_config).run(data)
+        else:
+            raise ValueError(f"Unexpected stage {stage_name!r} in labeled flow")
+        if output_path:
+            save_jsonl(output_path, data)
+    final_output_path = dataset_cfg.get("output_path")
+    if final_output_path:
+        save_jsonl(final_output_path, data)
+        logger.info("Pipeline finished. Saved final dataset to %s.", final_output_path)
+
+
 def run_system1_distill(config_path: str) -> None:
     """Run the system-1 distillation pipeline from a config file."""
     cfg = load_expanded_config(config_path)
@@ -247,11 +278,14 @@ def run_system1_distill(config_path: str) -> None:
     resume = True if resume_cfg is None else bool(resume_cfg)
 
     needs_backend = any(stage.get("stage") == "elicit" for stage in stages)
-    backend = build_backend(cfg["backend"]) if needs_backend else None
+    if not needs_backend and cfg.get("backend") is None:
+        _run_labeled_local(cfg, system1_cfg, stages, dataset_cfg, resume)
+        return
+
+    backend = build_backend(cfg["backend"])
     try:
         if needs_backend:
             check_backend_health(backend)
         _run_pipeline(cfg, system1_cfg, stages, dataset_cfg, backend, resume)
     finally:
-        if backend is not None:
-            close_backends(backend)
+        close_backends(backend)

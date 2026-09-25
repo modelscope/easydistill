@@ -356,9 +356,9 @@ def train(args: argparse.Namespace) -> None:
                         cb["qtype"].to(device)
                     )
                 l_np = l_sub.float().cpu().numpy()
-                for r, it in enumerate(c_chunk):
+                for idx, it in enumerate(c_chunk):
                     k = len(it["markers"])
-                    calib_preds.append((it["qtype"], l_np[r, :k], it["target"]))
+                    calib_preds.append((it["qtype"], l_np[idx, :k], it["target"]))
 
         fitted_temps = [1.2, 1.2, 1.2]
         try:
