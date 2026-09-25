@@ -136,12 +136,12 @@ pipeline:
 |---|---|---|
 | `system1.schema_path` | — | Schema YAML 路径。 |
 | `system1.variant` | `distill` | `labeled`：直通 gold 标签（不调教师）。`distill`：纯教师标签。`mixed`：gold 与教师 alpha 混合。 |
-| `system1.method` | `single_verbalized` | 获取方法。`single_verbalized`：1 次调用，T=0。`k_sample_freq`：K 次调用，频率聚合。`k_verbalized_mean`：K 次调用，言语化概率均值（推荐）。`two_stage`：粗筛再细判。 |
-| `system1.samples` | 1 / 16 / 4 | K — 每问教师样本数（随方法不同）。 |
-| `system1.temperature` | 0 / 0.7 | 教师调用采样温度。 |
+| `system1.method` | `k_verbalized_mean` | 获取方法。`single_verbalized`：1 次调用，T=0。`k_sample_freq`：K 次调用，频率聚合。`k_verbalized_mean`：K 次调用，言语化概率均值（推荐）。`two_stage`：粗筛再细判。 |
+| `system1.samples` | 1 / 16 / 4 / 4 | K — 每问教师样本数（随方法不同：single / k_sample_freq / k_verbalized_mean / two_stage）。 |
+| `system1.temperature` | 0 / 0.7 / 0.7 / 0.7 | 教师调用采样温度（随方法不同）。 |
 | `system1.max_tokens` | 2048 | 每次教师响应最大 token 数。 |
-| `system1.max_workers` | 8 | elicit 阶段并发 API 调用数。 |
-| `system1.seed` | 7 | 选项打乱随机种子。 |
+| `system1.max_workers` | 1 | elicit 阶段并发 API 调用数（自带配置使用 8）。 |
+| `system1.seed` | 随机 | 选项打乱随机种子（自带配置使用 7）。 |
 | `system1.shuffle_options` | `true` | 每次调用打乱选项序以消除教师位置偏差。 |
 | `system1.resume` | `true` | 阶段级续跑（跳过输出已存在的阶段）+ elicit 行级 checkpoint。 |
 | `system1.consistency_threshold` | 0.6 | 跨样本 top-1 一致率低于此阈值的问题被丢弃。 |

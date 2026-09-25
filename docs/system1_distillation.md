@@ -136,12 +136,12 @@ pipeline:
 |---|---|---|
 | `system1.schema_path` | — | Path to the schema YAML. |
 | `system1.variant` | `distill` | `labeled`: pass through gold labels (no teacher). `distill`: pure teacher labels. `mixed`: alpha-blend of gold and teacher. |
-| `system1.method` | `single_verbalized` | Elicitation method. `single_verbalized`: 1 call, T=0. `k_sample_freq`: K calls, frequency aggregation. `k_verbalized_mean`: K calls, mean of verbalized probabilities (recommended). `two_stage`: coarse-then-fine. |
-| `system1.samples` | 1 (single) / 16 (k_sample_freq) / 4 (k_verbalized_mean) | K — number of teacher samples per question. |
-| `system1.temperature` | 0 (single) / 0.7 (k_*) | Sampling temperature for teacher calls. |
+| `system1.method` | `k_verbalized_mean` | Elicitation method. `single_verbalized`: 1 call, T=0. `k_sample_freq`: K calls, frequency aggregation. `k_verbalized_mean`: K calls, mean of verbalized probabilities (recommended). `two_stage`: coarse-then-fine. |
+| `system1.samples` | 1 / 16 / 4 / 4 | K — number of teacher samples per question (per method: single / k_sample_freq / k_verbalized_mean / two_stage). |
+| `system1.temperature` | 0 / 0.7 / 0.7 / 0.7 | Sampling temperature for teacher calls (per method). |
 | `system1.max_tokens` | 2048 | Max tokens per teacher response. |
-| `system1.max_workers` | 8 | Concurrent API calls during elicit. |
-| `system1.seed` | 7 | Random seed for option shuffling. |
+| `system1.max_workers` | 1 | Concurrent API calls during elicit (shipped config uses 8). |
+| `system1.seed` | random | Random seed for option shuffling (shipped config uses 7). |
 | `system1.shuffle_options` | `true` | Shuffle option order per call to cancel teacher position bias. |
 | `system1.resume` | `true` | Stage-level resume (skip stages whose output exists) + row-level checkpointing in elicit. |
 | `system1.consistency_threshold` | 0.6 | Drop questions whose top-1 consistency across samples is below this threshold. |
