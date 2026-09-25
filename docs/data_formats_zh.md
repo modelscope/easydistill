@@ -499,3 +499,49 @@ SFT 行的 system 消息为分语言的学生改写指令。裁判分数与 `age
   "metadata": {"source": "teacher_model", "model": "pipeline", "request_id": "0", "scene": "structured_diagram", "language": "zh", "source_seed_id": "pe_seed_001", "round": 0, "topic": "..."}
 }
 ```
+
+### System-1 蒸馏格式
+
+类型化决策蒸馏格式，适用于 `system1_distill` 流水线及其独立阶段，以自带的 `sms_spam` 工作流为例（完整的分阶段实战 I/O 见 [system1_distillation_zh.md](system1_distillation_zh.md)）。
+
+#### 原始案例行
+
+`system1_distill` / `system1_build_cases` 的输入（见 `examples/system1_sms_raw.jsonl`）。`id` 与 schema 的 `label_field`（默认 `label`）为保留字段；其余字段全部进入案例 `state`。也可提供预构建的 `questions` 字典，问题将原样透传：
+
+```jsonl
+{"id": "sms-001", "label": "ham", "text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}
+```
+
+配套的 schema YAML（见 `examples/system1_sms_schema.yaml`）声明工作流：`name`、`question`、`instructions`、扁平 `options` 或层级 `groups`，以及可选的 `type`（`choice` / `score` / `noul`）、`label_field`、`id_field`。
+
+#### `system1_build_cases` 输出
+
+案例行：原始 `label` 被展开为 one-hot gold 分布，`state` 由其余字段自动推导，原始行保留在 `source` 中：
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "source": {"id": "sms-001", "label": "ham", "text": "Hey, running late..."}}
+```
+
+#### `system1_elicit` 输出
+
+每个教师采样一行，主键为 `{case_id}|{question_id}|{sample_index}`；每个案例行还会附加 `elicitations` 摘要（`method`、`model`、`samples`）：
+
+```jsonl
+{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}
+```
+
+#### `system1_aggregate` 输出
+
+带每问题 `teacher` 标签的案例行：经收缩正则化的 `probabilities`、argmax `label`、`consistency`（采样间 top-1 一致率）、采样计数，以及 gold 散度诊断（`gold_tv` 总变差、`gold_kl` KL 散度）：
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "..."}, "questions": {"...": "..."}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "teacher": {"spam": {"ok": true, "method": "k_verbalized_mean", "model": "qwen3.7-max", "probabilities": {"spam": 0.0098, "ham": 0.9902}, "label": "ham", "consistency": 1.0, "samples_used": 4, "samples_failed": 0, "gold_tv": 0.0098, "gold_kl": 0.0099}}}
+```
+
+#### `system1_build_dataset` 输出
+
+供 Laya 类型化决策头使用的 RLCD 训练行：中间字段被丢弃，`gold` 被重构为 `examples/system1_train_entry.py` 消费的嵌套 `probabilities` + `label` 格式：
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"probabilities": {"spam": 0.0098, "ham": 0.9902}, "label": "ham"}}}
+```

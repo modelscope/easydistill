@@ -499,3 +499,49 @@ SFT rows whose system message is the per-language student rewrite instruction. J
   "metadata": {"source": "teacher_model", "model": "pipeline", "request_id": "0", "scene": "structured_diagram", "language": "zh", "source_seed_id": "pe_seed_001", "round": 0, "topic": "..."}
 }
 ```
+
+### System-1 distillation formats
+
+Typed-decision distillation formats for the `system1_distill` pipeline and its standalone stages, shown for the shipped `sms_spam` workflow (see [system1_distillation.md](system1_distillation.md) for the full stage-by-stage walkthrough with live I/O).
+
+#### Raw case rows
+
+Input for `system1_distill` / `system1_build_cases` (see `examples/system1_sms_raw.jsonl`). `id` and the schema's `label_field` (default `label`) are reserved; all other fields become the case `state`. A pre-built `questions` dict may be supplied to pass questions through as-is:
+
+```jsonl
+{"id": "sms-001", "label": "ham", "text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}
+```
+
+A companion schema YAML (see `examples/system1_sms_schema.yaml`) declares the workflow: `name`, `question`, `instructions`, flat `options` or hierarchical `groups`, and optional `type` (`choice` / `score` / `noul`), `label_field`, `id_field`.
+
+#### `system1_build_cases` output
+
+Case rows: the raw `label` is expanded into a one-hot gold distribution, `state` is auto-derived from the remaining fields, and the original row is preserved in `source`:
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "source": {"id": "sms-001", "label": "ham", "text": "Hey, running late..."}}
+```
+
+#### `system1_elicit` output
+
+One row per teacher sample, keyed `{case_id}|{question_id}|{sample_index}`; an `elicitations` summary (`method`, `model`, `samples`) is also attached to each case row:
+
+```jsonl
+{"id": "sms-001|spam|0", "question_id": "spam", "sample": 0, "ok": true, "probabilities": {"spam": 0.0, "ham": 1.0}, "model": "qwen3.7-max", "usage": {"prompt_tokens": 126, "completion_tokens": 175, "total_tokens": 301, "completion_tokens_details": {"reasoning_tokens": 150}}, "errors": []}
+```
+
+#### `system1_aggregate` output
+
+Case rows with a per-question `teacher` label: shrinkage-regularized `probabilities`, argmax `label`, `consistency` (top-1 agreement across samples), sample counts, and gold divergence diagnostics (`gold_tv` total variation, `gold_kl` KL divergence):
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "..."}, "questions": {"...": "..."}, "gold": {"spam": {"spam": 0.0, "ham": 1.0}}, "teacher": {"spam": {"ok": true, "method": "k_verbalized_mean", "model": "qwen3.7-max", "probabilities": {"spam": 0.0098, "ham": 0.9902}, "label": "ham", "consistency": 1.0, "samples_used": 4, "samples_failed": 0, "gold_tv": 0.0098, "gold_kl": 0.0099}}}
+```
+
+#### `system1_build_dataset` output
+
+RLCD training rows for the Laya typed-decision head: intermediate fields are dropped and `gold` is restructured into the nested `probabilities` + `label` format consumed by `examples/system1_train_entry.py`:
+
+```jsonl
+{"id": "sms-001", "workflow": "sms_spam", "state": {"text": "Hey, running late. Grab a table for 7:30 and I will meet you there."}, "questions": {"spam": {"type": "choice", "instructions": "Classify the SMS message.", "criteria": {"spam": "Unsolicited commercial or fraudulent message", "ham": "Legitimate personal, service, or transactional message"}}}, "gold": {"spam": {"probabilities": {"spam": 0.0098, "ham": 0.9902}, "label": "ham"}}}
+```

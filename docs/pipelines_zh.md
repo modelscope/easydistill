@@ -17,6 +17,7 @@ EasyDistill 2 提供多个端到端流水线 job_type。每个流水线将多个
 | `advanced_t2i_distill` | 优化 prompt、生成图片、使用 VLM 裁判评估、过滤并构建多模态 SFT 数据集。 | `configs/t2i/advanced_t2i_distill_wanx.yaml`<br>`configs/t2i/advanced_t2i_distill_qwen_image.yaml`<br>`configs/t2i/advanced_t2i_distill_pai_diffusion.yaml` |
 | `advanced_t2v_distill` | 优化 prompt（抽取 → 组合）、生成视频（T2V/I2V）、评估（VLM / omni / VBench）、过滤并构建多模态 SFT 数据集。支持阶段级断点续跑。 | `configs/pipeline/advanced_t2v_distill_pai_token.yaml`<br>`configs/pipeline/advanced_t2v_distill_pai_eas.yaml` |
 | `pe_rewrite_distill` | 扩展种子 prompt，经 plan/rewrite/reflection 教师 Agent 链改写，裁判、过滤并构建 prompt 改写 SFT 数据集。 | `configs/pipeline/pe_rewrite_distill_from_seeds_pai_token.yaml` |
+| `system1_distill` | 构建类型化决策案例，获取教师概率分布，聚合为软标签，输出 RLCD 训练数据用于决策头学生模型。 | `configs/system1/system1_distill_pai_token.yaml` |
 
 ## 通用结构
 

@@ -17,6 +17,7 @@ For the JSONL schemas used by each stage, see [data_formats.md](data_formats.md)
 | `advanced_t2i_distill` | Optimize prompts, generate images, evaluate with a VLM judge, filter, and build a multi-modal SFT dataset. | `configs/t2i/advanced_t2i_distill_wanx.yaml`<br>`configs/t2i/advanced_t2i_distill_qwen_image.yaml`<br>`configs/t2i/advanced_t2i_distill_pai_diffusion.yaml` |
 | `advanced_t2v_distill` | Optimize prompts (extract → compose), generate videos (T2V/I2V), evaluate (VLM / omni / VBench), filter, and build a multi-modal SFT dataset. Supports per-stage resume. | `configs/pipeline/advanced_t2v_distill_pai_token.yaml`<br>`configs/pipeline/advanced_t2v_distill_pai_eas.yaml` |
 | `pe_rewrite_distill` | Expand seed prompts, rewrite them via a plan/rewrite/reflection teacher agent, judge, filter, and build a prompt-rewriting SFT dataset. | `configs/pipeline/pe_rewrite_distill_from_seeds_pai_token.yaml` |
+| `system1_distill` | Build typed-decision cases, elicit teacher probability distributions, aggregate into soft labels, and emit RLCD training data for a decision-head student model. | `configs/system1/system1_distill_pai_token.yaml` |
 
 ## Common structure
 

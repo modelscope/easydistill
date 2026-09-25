@@ -329,8 +329,36 @@ swift dpo \
 - For CoT preference data, verify that the answer extractor correctly identifies the final answer before building pairs.
 - DPO is sensitive to hyperparameters. If training becomes unstable, reduce the learning rate or increase the effective batch size.
 
+## System-1 distillation training data
+
+System-1 distillation produces **RLCD** (Reinforcement Learning from Contrastive Distillation) training data, not the standard SFT `messages` format. Each row is a typed-decision case:
+
+```json
+{
+  "id": "sms-001",
+  "workflow": "sms_spam",
+  "state": {"text": "Hey, running late."},
+  "questions": {
+    "spam": {
+      "type": "choice",
+      "instructions": "Classify the SMS message.",
+      "criteria": {"spam": "Unsolicited...", "ham": "Legitimate..."}
+    }
+  },
+  "gold": {
+    "spam": {
+      "probabilities": {"spam": 0.01, "ham": 0.99},
+      "label": "ham"
+    }
+  }
+}
+```
+
+This format is consumed by the Laya typed-decision training entry (`examples/system1_train_entry.py`), which uses GRPO-style policy gradients with soft cross-entropy guidance — not LLaMA-Factory or ms-swift. See [system1_distillation.md](system1_distillation.md) for the full pipeline and training instructions.
+
 ## Next steps
 
 - See [instruction_distillation.md](instruction_distillation.md) and [cot_distillation.md](cot_distillation.md) for how to produce SFT data.
 - See [dpo_distillation.md](dpo_distillation.md) for how to produce DPO preference data.
+- See [system1_distillation.md](system1_distillation.md) for how to produce RLCD training data for typed-decision distillation.
 - Refer to the LLaMA-Factory and ms-swift documentation for framework-specific options and distributed training setups.

@@ -329,8 +329,36 @@ swift dpo \
 - 对于 CoT 偏好数据，请先验证答案提取器能正确识别最终答案，再构建偏好对。
 - DPO 对学习率敏感。若训练不稳定，可降低学习率或增大等效 batch size。
 
+## System-1 蒸馏训练数据
+
+System-1 蒸馏产出的是 **RLCD**（基于对比蒸馏的强化学习）训练数据，而非标准 SFT `messages` 格式。每一行是一个类型化决策案例：
+
+```json
+{
+  "id": "sms-001",
+  "workflow": "sms_spam",
+  "state": {"text": "Hey, running late."},
+  "questions": {
+    "spam": {
+      "type": "choice",
+      "instructions": "Classify the SMS message.",
+      "criteria": {"spam": "Unsolicited...", "ham": "Legitimate..."}
+    }
+  },
+  "gold": {
+    "spam": {
+      "probabilities": {"spam": 0.01, "ham": 0.99},
+      "label": "ham"
+    }
+  }
+}
+```
+
+该格式由 Laya 类型化决策训练入口（`examples/system1_train_entry.py`）消费，采用 GRPO 式策略梯度加软交叉熵引导——不经过 LLaMA-Factory 或 ms-swift。完整流水线与训练说明见 [system1_distillation_zh.md](system1_distillation_zh.md)。
+
 ## 下一步
 
 - 参考 [instruction_distillation_zh.md](instruction_distillation_zh.md) 和 [cot_distillation_zh.md](cot_distillation_zh.md) 了解如何生成 SFT 数据。
 - 参考 [dpo_distillation_zh.md](dpo_distillation_zh.md) 了解如何生成 DPO 偏好数据。
+- 参考 [system1_distillation_zh.md](system1_distillation_zh.md) 了解如何生成类型化决策蒸馏的 RLCD 训练数据。
 - 查阅 LLaMA-Factory 与 ms-swift 官方文档，获取更多框架特定选项与分布式训练配置。
