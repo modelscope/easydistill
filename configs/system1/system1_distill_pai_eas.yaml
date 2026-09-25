@@ -49,6 +49,4 @@ pipeline:
     output_path: outputs/system1_labels_sms_pai_eas.jsonl
 
   - stage: build_dataset
-    config:
-      variant: distill
     output_path: outputs/system1_train_sms_pai_eas.jsonl

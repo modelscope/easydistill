@@ -112,12 +112,23 @@ def _effective_stages(
     stages: List[Dict[str, Any]],
     variant: str,
 ) -> List[Dict[str, Any]]:
-    """Drop the teacher-dependent stages for the gold-passthrough variant."""
+    """Drop the teacher-dependent stages for the gold-passthrough variant.
+
+    Also forces ``build_dataset``'s stage-level ``variant`` to match the
+    system1-level variant, so a stale ``variant: distill`` in the stage
+    config cannot override a system1-level ``variant: labeled`` (which
+    would make build_dataset expect a teacher payload that doesn't exist).
+    """
+    result = list(stages)
     if variant == "labeled":
-        return [
-            stage for stage in stages if stage.get("stage") not in ("elicit", "aggregate")
+        result = [
+            stage for stage in result if stage.get("stage") not in ("elicit", "aggregate")
         ]
-    return list(stages)
+    for stage in result:
+        if stage.get("stage") == "build_dataset":
+            config = stage.setdefault("config", {})
+            config["variant"] = variant
+    return result
 
 
 def _run_pipeline(
